@@ -51,6 +51,11 @@
                         <ui:SymbolIcon Symbol="Save24" />
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
+                <ui:NavigationViewItem Content="{loc:Tr Nav_Verify}" TargetPageType="{x:Type pages:VerifyPage}">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="ShieldTask24" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
             </ui:NavigationView.MenuItems>
             <ui:NavigationView.FooterMenuItems>
                 <ui:NavigationViewItem Content="{loc:Tr Nav_Settings}" TargetPageType="{x:Type pages:SettingsPage}">

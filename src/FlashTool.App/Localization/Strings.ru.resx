@@ -8,6 +8,29 @@
   <data name="Nav_Write" xml:space="preserve"><value>Запись образа</value></data>
   <data name="Nav_Read" xml:space="preserve"><value>Создание образа</value></data>
   <data name="Nav_Settings" xml:space="preserve"><value>Настройки</value></data>
+  <data name="Nav_Verify" xml:space="preserve"><value>Проверка</value></data>
+  <data name="Verify_Header" xml:space="preserve"><value>Сравнение образа с носителем</value></data>
+  <data name="Verify_DeviceTitle" xml:space="preserve"><value>Проверяемый носитель</value></data>
+  <data name="Verify_MethodTitle" xml:space="preserve"><value>Побайтовое сравнение</value></data>
+  <data name="Verify_MethodText" xml:space="preserve"><value>Каждый байт образа сравнивается с носителем. Носитель читается напрямую, в обход кеша Windows, поэтому данные действительно берутся с носителя; архивы распаковываются на лету. Дополнительно вычисляется SHA-256 обеих сторон.</value></data>
+  <data name="Verify_Start" xml:space="preserve"><value>Проверить</value></data>
+  <data name="Verify_Identical" xml:space="preserve"><value>Носитель полностью совпадает с образом</value></data>
+  <data name="Verify_IdenticalDetails" xml:space="preserve"><value>Побайтно сравнено {0} за {1}.</value></data>
+  <data name="Verify_Different" xml:space="preserve"><value>Носитель отличается от образа</value></data>
+  <data name="Verify_DifferentDetails" xml:space="preserve"><value>Отличается {0} из {1}, участков: {2}.</value></data>
+  <data name="Verify_ExpandNote" xml:space="preserve"><value>Если после записи последний раздел расширялся, отличия в таблице разделов и в служебных данных файловой системы этого раздела ожидаемы.</value></data>
+  <data name="Verify_Failed" xml:space="preserve"><value>Ошибка проверки</value></data>
+  <data name="Verify_ReportTitle" xml:space="preserve"><value>Отчёт</value></data>
+  <data name="Verify_ImageHash" xml:space="preserve"><value>SHA-256 образа</value></data>
+  <data name="Verify_DeviceHash" xml:space="preserve"><value>SHA-256 носителя (тот же объём)</value></data>
+  <data name="Verify_Differences" xml:space="preserve"><value>Отличающиеся участки</value></data>
+  <data name="Verify_Offset" xml:space="preserve"><value>Смещение</value></data>
+  <data name="Verify_Length" xml:space="preserve"><value>Длина</value></data>
+  <data name="Verify_Area" xml:space="preserve"><value>Расположение</value></data>
+  <data name="Verify_MoreRanges" xml:space="preserve"><value>Показаны первые {0} из {1} участков.</value></data>
+  <data name="Area_PartitionTable" xml:space="preserve"><value>Таблица разделов</value></data>
+  <data name="Area_Partition" xml:space="preserve"><value>Раздел {0}</value></data>
+  <data name="Area_Unpartitioned" xml:space="preserve"><value>Вне разделов</value></data>
   <data name="Write_Header" xml:space="preserve"><value>Запись образа на носитель</value></data>
   <data name="Write_SourceTitle" xml:space="preserve"><value>Образ</value></data>
   <data name="Write_SourceHint" xml:space="preserve"><value>Файл образа или ссылка (img, iso, zip, xz, 7z, gz)</value></data>

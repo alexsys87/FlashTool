@@ -1,0 +1,120 @@
+<UserControl
+    x:Class="FlashTool.App.Views.Controls.ImageSourcePanel"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:loc="clr-namespace:FlashTool.App.Localization"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    AllowDrop="True"
+    DragOver="OnDragOver"
+    Drop="OnDrop">
+    <!-- DataContext: ImageSourceViewModel. File, archive or URL plus the inspection of its contents. -->
+    <StackPanel>
+        <TextBlock Style="{StaticResource SectionTitle}" Text="{loc:Tr Write_SourceTitle}" />
+        <ui:Card>
+            <StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <ui:TextBox
+                        Icon="{ui:SymbolIcon Globe24}"
+                        PlaceholderText="{loc:Tr Write_SourceHint}"
+                        Text="{Binding SourceText, UpdateSourceTrigger=PropertyChanged}">
+                        <ui:TextBox.InputBindings>
+                            <KeyBinding Key="Enter" Command="{Binding LoadSourceCommand}" />
+                        </ui:TextBox.InputBindings>
+                    </ui:TextBox>
+                    <ui:Button Grid.Column="1" Margin="8,0,0,0" Command="{Binding LoadSourceCommand}" Content="{loc:Tr Write_Load}" Icon="{ui:SymbolIcon ArrowRight24}" />
+                    <ui:Button Grid.Column="2" Margin="8,0,0,0" Command="{Binding BrowseCommand}" Content="{loc:Tr Write_Browse}" Icon="{ui:SymbolIcon FolderOpen24}" />
+                </Grid>
+
+                <StackPanel Margin="0,12,0,0" Orientation="Horizontal" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}">
+                    <ui:ProgressRing Width="16" Height="16" IsIndeterminate="True" />
+                    <TextBlock Margin="8,0,0,0" Style="{StaticResource SecondaryText}" Text="{loc:Tr Write_Loading}" />
+                </StackPanel>
+
+                <ui:InfoBar
+                    Margin="0,12,0,0"
+                    IsClosable="False"
+                    IsOpen="True"
+                    Message="{Binding SourceError}"
+                    Severity="Error"
+                    Visibility="{Binding SourceError, Converter={StaticResource NullToVisibility}}" />
+
+                <!-- Opened image -->
+                <StackPanel Margin="0,12,0,0" Visibility="{Binding HasSource, Converter={StaticResource BoolToVisibility}}">
+                    <StackPanel Visibility="{Binding HasSeveralEntries, Converter={StaticResource BoolToVisibility}}">
+                        <TextBlock Margin="0,0,0,4" Style="{StaticResource SecondaryText}" Text="{loc:Tr Write_EntryLabel}" />
+                        <ComboBox
+                            DisplayMemberPath="DisplayText"
+                            ItemsSource="{Binding Entries}"
+                            SelectedItem="{Binding SelectedEntry}" />
+                        <TextBlock Margin="0,4,0,8" Style="{StaticResource SecondaryText}" Text="{Binding EntriesSummary}" />
+                    </StackPanel>
+
+                    <Grid DataContext="{Binding SelectedEntry}" Visibility="{Binding Converter={StaticResource NullToVisibility}}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Margin="0,2,16,2" Style="{StaticResource SecondaryText}" Text="{loc:Tr Image_Type}" />
+                        <TextBlock Grid.Column="1" Margin="0,2" Text="{Binding KindText}" />
+                        <TextBlock Grid.Row="1" Margin="0,2,16,2" Style="{StaticResource SecondaryText}" Text="{loc:Tr Image_Size}" />
+                        <TextBlock Grid.Row="1" Grid.Column="1" Margin="0,2" Text="{Binding SizeText}" />
+                        <TextBlock Grid.Row="2" Margin="0,2,16,2" Style="{StaticResource SecondaryText}" Text="{loc:Tr Image_Format}" />
+                        <TextBlock Grid.Row="2" Grid.Column="1" Margin="0,2" Text="{Binding DataContext.FormatText, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+
+                        <DataGrid
+                            Grid.Row="3"
+                            Grid.ColumnSpan="2"
+                            Margin="0,8,0,0"
+                            AutoGenerateColumns="False"
+                            CanUserAddRows="False"
+                            HeadersVisibility="Column"
+                            IsReadOnly="True"
+                            ItemsSource="{Binding Partitions}"
+                            Visibility="{Binding IsDiskImage, Converter={StaticResource BoolToVisibility}}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Binding="{Binding Number}" Header="#" />
+                                <DataGridTextColumn Width="*" Binding="{Binding Type}" Header="{loc:Tr Image_Type}" />
+                                <DataGridTextColumn Binding="{Binding FileSystem}" Header="FS" />
+                                <DataGridTextColumn Binding="{Binding Name}" Header="" />
+                                <DataGridTextColumn Binding="{Binding Size}" Header="{loc:Tr Image_Size}" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+
+                    <ui:InfoBar
+                        Margin="0,12,0,0"
+                        IsClosable="False"
+                        IsOpen="True"
+                        Message="{loc:Tr Image_IsoWarning}"
+                        Severity="Warning"
+                        Visibility="{Binding SelectedEntry.IsNonHybridIso, Converter={StaticResource BoolToVisibility}, FallbackValue=Collapsed}" />
+                    <ui:InfoBar
+                        Margin="0,12,0,0"
+                        IsClosable="False"
+                        IsOpen="True"
+                        Message="{loc:Tr Image_NotImageWarning}"
+                        Severity="Warning"
+                        Visibility="{Binding SelectedEntry.IsUnknown, Converter={StaticResource BoolToVisibility}, FallbackValue=Collapsed}" />
+                    <ui:InfoBar
+                        Margin="0,12,0,0"
+                        IsClosable="False"
+                        IsOpen="True"
+                        Message="{loc:Tr Image_Remote}"
+                        Severity="Informational"
+                        Visibility="{Binding IsRemote, Converter={StaticResource BoolToVisibility}}" />
+                </StackPanel>
+            </StackPanel>
+        </ui:Card>
+    </StackPanel>
+</UserControl>

@@ -46,8 +46,8 @@ public partial class App : Application
         if (e.Args.Length > 0)
         {
             var write = _services.GetRequiredService<WritePageViewModel>();
-            write.SourceText = e.Args[0];
-            _ = write.LoadSourceAsync();
+            write.Image.SourceText = e.Args[0];
+            _ = write.Image.LoadSourceAsync();
         }
     }
 
@@ -94,11 +94,15 @@ public partial class App : Application
         services.AddSingleton<IContentDialogService, ContentDialogService>();
         services.AddSingleton<DialogService>();
 
+        // Every page that picks an image gets its own picker state.
+        services.AddTransient<ImageSourceViewModel>();
         services.AddSingleton<WritePageViewModel>();
+        services.AddSingleton<VerifyPageViewModel>();
         services.AddSingleton<ReadPageViewModel>();
         services.AddSingleton<SettingsPageViewModel>();
         services.AddSingleton<WritePage>();
         services.AddSingleton<ReadPage>();
+        services.AddSingleton<VerifyPage>();
         services.AddSingleton<SettingsPage>();
         services.AddSingleton<MainWindow>();
 

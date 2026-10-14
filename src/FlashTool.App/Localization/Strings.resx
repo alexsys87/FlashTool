@@ -8,6 +8,29 @@
   <data name="Nav_Write" xml:space="preserve"><value>Write image</value></data>
   <data name="Nav_Read" xml:space="preserve"><value>Create image</value></data>
   <data name="Nav_Settings" xml:space="preserve"><value>Settings</value></data>
+  <data name="Nav_Verify" xml:space="preserve"><value>Verify</value></data>
+  <data name="Verify_Header" xml:space="preserve"><value>Compare an image with a device</value></data>
+  <data name="Verify_DeviceTitle" xml:space="preserve"><value>Device to check</value></data>
+  <data name="Verify_MethodTitle" xml:space="preserve"><value>Byte-by-byte comparison</value></data>
+  <data name="Verify_MethodText" xml:space="preserve"><value>Every byte of the image is compared with the device. The device is read directly, bypassing the Windows cache, so the data really comes from the media; archives are unpacked on the fly. SHA-256 of both sides is calculated as well.</value></data>
+  <data name="Verify_Start" xml:space="preserve"><value>Verify</value></data>
+  <data name="Verify_Identical" xml:space="preserve"><value>The device matches the image</value></data>
+  <data name="Verify_IdenticalDetails" xml:space="preserve"><value>{0} compared byte by byte in {1}.</value></data>
+  <data name="Verify_Different" xml:space="preserve"><value>The device differs from the image</value></data>
+  <data name="Verify_DifferentDetails" xml:space="preserve"><value>{0} of {1} differ, in {2} areas.</value></data>
+  <data name="Verify_ExpandNote" xml:space="preserve"><value>If the last partition was expanded after writing, differences in the partition table and in that partition's file system metadata are expected.</value></data>
+  <data name="Verify_Failed" xml:space="preserve"><value>Verification failed</value></data>
+  <data name="Verify_ReportTitle" xml:space="preserve"><value>Report</value></data>
+  <data name="Verify_ImageHash" xml:space="preserve"><value>SHA-256 of the image</value></data>
+  <data name="Verify_DeviceHash" xml:space="preserve"><value>SHA-256 of the device (same length)</value></data>
+  <data name="Verify_Differences" xml:space="preserve"><value>Differing areas</value></data>
+  <data name="Verify_Offset" xml:space="preserve"><value>Offset</value></data>
+  <data name="Verify_Length" xml:space="preserve"><value>Length</value></data>
+  <data name="Verify_Area" xml:space="preserve"><value>Location</value></data>
+  <data name="Verify_MoreRanges" xml:space="preserve"><value>Only the first {0} of {1} areas are listed.</value></data>
+  <data name="Area_PartitionTable" xml:space="preserve"><value>Partition table</value></data>
+  <data name="Area_Partition" xml:space="preserve"><value>Partition {0}</value></data>
+  <data name="Area_Unpartitioned" xml:space="preserve"><value>Outside partitions</value></data>
   <data name="Write_Header" xml:space="preserve"><value>Write an image to a device</value></data>
   <data name="Write_SourceTitle" xml:space="preserve"><value>Image</value></data>
   <data name="Write_SourceHint" xml:space="preserve"><value>Image file or URL (img, iso, zip, xz, 7z, gz)</value></data>
