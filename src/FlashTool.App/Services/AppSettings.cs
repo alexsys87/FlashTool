@@ -40,4 +40,43 @@ public sealed class AppSettings
     public string? LastImageFolder { get; set; }
 
     public string? LastSaveFolder { get; set; }
+
+    public WindowPlacement? Window { get; set; }
+
+    /// <summary>Type name of the last opened page.</summary>
+    public string? LastPage { get; set; }
+
+    public bool NavigationPaneOpen { get; set; } = true;
+
+    public ImageSelection WriteSelection { get; set; } = new();
+
+    public ImageSelection VerifySelection { get; set; } = new();
+
+    public string? ReadDeviceKey { get; set; }
+
+    public string? ReadDestination { get; set; }
+}
+
+/// <summary>Main window bounds (in the "normal" state) and whether it was maximized.</summary>
+public sealed class WindowPlacement
+{
+    public double Left { get; set; }
+
+    public double Top { get; set; }
+
+    public double Width { get; set; }
+
+    public double Height { get; set; }
+
+    public bool Maximized { get; set; }
+}
+
+/// <summary>What a page had selected: the image (path or URL), the file inside it and the device.</summary>
+public sealed class ImageSelection
+{
+    public string? Source { get; set; }
+
+    public string? Entry { get; set; }
+
+    public string? DeviceKey { get; set; }
 }

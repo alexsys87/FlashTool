@@ -18,6 +18,8 @@ public sealed partial class ReadPageViewModel : LocalizedViewModel
 {
     private readonly ContainerRegistry _registry;
     private readonly IDiskManager _diskManager;
+    private readonly IoErrorPrompt _ioErrors;
+    private readonly RememberedDevice? _rememberedDevice;
     private readonly SettingsService _settings;
     private readonly DialogService _dialogs;
     private ImageInfo? _deviceLayout;
@@ -44,10 +46,12 @@ public sealed partial class ReadPageViewModel : LocalizedViewModel
         SettingsService settings,
         DialogService dialogs,
         DeviceListService devices,
-        OperationState operation)
+        OperationState operation,
+        IoErrorPrompt ioErrors)
     {
         _registry = registry;
         _diskManager = diskManager;
+        _ioErrors = ioErrors;
         _settings = settings;
         _dialogs = dialogs;
         Devices = devices;
@@ -62,6 +66,19 @@ public sealed partial class ReadPageViewModel : LocalizedViewModel
         Compressions = Enum.GetValues<CompressionPreset>()
             .Select(p => new LocalizedOption<CompressionPreset>(p, $"Compression_{p}"))
             .ToList();
+
+        _destinationPath = settings.Settings.ReadDestination ?? string.Empty;
+        _rememberedDevice = new RememberedDevice(
+            devices,
+            () => settings.Settings.ReadDeviceKey,
+            key =>
+            {
+                settings.Settings.ReadDeviceKey = key;
+                settings.Save();
+            },
+            () => SelectedDevice,
+            d => SelectedDevice = d,
+            d => d.CanBeRead);
 
         _selectedFormat = Formats.FirstOrDefault(f => f.Value == settings.Settings.ReadFormat) ?? Formats[0];
         _selectedCompression = Compressions.FirstOrDefault(c => c.Value == settings.Settings.ReadCompression) ?? Compressions[2];
@@ -143,8 +160,15 @@ public sealed partial class ReadPageViewModel : LocalizedViewModel
         }
     }
 
+    partial void OnDestinationPathChanged(string value)
+    {
+        _settings.Settings.ReadDestination = value;
+        _settings.Save();
+    }
+
     partial void OnSelectedDeviceChanged(DeviceItemViewModel? value)
     {
+        _rememberedDevice?.OnSelectionChanged(value);
         _deviceLayout = null;
         _layoutError = null;
         OnPropertyChanged(nameof(LayoutText));
@@ -262,6 +286,7 @@ public sealed partial class ReadPageViewModel : LocalizedViewModel
             OnlyAllocatedPartitions = OnlyAllocatedPartitions,
             Format = SelectedFormat.Value,
             Compression = new CompressionSettings(SelectedCompression.Value),
+            IoRetry = _ioErrors.Policy,
         };
 
         var token = Operation.Begin();

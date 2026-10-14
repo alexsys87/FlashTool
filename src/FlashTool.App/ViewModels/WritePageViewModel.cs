@@ -16,6 +16,8 @@ namespace FlashTool.App.ViewModels;
 public sealed partial class WritePageViewModel : LocalizedViewModel
 {
     private readonly IDiskManager _diskManager;
+    private readonly IoErrorPrompt _ioErrors;
+    private readonly RememberedDevice? _rememberedDevice;
     private readonly SettingsService _settings;
     private readonly DialogService _dialogs;
 
@@ -30,10 +32,12 @@ public sealed partial class WritePageViewModel : LocalizedViewModel
         SettingsService settings,
         DialogService dialogs,
         DeviceListService devices,
-        OperationState operation)
+        OperationState operation,
+        IoErrorPrompt ioErrors)
     {
         Image = image;
         _diskManager = diskManager;
+        _ioErrors = ioErrors;
         _settings = settings;
         _dialogs = dialogs;
         Devices = devices;
@@ -41,7 +45,31 @@ public sealed partial class WritePageViewModel : LocalizedViewModel
         Operation.PropertyChanged += OnOperationChanged;
         Image.Loading += (_, _) => Result.Hide();
         Image.PropertyChanged += OnImageChanged;
+
+        var selection = settings.Settings.WriteSelection;
+        Image.SelectionChanged += (_, _) =>
+        {
+            selection.Source = Image.LoadedSource;
+            selection.Entry = Image.SelectedEntry?.Name;
+            settings.Save();
+        };
+        _rememberedDevice = new RememberedDevice(
+            devices,
+            () => selection.DeviceKey,
+            key =>
+            {
+                selection.DeviceKey = key;
+                settings.Save();
+            },
+            () => SelectedDevice,
+            d => SelectedDevice = d,
+            d => d.CanBeWritten);
     }
+
+    /// <summary>Reopens the image used last time.</summary>
+    public Task RestoreAsync() => Image.RestoreAsync(_settings.Settings.WriteSelection.Source, _settings.Settings.WriteSelection.Entry);
+
+    partial void OnSelectedDeviceChanged(DeviceItemViewModel? value) => _rememberedDevice?.OnSelectionChanged(value);
 
     /// <summary>The image to write.</summary>
     public ImageSourceViewModel Image { get; }
@@ -119,6 +147,7 @@ public sealed partial class WritePageViewModel : LocalizedViewModel
             ExpandLastPartition = ExpandLastPartition,
             RequireRecognizedImage = requireImage,
             FileSystemResizers = [new Ext4Resizer(), new NtfsVolumeExtender(device.Info.Number)],
+            IoRetry = _ioErrors.Policy,
         };
 
         var token = Operation.Begin();

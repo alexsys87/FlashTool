@@ -22,6 +22,9 @@ public sealed record ReadImageOptions
     public int ChunkSize { get; init; } = 4 * 1024 * 1024;
 
     public int PipelineDepth { get; init; } = 8;
+
+    /// <summary>Retries of failed device reads/writes (bad sectors, timeouts).</summary>
+    public IoRetryPolicy IoRetry { get; init; } = IoRetryPolicy.Default;
 }
 
 public sealed record ReadImageResult(
@@ -58,7 +61,10 @@ public static class ReadImageOperation
             throw new FlashToolException(FlashErrorCode.ContainerBackendUnavailable, $"Cannot create {handler.Format} files.", null, handler.Format.ToString());
         }
 
-        using var device = await Task.Run(openSource, cancellationToken).ConfigureAwait(false);
+        using var device = new ResilientBlockDevice(
+            await Task.Run(openSource, cancellationToken).ConfigureAwait(false),
+            options.IoRetry,
+            cancellationToken);
         var headLength = (int)Math.Min(ImageInspector.HeadSize, StreamExtensions.AlignDown(device.Length, device.SectorSize));
         var head = device.ReadBytes(0, headLength) ?? [];
         var image = ImageInspector.Inspect(head, (o, c) => device.ReadBytes(o, c));

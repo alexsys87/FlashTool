@@ -60,6 +60,12 @@ public sealed partial class ImageSourceViewModel : LocalizedViewModel
     /// <summary>Raised when a new image starts loading (pages hide their last result).</summary>
     public event EventHandler? Loading;
 
+    /// <summary>Raised when an image was opened or another file inside it was chosen (to persist the choice).</summary>
+    public event EventHandler? SelectionChanged;
+
+    /// <summary>The path/URL of the currently opened image.</summary>
+    public string? LoadedSource { get; private set; }
+
     /// <summary>The opened container, null while nothing is loaded.</summary>
     public IImageContainer? Container { get; private set; }
 
@@ -147,6 +153,7 @@ public sealed partial class ImageSourceViewModel : LocalizedViewModel
             OnPropertyChanged(nameof(HasSeveralEntries));
 
             await ProbeEntriesAsync(container, cts.Token);
+            LoadedSource = input;
             SelectedEntry = Entries.FirstOrDefault(e => e.IsDiskImage) ?? Entries.FirstOrDefault(e => ContainerNaming.HasImageExtension(e.Name)) ?? Entries[0];
             OnPropertyChanged(nameof(EntriesSummary));
         }
@@ -232,8 +239,42 @@ public sealed partial class ImageSourceViewModel : LocalizedViewModel
         return ImageInspector.Inspect(head);
     }
 
+    /// <summary>
+    /// Restores a previously used image. Local files are opened again; URLs are
+    /// only put into the box so nothing is downloaded without the user asking.
+    /// </summary>
+    public async Task RestoreAsync(string? source, string? entryName)
+    {
+        if (string.IsNullOrWhiteSpace(source) || HasSource || IsLoading)
+        {
+            return;
+        }
+
+        SourceText = source;
+        if (!File.Exists(source))
+        {
+            return;
+        }
+
+        await LoadSourceAsync();
+        var entry = Entries.FirstOrDefault(e => e.Name == entryName);
+        if (entry != null)
+        {
+            SelectedEntry = entry;
+        }
+    }
+
+    partial void OnSelectedEntryChanged(ImageEntryViewModel? value)
+    {
+        if (value != null && LoadedSource != null)
+        {
+            SelectionChanged?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
     private void CloseSource()
     {
+        LoadedSource = null;
         SelectedEntry = null;
         Entries.Clear();
         Container?.Dispose();

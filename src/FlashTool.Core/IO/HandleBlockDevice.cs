@@ -51,7 +51,7 @@ public class HandleBlockDevice : IBlockDevice
         return new HandleBlockDevice(handle, RandomAccess.GetLength(handle), sectorSize, writable);
     }
 
-    public void Read(long offset, Span<byte> buffer)
+    public virtual void Read(long offset, Span<byte> buffer)
     {
         ThrowIfDisposed();
         CheckRange(offset, buffer.Length);
@@ -68,7 +68,7 @@ public class HandleBlockDevice : IBlockDevice
         }
     }
 
-    public void Write(long offset, ReadOnlySpan<byte> buffer)
+    public virtual void Write(long offset, ReadOnlySpan<byte> buffer)
     {
         ThrowIfDisposed();
         if (!CanWrite)

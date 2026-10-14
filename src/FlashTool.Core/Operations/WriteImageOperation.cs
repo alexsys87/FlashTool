@@ -21,6 +21,9 @@ public sealed record WriteImageOptions
 
     public int PipelineDepth { get; init; } = 8;
 
+    /// <summary>Retries of failed device reads/writes (bad sectors, timeouts).</summary>
+    public IoRetryPolicy IoRetry { get; init; } = IoRetryPolicy.Default;
+
     public IReadOnlyList<IFileSystemResizer> FileSystemResizers { get; init; } = [];
 }
 
@@ -61,7 +64,10 @@ public static class WriteImageOperation
             throw new FlashToolException(FlashErrorCode.NotADiskImage, $"'{entry.Name}' is not a recognized disk image.", null, entry.Name);
         }
 
-        var device = await Task.Run(openTarget, cancellationToken).ConfigureAwait(false);
+        var device = new ResilientBlockDevice(
+            await Task.Run(openTarget, cancellationToken).ConfigureAwait(false),
+            options.IoRetry,
+            cancellationToken);
         long written;
         PartitionFixupResult? fixups = null;
         try
