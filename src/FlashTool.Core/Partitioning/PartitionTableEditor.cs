@@ -30,6 +30,9 @@ public sealed record PartitionFixupResult
 
     public bool FileSystemResized { get; init; }
 
+    /// <summary>Set when growing the file system failed (the partition itself was extended).</summary>
+    public string? FileSystemResizeError { get; init; }
+
     public PartitionFixupSkipReason SkipReason { get; init; }
 }
 
@@ -245,11 +248,17 @@ public static class PartitionTableEditor
         grown = grown with { FileSystem = head != null ? FileSystemProbe.Detect(head) : FileSystemType.Unknown };
         result = result with { Partition = grown };
 
-        var resizer = resizers?.FirstOrDefault(r => r.CanResize(grown.FileSystem));
+        var resizer = resizers?.FirstOrDefault(r => r.RequiresOfflineDevice && r.CanResize(grown.FileSystem));
         if (resizer != null)
         {
-            resizer.Resize(device, grown, ct);
-            result = result with { FileSystemResized = true };
+            try
+            {
+                result = result with { FileSystemResized = resizer.Resize(device, grown, ct) };
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                result = result with { FileSystemResizeError = ex.Message };
+            }
         }
 
         return result;
