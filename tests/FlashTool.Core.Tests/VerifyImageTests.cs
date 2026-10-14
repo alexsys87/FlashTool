@@ -102,6 +102,68 @@ public class VerifyImageTests
         container.Dispose();
     }
 
+    [Fact]
+    public async Task First_difference_is_reported_while_the_comparison_is_still_running()
+    {
+        using var dir = new TempDir();
+        var image = TestImages.CreateMbrImage(secondPartitionSectors: 20000);
+        var container = await CreateContainer(dir, image, "image.img");
+        var device = (byte[])image.Clone();
+        device[100_000] ^= 0xFF;
+        device[^10] ^= 0xFF;
+        File.WriteAllBytes(dir.File("device.bin"), device);
+
+        var updates = new List<VerifyDifferences>();
+        const int chunk = 64 * 1024;
+        var result = await VerifyImageOperation.RunAsync(
+            container,
+            container.Entries[0],
+            () => HandleBlockDevice.OpenFile(dir.File("device.bin"), writable: false),
+            new VerifyImageOptions { ChunkSize = chunk, DifferencesFound = new ListProgress<VerifyDifferences>(updates), DifferenceReportInterval = TimeSpan.Zero },
+            null,
+            CancellationToken.None);
+
+        // The first mismatch is announced from the chunk that contains it, long before the end.
+        var first = updates[0];
+        Assert.Equal(2 * chunk, first.ComparedUpTo);
+        Assert.Equal(1, first.RangeCount);
+        Assert.Equal(1, first.DifferentBytes);
+        Assert.Equal(100_000, first.Ranges[0].Offset);
+
+        var last = updates[^1];
+        Assert.Equal(result.DifferenceRangeCount, last.RangeCount);
+        Assert.Equal(result.Ranges, last.Ranges);
+        container.Dispose();
+    }
+
+    [Fact]
+    public async Task Identical_device_reports_no_differences_while_running()
+    {
+        using var dir = new TempDir();
+        var image = TestImages.CreateMbrImage();
+        var container = await CreateContainer(dir, image, "image.img");
+        File.WriteAllBytes(dir.File("device.bin"), image);
+        var updates = new List<VerifyDifferences>();
+
+        var result = await VerifyImageOperation.RunAsync(
+            container,
+            container.Entries[0],
+            () => HandleBlockDevice.OpenFile(dir.File("device.bin"), writable: false),
+            new VerifyImageOptions { ChunkSize = 64 * 1024, DifferencesFound = new ListProgress<VerifyDifferences>(updates) },
+            null,
+            CancellationToken.None);
+
+        Assert.True(result.Identical);
+        Assert.Empty(updates);
+        container.Dispose();
+    }
+
+    /// <summary>Records reports synchronously, in order.</summary>
+    private sealed class ListProgress<T>(List<T> items) : IProgress<T>
+    {
+        public void Report(T value) => items.Add(value);
+    }
+
     private static Task<VerifyImageResult> Verify(IImageContainer container, string device, int chunk = 4 * 1024 * 1024)
         => VerifyImageOperation.RunAsync(
             container,
