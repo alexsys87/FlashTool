@@ -20,13 +20,13 @@ $database = $installer.OpenDatabase($msi, 0)
 function Get-MsiValue([string]$Query) {
     $view = $database.OpenView($Query)
     try {
-        $view.Execute()
+        [void]$view.Execute()
         $record = $view.Fetch()
         if ($null -eq $record) { return $null }
         try { return $record.StringData(1) }
         finally { [void][Runtime.InteropServices.Marshal]::FinalReleaseComObject($record) }
     } finally {
-        $view.Close()
+        [void]$view.Close()
         [void][Runtime.InteropServices.Marshal]::FinalReleaseComObject($view)
     }
 }
@@ -37,7 +37,9 @@ try {
             throw "Missing MSI wizard dialog: $dialog"
         }
     }
-    if ((Get-MsiValue 'SELECT `Value` FROM `Property` WHERE `Property` = ''WIXUI_INSTALLDIR''') -ne 'INSTALLFOLDER') {
+    $installDirBinding = Get-MsiValue 'SELECT `Value` FROM `Property` WHERE `Property` = ''WIXUI_INSTALLDIR'''
+    Write-Host "MSI directory binding: $($installDirBinding | ConvertTo-Json -Compress)"
+    if ($installDirBinding -ne 'INSTALLFOLDER') {
         throw 'The directory selection dialog is not bound to INSTALLFOLDER.'
     }
     if ((Get-MsiValue 'SELECT `Argument` FROM `ControlEvent` WHERE `Dialog_` = ''WelcomeDlg'' AND `Control_` = ''Next'' AND `Event` = ''NewDialog'' AND `Condition` = ''NOT Installed'' ORDER BY `Ordering` DESC') -ne 'InstallDirDlg') {
