@@ -4,38 +4,86 @@ on:
   push:
     branches: [ main ]
   pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   build:
+    name: WPF .NET ${{ matrix.dotnet }} / Windows x64 / MSI
     runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        dotnet: ['8', '10']
+    defaults:
+      run:
+        shell: pwsh
     steps:
       - uses: actions/checkout@v5
 
+      # global.json selects SDK 10; SDK 8 also supplies the runtime for net8 tests.
       - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: |
             8.0.x
             10.0.x
 
-      - name: Build
-        run: dotnet build FlashTool.sln -c Release
+      - name: Build WPF
+        run: dotnet build src/FlashTool.App -c Release -f net${{ matrix.dotnet }}.0-windows
 
-      - name: Test
-        run: dotnet test tests/FlashTool.Core.Tests -c Release --no-build
+      - name: Test core
+        run: dotnet test tests/FlashTool.Core.Tests -c Release -f net${{ matrix.dotnet }}.0 --logger "trx;LogFileName=tests.trx" --results-directory test-results
 
-      - name: Publish (win-x64, .NET 10)
-        run: dotnet publish src/FlashTool.App -c Release -f net10.0-windows -r win-x64 --self-contained false -o publish/FlashTool
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: FlashTool-net${{ matrix.dotnet }}-test-results
+          path: test-results/*.trx
+          if-no-files-found: ignore
+
+      - name: Publish framework-dependent WPF
+        run: dotnet publish src/FlashTool.App -c Release -f net${{ matrix.dotnet }}.0-windows -r win-x64 --self-contained false -o publish/framework-dependent
 
       - uses: actions/upload-artifact@v6
         with:
-          name: FlashTool-win-x64
-          path: publish/FlashTool
+          name: FlashTool-net${{ matrix.dotnet }}-win-x64
+          path: publish/framework-dependent
+          if-no-files-found: error
 
-      - name: Publish standalone single exe (no .NET install needed)
-        run: dotnet publish src/FlashTool.App -f net10.0-windows -p:PublishProfile=win-x64-standalone
+      - name: Publish standalone single exe
+        run: dotnet publish src/FlashTool.App -f net${{ matrix.dotnet }}.0-windows -p:PublishProfile=win-x64-standalone -o publish/standalone
 
       - uses: actions/upload-artifact@v6
         with:
-          name: FlashTool-win-x64-standalone
-          path: src/FlashTool.App/bin/publish/win-x64-standalone/FlashTool.exe
+          name: FlashTool-net${{ matrix.dotnet }}-win-x64-standalone
+          path: publish/standalone/FlashTool.exe
+          if-no-files-found: error
 
+      - name: Install WiX
+        run: dotnet tool install wix --version 5.0.2 --tool-path .tools
+
+      - name: Build MSI from standalone application
+        run: |
+          ./installer/Build-Msi.ps1 -PublishDirectory publish/standalone -DotNetMajor ${{ matrix.dotnet }} -ProductVersion "0.1.${{ github.run_number }}" -WixPath .tools/wix.exe -OutputPath "artifacts/FlashTool-net${{ matrix.dotnet }}-win-x64.msi"
+
+      - name: Test MSI installation and removal
+        run: |
+          ./installer/Test-Msi.ps1 -MsiPath "artifacts/FlashTool-net${{ matrix.dotnet }}-win-x64.msi" -PublishDirectory publish/standalone -InstallDirectory "$env:RUNNER_TEMP/FlashTool-MSI-net${{ matrix.dotnet }}" -LogDirectory artifacts/msi-logs
+
+      - name: Upload MSI logs
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: FlashTool-net${{ matrix.dotnet }}-msi-logs
+          path: artifacts/msi-logs
+          if-no-files-found: ignore
+
+      - name: Upload MSI installer
+        uses: actions/upload-artifact@v6
+        with:
+          name: FlashTool-net${{ matrix.dotnet }}-win-x64-msi
+          path: artifacts/*.msi
+          if-no-files-found: error

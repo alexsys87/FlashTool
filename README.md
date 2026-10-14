@@ -40,7 +40,7 @@ FlashTool работает с носителем **посекторно**, а н
 * Программа запрашивает права администратора для прямого доступа к физическим дискам.
 * Автономный `FlashTool.exe` включает среду .NET; устанавливать .NET отдельно не требуется.
 * Для обычной сборки нужен **.NET Desktop Runtime** соответствующей версии (.NET 8 или .NET 10).
-  Артефакт `FlashTool-win-x64` из текущего workflow рассчитан на **.NET 10**.
+  Версия среды указана в имени артефакта: `net8` или `net10`. MSI включает автономную сборку и не требует установки .NET.
 * При создании образа на диске назначения должно хватать свободного места. Для несжатого образа
   ориентируйтесь на объём чтения, показанный в приложении; степень сжатия заранее не гарантируется.
   Файловая система назначения должна поддерживать нужный размер файла (у FAT32 предел — менее 4 ГиБ).
@@ -51,8 +51,17 @@ FlashTool работает с носителем **посекторно**, а н
 
 | Артефакт | Что внутри | Как запустить |
 |---|---|---|
-| `FlashTool-win-x64-standalone` | Автономный `FlashTool.exe` | Распаковать ZIP и запустить exe |
-| `FlashTool-win-x64` | Приложение и сопутствующие файлы, без среды .NET | Распаковать весь ZIP в одну папку, установить .NET 10 Desktop Runtime и запустить `FlashTool.exe` |
+| `FlashTool-net8-win-x64-standalone` / `FlashTool-net10-win-x64-standalone` | Автономный `FlashTool.exe` для .NET 8 / 10 | Распаковать ZIP и запустить exe; установка .NET не нужна |
+| `FlashTool-net8-win-x64` / `FlashTool-net10-win-x64` | Приложение и сопутствующие файлы, без среды .NET | Распаковать весь ZIP в одну папку, установить соответствующий .NET Desktop Runtime и запустить `FlashTool.exe` |
+| `FlashTool-net8-win-x64-msi` / `FlashTool-net10-win-x64-msi` | MSI-установщик с автономным приложением | Распаковать ZIP и запустить `.msi`; установка .NET не нужна |
+
+MSI устанавливает приложение для всех пользователей в `Program Files\FlashTool-net8` или
+`Program Files\FlashTool-net10`, создаёт ярлык в меню «Пуск» и запись в списке установленных
+приложений Windows. Установка требует прав администратора; удаление выполняется через
+«Установленные приложения». Варианты .NET 8 и .NET 10 можно установить одновременно:
+у них разные каталоги, ярлыки и идентификаторы обновления. Настройки приложения при этом
+общие (`%LOCALAPPDATA%\FlashTool`) и не удаляются установщиком. MSI и exe не подписаны
+цифровой подписью, поэтому Windows может показывать предупреждение о неизвестном издателе.
 
 ## Как пользоваться
 
@@ -220,8 +229,10 @@ dotnet run --project src/FlashTool.App -f net8.0-windows
 dotnet publish src/FlashTool.App -f net10.0-windows -p:PublishProfile=win-x64-standalone
 ```
 
-Результат: `src\FlashTool.App\bin\publish\win-x64-standalone\FlashTool.exe`.
+Результат: `src\FlashTool.App\bin\publish\net10.0-windows\win-x64-standalone\FlashTool.exe`.
 Профиль задаёт Release, `win-x64`, автономную среду .NET и упаковку в один файл.
+Для .NET 8 замените `-f net10.0-windows` на `-f net8.0-windows`; результат появится
+в аналогичном каталоге `net8.0-windows`.
 
 Обычная сборка без встроенной среды .NET (вся папка нужна для распространения):
 
@@ -229,9 +240,35 @@ dotnet publish src/FlashTool.App -f net10.0-windows -p:PublishProfile=win-x64-st
 dotnet publish src/FlashTool.App -c Release -f net10.0-windows -r win-x64 --self-contained false -o publish/FlashTool
 ```
 
-Workflow [`.github/workflows/build.yml`](.github/workflows/build.yml) на Windows собирает решение
-и запускает тесты под .NET 8 и .NET 10, затем публикует два x64-артефакта на .NET 10.
-Отдельного артефакта на .NET 8 в текущем workflow нет.
+### Сборка MSI локально (Windows / PowerShell 7)
+
+MSI собирается [WiX Toolset](https://wixtoolset.org/) версии 5.0.2 из автономной публикации:
+
+```powershell
+dotnet tool install wix --version 5.0.2 --tool-path .tools
+dotnet publish src/FlashTool.App -f net8.0-windows -p:PublishProfile=win-x64-standalone -o publish/net8-standalone
+./installer/Build-Msi.ps1 -PublishDirectory publish/net8-standalone -DotNetMajor 8 -WixPath .tools/wix.exe -OutputPath artifacts/FlashTool-net8-win-x64.msi
+
+dotnet publish src/FlashTool.App -f net10.0-windows -p:PublishProfile=win-x64-standalone -o publish/net10-standalone
+./installer/Build-Msi.ps1 -PublishDirectory publish/net10-standalone -DotNetMajor 10 -WixPath .tools/wix.exe -OutputPath artifacts/FlashTool-net10-win-x64.msi
+```
+
+По умолчанию версия MSI — `0.1.0`; её можно задать параметром `-ProductVersion 0.1.1`.
+Для обновления уже установленного варианта нужен MSI с более высокой версией.
+Скрипт включает все файлы публикации, сохраняя вложенные каталоги.
+
+### GitHub Actions
+
+Workflow [`.github/workflows/build.yml`](.github/workflows/build.yml) запускается при push в `main`,
+для pull request и вручную через **Run workflow**. Два независимых задания на Windows
+собирают WPF и запускают тесты ядра отдельно для **.NET 8** и **.NET 10**.
+Для каждого варианта публикуются обычная сборка, автономный exe и MSI (всего шесть
+артефактов приложения), а также результаты тестов и журналы проверки установщика.
+Версия MSI в CI — `0.1.<номер запуска workflow>`.
+
+Проверка MSI выполняет тихую установку во временный каталог, сравнивает количество
+и SHA-256 всех установленных файлов с публикацией, затем удаляет приложение и проверяет
+удаление каталога. Интерфейс приложения не запускается, физические диски не затрагиваются.
 
 ## Настройки и диагностика
 
