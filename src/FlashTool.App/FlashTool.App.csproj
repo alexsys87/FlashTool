@@ -9,6 +9,8 @@
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <SatelliteResourceLanguages>en;ru</SatelliteResourceLanguages>
+    <!-- CA1822: data-bound members must be instance members. CA1001: app-lifetime singletons. -->
+    <NoWarn>$(NoWarn);CA1822;CA1001</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,3 +1,5 @@
+using System.IO;
+using System.Net.Http;
 using FlashTool.Core;
 using FlashTool.Core.Containers;
 using FlashTool.Core.Devices;
