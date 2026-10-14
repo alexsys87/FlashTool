@@ -62,8 +62,10 @@ jobs:
           path: publish/standalone/FlashTool.exe
           if-no-files-found: error
 
-      - name: Install WiX
-        run: dotnet tool install wix --version 5.0.2 --tool-path .tools
+      - name: Install WiX and standard installer UI
+        run: |
+          dotnet tool install wix --version 5.0.2 --tool-path .tools
+          ./.tools/wix.exe extension add --global WixToolset.UI.wixext/5.0.2
 
       - name: Build MSI from standalone application
         run: |
