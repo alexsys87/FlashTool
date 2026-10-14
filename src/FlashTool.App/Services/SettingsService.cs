@@ -44,15 +44,27 @@ public sealed class SettingsService
     {
         try
         {
-            if (File.Exists(_path))
+            if (File.Exists(_path) && JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(_path), JsonOptions) is { } loaded)
             {
-                return JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(_path), JsonOptions) ?? new AppSettings();
+                Migrate(loaded);
+                return loaded;
             }
         }
         catch (Exception ex) when (ex is IOException or JsonException or UnauthorizedAccessException)
         {
         }
 
-        return new AppSettings();
+        return new AppSettings { Version = AppSettings.CurrentVersion };
+    }
+
+    private static void Migrate(AppSettings settings)
+    {
+        if (settings.Version < 2)
+        {
+            // Version 2: expanding the last partition became opt-in.
+            settings.ExpandLastPartition = false;
+        }
+
+        settings.Version = AppSettings.CurrentVersion;
     }
 }

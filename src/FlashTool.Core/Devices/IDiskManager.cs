@@ -24,4 +24,12 @@ public interface IDiskManager
     /// disposed, ask the OS to re-read the partition table.
     /// </summary>
     IBlockDevice Open(DiskInfo disk, DiskAccessMode mode);
+
+    /// <summary>
+    /// Prepares the disk for unplugging ("safely remove hardware"): flushes and
+    /// dismounts its volumes and takes the device or its media offline.
+    /// Must not be called while the disk is open.
+    /// </summary>
+    /// <exception cref="FlashToolException"><see cref="FlashErrorCode.DeviceEjectFailed"/> when the OS refuses.</exception>
+    void Eject(DiskInfo disk);
 }

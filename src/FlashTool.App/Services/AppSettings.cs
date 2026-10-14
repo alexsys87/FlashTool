@@ -19,6 +19,11 @@ public enum LanguageMode
 /// <summary>User preferences persisted between runs.</summary>
 public sealed class AppSettings
 {
+    /// <summary>Format version of settings.json, see <see cref="SettingsService"/> migrations.</summary>
+    public const int CurrentVersion = 2;
+
+    public int Version { get; set; }
+
     public ThemeMode Theme { get; set; } = ThemeMode.System;
 
     public LanguageMode Language { get; set; } = LanguageMode.System;
@@ -27,7 +32,9 @@ public sealed class AppSettings
 
     public bool VerifyAfterWrite { get; set; } = true;
 
-    public bool ExpandLastPartition { get; set; } = true;
+    public bool ExpandLastPartition { get; set; }
+
+    public bool EjectAfterWrite { get; set; }
 
     public bool VerifyAfterRead { get; set; } = true;
 

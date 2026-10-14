@@ -68,6 +68,9 @@ public static class Formatting
             case VerificationFailedException v:
                 return Loc.Format("Error_VerificationFailed", $"{v.Offset:N0} ({Size(v.Offset)})");
 
+            case FlashToolException { Code: FlashErrorCode.DeviceEjectFailed, Arguments: [EjectFailure reason, var detail, ..] }:
+                return Loc.Format("Error_DeviceEjectFailed", Loc.Format($"Eject_{reason}", detail));
+
             case FlashToolException f:
                 var key = $"Error_{f.Code}";
                 var text = Loc.Get(key);

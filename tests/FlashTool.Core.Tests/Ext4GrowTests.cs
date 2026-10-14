@@ -122,7 +122,7 @@ public class Ext4GrowTests(ITestOutputHelper output)
             container,
             container.Entries[0],
             () => HandleBlockDevice.OpenFile(target, 1024 * mib),
-            new FlashTool.Core.Operations.WriteImageOptions { FileSystemResizers = [new Ext4Resizer()] },
+            new FlashTool.Core.Operations.WriteImageOptions { ExpandLastPartition = true, FileSystemResizers = [new Ext4Resizer()] },
             null,
             CancellationToken.None);
 

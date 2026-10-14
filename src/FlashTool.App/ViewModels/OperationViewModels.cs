@@ -23,7 +23,7 @@ public sealed partial class ProgressViewModel : LocalizedViewModel
         ? $"{p.Fraction * 100:0}%"
         : string.Empty;
 
-    public bool IsIndeterminate => _last is null or { Phase: OperationPhase.Preparing or OperationPhase.Finalizing };
+    public bool IsIndeterminate => _last is null or { Phase: OperationPhase.Preparing or OperationPhase.Finalizing or OperationPhase.Ejecting };
 
     public void Start()
     {

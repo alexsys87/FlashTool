@@ -37,7 +37,7 @@
                 </ui:CardControl.Header>
                 <ui:ToggleSwitch IsChecked="{Binding Verify}" />
             </ui:CardControl>
-            <ui:CardControl Margin="0,0,0,20" Icon="{ui:SymbolIcon Storage24}">
+            <ui:CardControl Margin="0,0,0,4" Icon="{ui:SymbolIcon Storage24}">
                 <ui:CardControl.Header>
                     <StackPanel>
                         <TextBlock Text="{loc:Tr Write_Expand}" />
@@ -45,6 +45,15 @@
                     </StackPanel>
                 </ui:CardControl.Header>
                 <ui:ToggleSwitch IsChecked="{Binding ExpandLastPartition}" />
+            </ui:CardControl>
+            <ui:CardControl Margin="0,0,0,20" Icon="{ui:SymbolIcon ArrowEject20}">
+                <ui:CardControl.Header>
+                    <StackPanel>
+                        <TextBlock Text="{loc:Tr Write_Eject}" />
+                        <TextBlock Style="{StaticResource SecondaryText}" Text="{loc:Tr Write_EjectDescription}" />
+                    </StackPanel>
+                </ui:CardControl.Header>
+                <ui:ToggleSwitch IsChecked="{Binding EjectAfterWrite}" />
             </ui:CardControl>
 
             <!-- Action -->

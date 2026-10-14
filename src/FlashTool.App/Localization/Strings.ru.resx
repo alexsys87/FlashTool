@@ -45,6 +45,9 @@
   <data name="Write_VerifyDescription" xml:space="preserve"><value>Прочитать носитель и сравнить с образом</value></data>
   <data name="Write_Expand" xml:space="preserve"><value>Расширить последний раздел на весь носитель</value></data>
   <data name="Write_ExpandDescription" xml:space="preserve"><value>Если образ меньше носителя; файловые системы ext2/3/4 и NTFS тоже расширяются</value></data>
+  <data name="Write_Eject" xml:space="preserve"><value>Извлечь носитель после записи</value></data>
+  <data name="Write_EjectDescription" xml:space="preserve"><value>Безопасно извлечь носитель после успешной записи, чтобы его можно было сразу отключить</value></data>
+  <data name="Write_Ejected" xml:space="preserve"><value>Носитель извлечён, его можно отключить.</value></data>
   <data name="Write_Start" xml:space="preserve"><value>Записать</value></data>
   <data name="Write_ConfirmTitle" xml:space="preserve"><value>Стереть носитель?</value></data>
   <data name="Write_ConfirmMessage" xml:space="preserve"><value>Все данные на «{0}» ({1}) будут уничтожены.
@@ -127,6 +130,7 @@
   <data name="Phase_Reading" xml:space="preserve"><value>Чтение</value></data>
   <data name="Phase_Verifying" xml:space="preserve"><value>Проверка</value></data>
   <data name="Phase_Finalizing" xml:space="preserve"><value>Завершение…</value></data>
+  <data name="Phase_Ejecting" xml:space="preserve"><value>Извлечение носителя…</value></data>
   <data name="Phase_Completed" xml:space="preserve"><value>Готово</value></data>
   <data name="Progress_Details" xml:space="preserve"><value>{0} из {1} · {2}/с · осталось {3}</value></data>
   <data name="Progress_DetailsNoTotal" xml:space="preserve"><value>{0} · {1}/с</value></data>
@@ -178,6 +182,10 @@
   <data name="Error_DeviceIoError" xml:space="preserve"><value>Ошибка ввода-вывода: {0}</value></data>
   <data name="Error_TargetIsSystemDisk" xml:space="preserve"><value>Запись на системный диск запрещена.</value></data>
   <data name="Error_VerificationFailed" xml:space="preserve"><value>Проверка не пройдена: данные отличаются по смещению {0}. Носитель может быть неисправен или поддельным.</value></data>
+  <data name="Error_DeviceEjectFailed" xml:space="preserve"><value>Не удалось извлечь носитель: {0}. Извлеките его через «Безопасное извлечение устройств» на панели задач.</value></data>
+  <data name="Eject_InUse" xml:space="preserve"><value>он используется другой программой ({0})</value></data>
+  <data name="Eject_NotSupported" xml:space="preserve"><value>носитель не поддерживает извлечение ({0})</value></data>
+  <data name="Eject_Refused" xml:space="preserve"><value>Windows отказала ({0})</value></data>
   <data name="Error_FileSystemResizeFailed" xml:space="preserve"><value>Не удалось расширить файловую систему.</value></data>
   <data name="Error_PartitionTableUpdateFailed" xml:space="preserve"><value>Образ записан, но изменить таблицу разделов не удалось.</value></data>
   <data name="Error_InvalidSource" xml:space="preserve"><value>Укажите путь к файлу образа или ссылку http(s).</value></data>

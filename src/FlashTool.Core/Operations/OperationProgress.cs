@@ -9,6 +9,9 @@ public enum OperationPhase
     Reading,
     Verifying,
     Finalizing,
+
+    /// <summary>Safely removing the device after writing (done by the UI).</summary>
+    Ejecting,
     Completed,
 }
 
