@@ -107,8 +107,8 @@ Write anyway?</value></data>
   <data name="Read_WillRead" xml:space="preserve"><value>Will be read: {0}</value></data>
   <data name="Format_Raw" xml:space="preserve"><value>Uncompressed (.img)</value></data>
   <data name="Format_Zip" xml:space="preserve"><value>ZIP (.zip)</value></data>
-  <data name="Format_Xz" xml:space="preserve"><value>XZ (.xz) — best ratio</value></data>
-  <data name="Format_SevenZip" xml:space="preserve"><value>7-Zip (.7z)</value></data>
+  <data name="Format_Xz" xml:space="preserve"><value>XZ (.xz) — standard for Linux images</value></data>
+  <data name="Format_SevenZip" xml:space="preserve"><value>7-Zip (.7z) — best ratio</value></data>
   <data name="Format_Gzip" xml:space="preserve"><value>GZip (.gz)</value></data>
   <data name="Compression_Fastest" xml:space="preserve"><value>Fastest</value></data>
   <data name="Compression_Fast" xml:space="preserve"><value>Fast</value></data>
