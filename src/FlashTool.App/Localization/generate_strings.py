@@ -108,8 +108,8 @@ S = [
 
 ("Format_Raw", "Uncompressed (.img)", "Без сжатия (.img)"),
 ("Format_Zip", "ZIP (.zip)", "ZIP (.zip)"),
-("Format_Xz", "XZ (.xz) — best ratio", "XZ (.xz) — лучшее сжатие"),
-("Format_SevenZip", "7-Zip (.7z)", "7-Zip (.7z)"),
+("Format_Xz", "XZ (.xz) — standard for Linux images", "XZ (.xz) — стандарт для образов Linux"),
+("Format_SevenZip", "7-Zip (.7z) — best ratio", "7-Zip (.7z) — лучшее сжатие"),
 ("Format_Gzip", "GZip (.gz)", "GZip (.gz)"),
 ("Compression_Fastest", "Fastest", "Самое быстрое"),
 ("Compression_Fast", "Fast", "Быстрое"),

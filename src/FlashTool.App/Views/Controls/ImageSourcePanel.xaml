@@ -3,10 +3,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:loc="clr-namespace:FlashTool.App.Localization"
-    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-    AllowDrop="True"
-    DragOver="OnDragOver"
-    Drop="OnDrop">
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml">
     <!-- DataContext: ImageSourceViewModel. File, archive or URL plus the inspection of its contents. -->
     <StackPanel>
         <TextBlock Style="{StaticResource SectionTitle}" Text="{loc:Tr Write_SourceTitle}" />

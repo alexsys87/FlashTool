@@ -1,8 +1,12 @@
 using System.ComponentModel;
 using System.Windows;
+using System.Windows.Interop;
 using FlashTool.App.Localization;
 using FlashTool.App.Services;
+using FlashTool.App.ViewModels;
 using FlashTool.App.Views.Pages;
+using FlashTool.Platform.Windows;
+using Microsoft.Extensions.DependencyInjection;
 using Wpf.Ui;
 using Wpf.Ui.Controls;
 
@@ -12,13 +16,16 @@ public partial class MainWindow : FluentWindow
 {
     private static readonly Type[] Pages = [typeof(WritePage), typeof(ReadPage), typeof(VerifyPage), typeof(SettingsPage)];
 
+    private readonly IServiceProvider _services;
     private readonly OperationState _operation;
     private readonly DialogService _dialogs;
     private readonly SettingsService _settings;
     private bool _closeConfirmed;
+    private Type? _currentPage;
 
     public MainWindow(IServiceProvider services, OperationState operation, IContentDialogService contentDialogs, DialogService dialogs, SettingsService settings)
     {
+        _services = services;
         _operation = operation;
         _dialogs = dialogs;
         _settings = settings;
@@ -31,16 +38,68 @@ public partial class MainWindow : FluentWindow
 
         Loaded += (_, _) =>
         {
+            // WPF may register its OLE drop target only once the content is shown.
+            _ = ShellFileDrop.RevokeOleDropTarget(new WindowInteropHelper(this).Handle);
             RootNavigation.IsPaneOpen = _settings.Settings.NavigationPaneOpen;
-            RootNavigation.Navigate(Pages.FirstOrDefault(p => p.Name == _settings.Settings.LastPage) ?? typeof(WritePage));
             RootNavigation.Navigated += (_, e) =>
             {
-                _settings.Settings.LastPage = e.Page.GetType().Name;
+                _currentPage = e.Page.GetType();
+                _settings.Settings.LastPage = _currentPage.Name;
                 _settings.Save();
             };
+            RootNavigation.Navigate(Pages.FirstOrDefault(p => p.Name == _settings.Settings.LastPage) ?? typeof(WritePage));
             RootNavigation.PaneOpened += (_, _) => SavePaneState(true);
             RootNavigation.PaneClosed += (_, _) => SavePaneState(false);
         };
+    }
+
+    protected override void OnSourceInitialized(EventArgs e)
+    {
+        base.OnSourceInitialized(e);
+        var hwnd = new WindowInteropHelper(this).Handle;
+        ShellFileDrop.Enable(hwnd);
+        HwndSource.FromHwnd(hwnd)?.AddHook(WndProc);
+    }
+
+    private nint WndProc(nint hwnd, int msg, nint wParam, nint lParam, ref bool handled)
+    {
+        if (msg == ShellFileDrop.WmDropFiles)
+        {
+            handled = true;
+            var files = ShellFileDrop.GetFiles(wParam);
+            if (files.Count > 0)
+            {
+                _ = OpenDroppedImageAsync(files[0]);
+            }
+        }
+
+        return 0;
+    }
+
+    /// <summary>
+    /// An image dropped anywhere on the window opens on the Verify page when that page
+    /// is shown, otherwise on the Write page.
+    /// </summary>
+    private async Task OpenDroppedImageAsync(string path)
+    {
+        Activate();
+        var verify = _currentPage == typeof(VerifyPage);
+        ImageSourceViewModel image = verify
+            ? _services.GetRequiredService<VerifyPageViewModel>().Image
+            : _services.GetRequiredService<WritePageViewModel>().Image;
+        if (!image.LoadSourceCommand.CanExecute(null))
+        {
+            // An operation is running; changing its image is not allowed.
+            return;
+        }
+
+        if (!verify && _currentPage != typeof(WritePage))
+        {
+            RootNavigation.Navigate(typeof(WritePage));
+        }
+
+        image.SourceText = path;
+        await image.LoadSourceAsync();
     }
 
     /// <summary>Opens a specific page (used when an image is passed on the command line).</summary>
