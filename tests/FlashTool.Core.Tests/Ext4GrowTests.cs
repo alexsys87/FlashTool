@@ -12,6 +12,7 @@ namespace FlashTool.Core.Tests;
 /// </summary>
 public class Ext4GrowTests(ITestOutputHelper output)
 {
+    private static readonly string[] ToolFolders = ["/usr/sbin", "/sbin", "/usr/bin", "/bin"];
     private static readonly string? Mke2fs = FindTool("mke2fs");
 
     public static TheoryData<string, string, int, int> Cases => new()
@@ -210,7 +211,7 @@ public class Ext4GrowTests(ITestOutputHelper output)
             return null;
         }
 
-        return new[] { "/usr/sbin", "/sbin", "/usr/bin", "/bin" }
+        return ToolFolders
             .Select(d => Path.Combine(d, name))
             .FirstOrDefault(File.Exists);
     }

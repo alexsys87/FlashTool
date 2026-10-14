@@ -3,9 +3,15 @@ using System.Runtime.Versioning;
 
 namespace FlashTool.Platform.Windows;
 
+/// <summary>A piece of a volume on one disk.</summary>
+internal sealed record VolumeExtent(int DiskNumber, long Offset, long Length);
+
 /// <summary>A mounted (or mountable) volume and the disks it lives on.</summary>
 /// <param name="VolumeName">"\\?\Volume{GUID}" without the trailing backslash.</param>
-internal sealed record VolumeInfo(string VolumeName, IReadOnlyList<int> DiskNumbers, IReadOnlyList<string> MountPoints);
+internal sealed record VolumeInfo(string VolumeName, IReadOnlyList<VolumeExtent> Extents, IReadOnlyList<string> MountPoints)
+{
+    public IReadOnlyList<int> DiskNumbers => Extents.Select(e => e.DiskNumber).Distinct().ToList();
+}
 
 [SupportedOSPlatform("windows")]
 internal static unsafe class VolumeEnumerator
@@ -65,13 +71,17 @@ internal static unsafe class VolumeEnumerator
         }
 
         var count = BinaryPrimitives.ReadInt32LittleEndian(output);
-        var disks = new List<int>();
+        var extents = new List<VolumeExtent>();
         for (var i = 0; i < count && 8 + ((i + 1) * 24) <= output.Length; i++)
         {
-            disks.Add(BinaryPrimitives.ReadInt32LittleEndian(output.AsSpan(8 + (i * 24))));
+            var e = output.AsSpan(8 + (i * 24));
+            extents.Add(new VolumeExtent(
+                BinaryPrimitives.ReadInt32LittleEndian(e),
+                BinaryPrimitives.ReadInt64LittleEndian(e[8..]),
+                BinaryPrimitives.ReadInt64LittleEndian(e[16..])));
         }
 
-        return new VolumeInfo(volumeName, disks.Distinct().ToList(), GetMountPoints(volumeNameWithSlash));
+        return new VolumeInfo(volumeName, extents, GetMountPoints(volumeNameWithSlash));
     }
 
     private static List<string> GetMountPoints(string volumeNameWithSlash)

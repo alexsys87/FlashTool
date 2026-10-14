@@ -24,6 +24,8 @@ internal static unsafe partial class NativeMethods
     public const uint FsctlLockVolume = 0x00090018;
     public const uint FsctlUnlockVolume = 0x0009001C;
     public const uint FsctlDismountVolume = 0x00090020;
+    public const uint FsctlGetNtfsVolumeData = 0x00090064;
+    public const uint FsctlExtendVolume = 0x000900F0;
 
     public const int ErrorFileNotFound = 2;
     public const int ErrorAccessDenied = 5;

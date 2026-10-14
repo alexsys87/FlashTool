@@ -21,7 +21,7 @@
   <data name="Write_Verify" xml:space="preserve"><value>Проверять после записи</value></data>
   <data name="Write_VerifyDescription" xml:space="preserve"><value>Прочитать носитель и сравнить с образом</value></data>
   <data name="Write_Expand" xml:space="preserve"><value>Расширить последний раздел на весь носитель</value></data>
-  <data name="Write_ExpandDescription" xml:space="preserve"><value>Действует, если образ меньше носителя</value></data>
+  <data name="Write_ExpandDescription" xml:space="preserve"><value>Если образ меньше носителя; файловые системы ext2/3/4 и NTFS тоже расширяются</value></data>
   <data name="Write_Start" xml:space="preserve"><value>Записать</value></data>
   <data name="Write_ConfirmTitle" xml:space="preserve"><value>Стереть носитель?</value></data>
   <data name="Write_ConfirmMessage" xml:space="preserve"><value>Все данные на «{0}» ({1}) будут уничтожены.
@@ -37,7 +37,9 @@
   <data name="Write_SuccessDetails" xml:space="preserve"><value>Записано {0} за {1}.</value></data>
   <data name="Write_Verified" xml:space="preserve"><value>Проверка пройдена.</value></data>
   <data name="Write_PartitionExtended" xml:space="preserve"><value>Раздел {0} ({1}) расширен с {2} до {3}.</value></data>
-  <data name="Write_FsNotResized" xml:space="preserve"><value>Файловая система {0} внутри раздела не изменялась; дистрибутивы Linux обычно расширяют её при первой загрузке.</value></data>
+  <data name="Write_FsNotResized" xml:space="preserve"><value>Файловая система {0} внутри раздела не изменялась.</value></data>
+  <data name="Write_FsResized" xml:space="preserve"><value>Файловая система {0} расширена на весь раздел.</value></data>
+  <data name="Write_FsResizeFailed" xml:space="preserve"><value>Не удалось расширить файловую систему {0}: {1}</value></data>
   <data name="Write_GptRelocated" xml:space="preserve"><value>Резервная GPT перенесена в конец носителя.</value></data>
   <data name="Write_Failed" xml:space="preserve"><value>Ошибка записи</value></data>
   <data name="Image_Size" xml:space="preserve"><value>Размер</value></data>
@@ -153,6 +155,7 @@
   <data name="Error_DeviceIoError" xml:space="preserve"><value>Ошибка ввода-вывода: {0}</value></data>
   <data name="Error_TargetIsSystemDisk" xml:space="preserve"><value>Запись на системный диск запрещена.</value></data>
   <data name="Error_VerificationFailed" xml:space="preserve"><value>Проверка не пройдена: данные отличаются по смещению {0}. Носитель может быть неисправен или поддельным.</value></data>
+  <data name="Error_FileSystemResizeFailed" xml:space="preserve"><value>Не удалось расширить файловую систему.</value></data>
   <data name="Error_PartitionTableUpdateFailed" xml:space="preserve"><value>Образ записан, но изменить таблицу разделов не удалось.</value></data>
   <data name="Error_InvalidSource" xml:space="preserve"><value>Укажите путь к файлу образа или ссылку http(s).</value></data>
   <data name="Error_FileNotFound" xml:space="preserve"><value>Файл не найден: {0}</value></data>

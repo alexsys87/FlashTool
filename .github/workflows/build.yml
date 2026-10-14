@@ -30,3 +30,11 @@ jobs:
         with:
           name: FlashTool-win-x64
           path: publish/FlashTool
+
+      - name: Publish standalone single exe (no .NET install needed)
+        run: dotnet publish src/FlashTool.App -f net10.0-windows -p:PublishProfile=win-x64-standalone
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: FlashTool-win-x64-standalone
+          path: src/FlashTool.App/bin/publish/win-x64-standalone/FlashTool.exe
