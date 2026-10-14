@@ -1,0 +1,16 @@
+<Project>
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <!-- Allows building Windows-only (WPF) projects on Linux/macOS CI agents. -->
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <Company>FlashTool</Company>
+    <Product>FlashTool</Product>
+    <Copyright>Copyright © FlashTool contributors</Copyright>
+    <Version>0.1.0</Version>
+    <NeutralLanguage>en</NeutralLanguage>
+  </PropertyGroup>
+</Project>

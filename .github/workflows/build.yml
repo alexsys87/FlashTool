@@ -1,0 +1,32 @@
+name: build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+
+      - name: Build
+        run: dotnet build FlashTool.sln -c Release
+
+      - name: Test
+        run: dotnet test tests/FlashTool.Core.Tests -c Release --no-build
+
+      - name: Publish (win-x64, .NET 10)
+        run: dotnet publish src/FlashTool.App -c Release -f net10.0-windows -r win-x64 --self-contained false -o publish/FlashTool
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: FlashTool-win-x64
+          path: publish/FlashTool

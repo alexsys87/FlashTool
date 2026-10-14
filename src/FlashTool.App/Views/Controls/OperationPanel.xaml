@@ -1,0 +1,22 @@
+<UserControl
+    x:Class="FlashTool.App.Views.Controls.OperationPanel"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml">
+    <!-- DataContext: ProgressViewModel. -->
+    <ui:Card Visibility="{Binding IsVisible, Converter={StaticResource BoolToVisibility}}">
+        <StackPanel>
+            <Grid>
+                <TextBlock FontWeight="SemiBold" Text="{Binding PhaseText}" />
+                <TextBlock HorizontalAlignment="Right" FontWeight="SemiBold" Text="{Binding PercentText}" />
+            </Grid>
+            <ProgressBar
+                Height="6"
+                Margin="0,8"
+                IsIndeterminate="{Binding IsIndeterminate}"
+                Maximum="100"
+                Value="{Binding Percent, Mode=OneWay}" />
+            <TextBlock Style="{StaticResource SecondaryText}" Text="{Binding Details}" />
+        </StackPanel>
+    </ui:Card>
+</UserControl>

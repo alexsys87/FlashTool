@@ -1,0 +1,91 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:devices="clr-namespace:FlashTool.Core.Devices;assembly=FlashTool.Core"
+    xmlns:loc="clr-namespace:FlashTool.App.Localization"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:vm="clr-namespace:FlashTool.App.ViewModels">
+
+    <!--
+        SD card outline in the Fluent "regular" style (24x24 grid). Fluent
+        System Icons have no SD card glyph, so it is drawn here.
+    -->
+    <Geometry x:Key="SdCardGeometry">M8,2.75 H15.4 L19.25,6.6 V20 A1.25,1.25 0 0 1 18,21.25 H8 A1.25,1.25 0 0 1 6.75,20 V4 A1.25,1.25 0 0 1 8,2.75 Z M9.5,5.5 V8.5 M12,5.5 V8.5 M14.5,5.5 V8.5</Geometry>
+
+    <!-- Device icon: distinct glyph and tint for flash drives, SD cards, external and internal disks. -->
+    <DataTemplate x:Key="DeviceIconTemplate" DataType="{x:Type vm:DeviceItemViewModel}">
+        <Grid Width="40" Height="40">
+            <Border x:Name="Plate" CornerRadius="8" Background="#330078D4" />
+            <ui:SymbolIcon x:Name="Glyph" FontSize="24" Symbol="UsbStick24" Foreground="#FF0078D4" />
+            <Path
+                x:Name="SdGlyph"
+                Width="24"
+                Height="24"
+                Data="{StaticResource SdCardGeometry}"
+                Stretch="Uniform"
+                Stroke="#FFE3008C"
+                StrokeLineJoin="Round"
+                StrokeStartLineCap="Round"
+                StrokeEndLineCap="Round"
+                StrokeThickness="1.5"
+                Visibility="Collapsed" />
+            <ui:SymbolIcon
+                x:Name="Badge"
+                Margin="0,0,1,1"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Bottom"
+                FontSize="13"
+                Symbol="UsbPlug20"
+                Foreground="#FF00A884"
+                Visibility="Collapsed" />
+        </Grid>
+        <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding Kind}" Value="{x:Static devices:DiskKind.SdCard}">
+                <Setter TargetName="Glyph" Property="Visibility" Value="Collapsed" />
+                <Setter TargetName="SdGlyph" Property="Visibility" Value="Visible" />
+                <Setter TargetName="Plate" Property="Background" Value="#33E3008C" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Kind}" Value="{x:Static devices:DiskKind.ExternalDrive}">
+                <Setter TargetName="Glyph" Property="Symbol" Value="HardDrive24" />
+                <Setter TargetName="Glyph" Property="Foreground" Value="#FF00A884" />
+                <Setter TargetName="Plate" Property="Background" Value="#3300A884" />
+                <Setter TargetName="Badge" Property="Visibility" Value="Visible" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Kind}" Value="{x:Static devices:DiskKind.InternalDrive}">
+                <Setter TargetName="Glyph" Property="Symbol" Value="HardDrive24" />
+                <Setter TargetName="Glyph" Property="Foreground" Value="#FF8A8A8A" />
+                <Setter TargetName="Plate" Property="Background" Value="#338A8A8A" />
+            </DataTrigger>
+        </DataTemplate.Triggers>
+    </DataTemplate>
+
+    <!-- One row in a device list. -->
+    <DataTemplate x:Key="DeviceItemTemplate" DataType="{x:Type vm:DeviceItemViewModel}">
+        <Grid Margin="4,6">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <ContentPresenter Content="{Binding}" ContentTemplate="{StaticResource DeviceIconTemplate}" />
+            <StackPanel Grid.Column="1" Margin="12,0" VerticalAlignment="Center">
+                <TextBlock FontWeight="SemiBold" Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
+                <TextBlock Style="{StaticResource SecondaryText}" Text="{Binding Details}" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" />
+                <WrapPanel Margin="0,2,0,0">
+                    <Border Margin="0,0,6,0" Padding="6,1" CornerRadius="4" Background="#33D13438"
+                            Visibility="{Binding IsSystemDisk, Converter={StaticResource BoolToVisibility}}">
+                        <TextBlock FontSize="11" Foreground="#FFD13438" Text="{loc:Tr Devices_System}" />
+                    </Border>
+                    <Border Margin="0,0,6,0" Padding="6,1" CornerRadius="4" Background="#33CA5010"
+                            Visibility="{Binding IsWriteProtected, Converter={StaticResource BoolToVisibility}}">
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon FontSize="11" Foreground="#FFCA5010" Symbol="LockClosed16" />
+                            <TextBlock Margin="3,0,0,0" FontSize="11" Foreground="#FFCA5010" Text="{loc:Tr Devices_WriteProtected}" />
+                        </StackPanel>
+                    </Border>
+                </WrapPanel>
+            </StackPanel>
+            <TextBlock Grid.Column="2" VerticalAlignment="Center" FontSize="14" FontWeight="SemiBold" Text="{Binding SizeText}" />
+        </Grid>
+    </DataTemplate>
+</ResourceDictionary>
