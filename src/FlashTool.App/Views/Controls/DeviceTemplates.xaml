@@ -71,6 +71,7 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <ContentPresenter Content="{Binding}" ContentTemplate="{StaticResource DeviceIconTemplate}" />
             <StackPanel Grid.Column="1" Margin="12,0" VerticalAlignment="Center">
@@ -91,6 +92,18 @@
                 </WrapPanel>
             </StackPanel>
             <TextBlock Grid.Column="2" VerticalAlignment="Center" FontSize="14" FontWeight="SemiBold" Text="{Binding SizeText}" />
+            <!-- The list's DataContext is the page view model, which exposes the shared device list. -->
+            <ui:Button
+                Grid.Column="3"
+                Margin="8,0,0,0"
+                Padding="8"
+                VerticalAlignment="Center"
+                Appearance="Transparent"
+                Command="{Binding DataContext.Devices.EjectCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                CommandParameter="{Binding}"
+                Icon="{ui:SymbolIcon ArrowEject20}"
+                ToolTip="{loc:Tr Devices_Eject}"
+                Visibility="{Binding CanBeEjected, Converter={StaticResource BoolToVisibility}}" />
         </Grid>
     </DataTemplate>
 </ResourceDictionary>

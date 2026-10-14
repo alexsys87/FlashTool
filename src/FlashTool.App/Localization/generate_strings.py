@@ -120,6 +120,9 @@ S = [
 ("Compression_Maximum", "Maximum", "Максимальное"),
 
 ("Devices_Refresh", "Refresh", "Обновить"),
+("Devices_Eject", "Safely remove", "Безопасно извлечь"),
+("Eject_Done", "\"{0}\" was ejected and can be unplugged", "«{0}» извлечён, его можно отключить"),
+("Eject_FailedTitle", "The device was not ejected", "Носитель не извлечён"),
 ("Devices_ShowAll", "Show non-removable disks", "Показывать несъёмные диски"),
 ("Devices_None", "No devices found. Insert a USB flash drive or an SD card.", "Устройства не найдены. Вставьте USB-флешку или SD-карту."),
 ("Devices_Kind_UsbFlash", "USB flash drive", "USB-флешка"),

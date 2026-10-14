@@ -40,6 +40,9 @@ public sealed class DeviceItemViewModel : LocalizedViewModel
 
     public bool CanBeRead => Info.HasMedia && Info.Size > 0;
 
+    /// <summary>Removable devices (flash drives, cards, external disks) can be safely removed.</summary>
+    public bool CanBeEjected => Info.HasMedia && !Info.IsSystemDisk && Info.Kind != DiskKind.InternalDrive;
+
     /// <summary>Identity across program runs (disk numbers change between sessions).</summary>
     public string Key => $"{Info.Vendor}|{Info.Model}|{Info.SerialNumber}|{Info.Size}";
 
