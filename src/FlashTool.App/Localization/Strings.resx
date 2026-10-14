@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="App_Title" xml:space="preserve"><value>FlashTool</value></data>
+  <data name="Nav_Write" xml:space="preserve"><value>Write image</value></data>
+  <data name="Nav_Read" xml:space="preserve"><value>Create image</value></data>
+  <data name="Nav_Settings" xml:space="preserve"><value>Settings</value></data>
+  <data name="Write_Header" xml:space="preserve"><value>Write an image to a device</value></data>
+  <data name="Write_SourceTitle" xml:space="preserve"><value>Image</value></data>
+  <data name="Write_SourceHint" xml:space="preserve"><value>Image file or URL (img, iso, zip, xz, 7z, gz)</value></data>
+  <data name="Write_Browse" xml:space="preserve"><value>Browse…</value></data>
+  <data name="Write_Load" xml:space="preserve"><value>Open</value></data>
+  <data name="Write_Loading" xml:space="preserve"><value>Opening the image…</value></data>
+  <data name="Write_EntryLabel" xml:space="preserve"><value>Image in the archive</value></data>
+  <data name="Write_EntryChecking" xml:space="preserve"><value>checking…</value></data>
+  <data name="Write_TargetTitle" xml:space="preserve"><value>Target device</value></data>
+  <data name="Write_OptionsTitle" xml:space="preserve"><value>Options</value></data>
+  <data name="Write_Verify" xml:space="preserve"><value>Verify after writing</value></data>
+  <data name="Write_VerifyDescription" xml:space="preserve"><value>Read the device back and compare it with the image</value></data>
+  <data name="Write_Expand" xml:space="preserve"><value>Expand the last partition to the whole device</value></data>
+  <data name="Write_ExpandDescription" xml:space="preserve"><value>Applies when the image is smaller than the device</value></data>
+  <data name="Write_Start" xml:space="preserve"><value>Write</value></data>
+  <data name="Write_ConfirmTitle" xml:space="preserve"><value>Erase the device?</value></data>
+  <data name="Write_ConfirmMessage" xml:space="preserve"><value>All data on "{0}" ({1}) will be destroyed.
+
+Continue?</value></data>
+  <data name="Write_ConfirmButton" xml:space="preserve"><value>Erase and write</value></data>
+  <data name="Write_NotImageTitle" xml:space="preserve"><value>Not a disk image</value></data>
+  <data name="Write_NotImageMessage" xml:space="preserve"><value>"{0}" has no partition table or known file system. Writing it will most likely make the device unusable.
+
+Write anyway?</value></data>
+  <data name="Write_WriteAnyway" xml:space="preserve"><value>Write anyway</value></data>
+  <data name="Write_Success" xml:space="preserve"><value>The image was written successfully</value></data>
+  <data name="Write_SuccessDetails" xml:space="preserve"><value>{0} written in {1}.</value></data>
+  <data name="Write_Verified" xml:space="preserve"><value>Verification passed.</value></data>
+  <data name="Write_PartitionExtended" xml:space="preserve"><value>Partition {0} ({1}) was extended from {2} to {3}.</value></data>
+  <data name="Write_FsNotResized" xml:space="preserve"><value>The {0} file system inside it was not resized; Linux distributions usually grow it on first boot.</value></data>
+  <data name="Write_GptRelocated" xml:space="preserve"><value>The backup GPT was moved to the end of the device.</value></data>
+  <data name="Write_Failed" xml:space="preserve"><value>Writing failed</value></data>
+  <data name="Image_Size" xml:space="preserve"><value>Size</value></data>
+  <data name="Image_SizeUnknown" xml:space="preserve"><value>unknown until unpacked</value></data>
+  <data name="Image_Format" xml:space="preserve"><value>Format</value></data>
+  <data name="Image_Type" xml:space="preserve"><value>Type</value></data>
+  <data name="Image_Kind_MbrDisk" xml:space="preserve"><value>Disk image (MBR)</value></data>
+  <data name="Image_Kind_GptDisk" xml:space="preserve"><value>Disk image (GPT)</value></data>
+  <data name="Image_Kind_HybridIso" xml:space="preserve"><value>Bootable hybrid ISO</value></data>
+  <data name="Image_Kind_Iso9660" xml:space="preserve"><value>ISO 9660 (not hybrid)</value></data>
+  <data name="Image_Kind_Superfloppy" xml:space="preserve"><value>File system without a partition table</value></data>
+  <data name="Image_Kind_Unknown" xml:space="preserve"><value>Not a disk image</value></data>
+  <data name="Image_Partitions" xml:space="preserve"><value>Partitions</value></data>
+  <data name="Image_IsoWarning" xml:space="preserve"><value>This ISO has no hybrid boot record. Written byte by byte it usually won't boot (Windows installation ISOs need a dedicated tool).</value></data>
+  <data name="Image_NotImageWarning" xml:space="preserve"><value>The selected file is not recognized as a disk image.</value></data>
+  <data name="Image_TooLarge" xml:space="preserve"><value>The image ({0}) is larger than the selected device ({1}).</value></data>
+  <data name="Image_Remote" xml:space="preserve"><value>Data is streamed from the network straight to the device, nothing is saved to disk.</value></data>
+  <data name="Image_EntriesSummary" xml:space="preserve"><value>Files in the archive: {0}, disk images: {1}</value></data>
+  <data name="Read_Header" xml:space="preserve"><value>Create an image of a device</value></data>
+  <data name="Read_SourceTitle" xml:space="preserve"><value>Source device</value></data>
+  <data name="Read_DestinationTitle" xml:space="preserve"><value>Image file</value></data>
+  <data name="Read_DestinationHint" xml:space="preserve"><value>Where to save the image</value></data>
+  <data name="Read_SaveAs" xml:space="preserve"><value>Save as…</value></data>
+  <data name="Read_Format" xml:space="preserve"><value>Format</value></data>
+  <data name="Read_Compression" xml:space="preserve"><value>Compression</value></data>
+  <data name="Read_OnlyAllocated" xml:space="preserve"><value>Only allocated partitions</value></data>
+  <data name="Read_OnlyAllocatedDescription" xml:space="preserve"><value>Stop at the end of the last partition to save space</value></data>
+  <data name="Read_Verify" xml:space="preserve"><value>Verify the image after creation</value></data>
+  <data name="Read_VerifyDescription" xml:space="preserve"><value>Unpack the created file and compare it with the device data</value></data>
+  <data name="Read_Start" xml:space="preserve"><value>Create image</value></data>
+  <data name="Read_OverwriteTitle" xml:space="preserve"><value>Replace the file?</value></data>
+  <data name="Read_OverwriteMessage" xml:space="preserve"><value>"{0}" already exists. Replace it?</value></data>
+  <data name="Read_Success" xml:space="preserve"><value>The image was created successfully</value></data>
+  <data name="Read_SuccessDetails" xml:space="preserve"><value>{0} read in {1}, file size {2}.</value></data>
+  <data name="Read_Failed" xml:space="preserve"><value>Image creation failed</value></data>
+  <data name="Read_DeviceLayout" xml:space="preserve"><value>{0}, partitions end at {1} of {2}</value></data>
+  <data name="Read_DeviceLayoutUnknown" xml:space="preserve"><value>No partition table found, the whole device will be read</value></data>
+  <data name="Read_DeviceLayoutError" xml:space="preserve"><value>Could not read the partition table: {0}</value></data>
+  <data name="Read_WillRead" xml:space="preserve"><value>Will be read: {0}</value></data>
+  <data name="Format_Raw" xml:space="preserve"><value>Uncompressed (.img)</value></data>
+  <data name="Format_Zip" xml:space="preserve"><value>ZIP (.zip)</value></data>
+  <data name="Format_Xz" xml:space="preserve"><value>XZ (.xz) — best ratio</value></data>
+  <data name="Format_SevenZip" xml:space="preserve"><value>7-Zip (.7z)</value></data>
+  <data name="Format_Gzip" xml:space="preserve"><value>GZip (.gz)</value></data>
+  <data name="Compression_Fastest" xml:space="preserve"><value>Fastest</value></data>
+  <data name="Compression_Fast" xml:space="preserve"><value>Fast</value></data>
+  <data name="Compression_Normal" xml:space="preserve"><value>Normal</value></data>
+  <data name="Compression_Maximum" xml:space="preserve"><value>Maximum</value></data>
+  <data name="Devices_Refresh" xml:space="preserve"><value>Refresh</value></data>
+  <data name="Devices_ShowAll" xml:space="preserve"><value>Show non-removable disks</value></data>
+  <data name="Devices_None" xml:space="preserve"><value>No devices found. Insert a USB flash drive or an SD card.</value></data>
+  <data name="Devices_Kind_UsbFlash" xml:space="preserve"><value>USB flash drive</value></data>
+  <data name="Devices_Kind_SdCard" xml:space="preserve"><value>SD card</value></data>
+  <data name="Devices_Kind_ExternalDrive" xml:space="preserve"><value>External drive</value></data>
+  <data name="Devices_Kind_InternalDrive" xml:space="preserve"><value>Internal drive</value></data>
+  <data name="Devices_System" xml:space="preserve"><value>System disk</value></data>
+  <data name="Devices_WriteProtected" xml:space="preserve"><value>Write protected</value></data>
+  <data name="Devices_NoMedia" xml:space="preserve"><value>No media</value></data>
+  <data name="Devices_DiskNumber" xml:space="preserve"><value>Disk {0}</value></data>
+  <data name="Phase_Preparing" xml:space="preserve"><value>Preparing…</value></data>
+  <data name="Phase_Writing" xml:space="preserve"><value>Writing</value></data>
+  <data name="Phase_Reading" xml:space="preserve"><value>Reading</value></data>
+  <data name="Phase_Verifying" xml:space="preserve"><value>Verifying</value></data>
+  <data name="Phase_Finalizing" xml:space="preserve"><value>Finishing…</value></data>
+  <data name="Phase_Completed" xml:space="preserve"><value>Done</value></data>
+  <data name="Progress_Details" xml:space="preserve"><value>{0} of {1} · {2}/s · {3} left</value></data>
+  <data name="Progress_DetailsNoTotal" xml:space="preserve"><value>{0} · {1}/s</value></data>
+  <data name="Cancelled" xml:space="preserve"><value>The operation was cancelled</value></data>
+  <data name="Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="Close" xml:space="preserve"><value>Close</value></data>
+  <data name="Replace" xml:space="preserve"><value>Replace</value></data>
+  <data name="Unit_B" xml:space="preserve"><value>B</value></data>
+  <data name="Unit_KB" xml:space="preserve"><value>KB</value></data>
+  <data name="Unit_MB" xml:space="preserve"><value>MB</value></data>
+  <data name="Unit_GB" xml:space="preserve"><value>GB</value></data>
+  <data name="Unit_TB" xml:space="preserve"><value>TB</value></data>
+  <data name="Settings_Header" xml:space="preserve"><value>Settings</value></data>
+  <data name="Settings_Appearance" xml:space="preserve"><value>Appearance</value></data>
+  <data name="Settings_Theme" xml:space="preserve"><value>Theme</value></data>
+  <data name="Settings_ThemeDescription" xml:space="preserve"><value>"System" follows the Windows setting</value></data>
+  <data name="Theme_System" xml:space="preserve"><value>System</value></data>
+  <data name="Theme_Light" xml:space="preserve"><value>Light</value></data>
+  <data name="Theme_Dark" xml:space="preserve"><value>Dark</value></data>
+  <data name="Settings_Language" xml:space="preserve"><value>Language</value></data>
+  <data name="Settings_LanguageDescription" xml:space="preserve"><value>"System" uses the Windows display language</value></data>
+  <data name="Language_System" xml:space="preserve"><value>System</value></data>
+  <data name="Language_English" xml:space="preserve"><value>English</value></data>
+  <data name="Language_Russian" xml:space="preserve"><value>Русский</value></data>
+  <data name="Settings_Devices" xml:space="preserve"><value>Devices</value></data>
+  <data name="Settings_ShowAllDescription" xml:space="preserve"><value>Internal HDD/SSD are hidden to protect them from accidental erasing. The system disk can never be written.</value></data>
+  <data name="Settings_Defaults" xml:space="preserve"><value>Default options</value></data>
+  <data name="Settings_About" xml:space="preserve"><value>About</value></data>
+  <data name="Settings_Version" xml:space="preserve"><value>Version {0} · .NET {1}</value></data>
+  <data name="Settings_AboutText" xml:space="preserve"><value>Writes images to SD cards, USB flash drives and disks, and creates images of them.</value></data>
+  <data name="Settings_Admin" xml:space="preserve"><value>Running as administrator</value></data>
+  <data name="Settings_NotAdmin" xml:space="preserve"><value>Not running as administrator: device access will fail</value></data>
+  <data name="Settings_Formats" xml:space="preserve"><value>Available formats: {0}</value></data>
+  <data name="Error_Title" xml:space="preserve"><value>Error</value></data>
+  <data name="Error_Unknown" xml:space="preserve"><value>Unexpected error: {0}</value></data>
+  <data name="Error_NotADiskImage" xml:space="preserve"><value>"{0}" is not a recognized disk image.</value></data>
+  <data name="Error_ImageTooLarge" xml:space="preserve"><value>The image is larger than the device.</value></data>
+  <data name="Error_UnexpectedEndOfImage" xml:space="preserve"><value>The image ended unexpectedly (the file is damaged or incomplete).</value></data>
+  <data name="Error_UnsupportedContainer" xml:space="preserve"><value>The archive is damaged or has an unsupported format.</value></data>
+  <data name="Error_UnsupportedCompressionMethod" xml:space="preserve"><value>The archive uses an unsupported compression method.</value></data>
+  <data name="Error_ArchiveHasNoImages" xml:space="preserve"><value>The archive contains no files.</value></data>
+  <data name="Error_ContainerBackendUnavailable" xml:space="preserve"><value>Support for {0} is not available (the native library is missing).</value></data>
+  <data name="Error_SourceNotSeekable" xml:space="preserve"><value>The server does not support partial downloads, which {0} archives require. Download the file first or use an .xz/.gz image.</value></data>
+  <data name="Error_HttpError" xml:space="preserve"><value>Download failed: HTTP {0} {1}</value></data>
+  <data name="Error_DeviceNotFound" xml:space="preserve"><value>The device was disconnected.</value></data>
+  <data name="Error_DeviceAccessDenied" xml:space="preserve"><value>Access to the device was denied. Run the program as administrator.</value></data>
+  <data name="Error_DeviceLockFailed" xml:space="preserve"><value>Volume {0} is used by another program. Close open files and Explorer windows and try again.</value></data>
+  <data name="Error_DeviceWriteProtected" xml:space="preserve"><value>The media is write protected (check the lock switch of the SD card).</value></data>
+  <data name="Error_DeviceIoError" xml:space="preserve"><value>Device I/O error: {0}</value></data>
+  <data name="Error_TargetIsSystemDisk" xml:space="preserve"><value>Writing to the system disk is not allowed.</value></data>
+  <data name="Error_VerificationFailed" xml:space="preserve"><value>Verification failed: data differs at offset {0}. The device may be faulty or counterfeit.</value></data>
+  <data name="Error_PartitionTableUpdateFailed" xml:space="preserve"><value>The image was written, but the partition table could not be adjusted.</value></data>
+  <data name="Error_InvalidSource" xml:space="preserve"><value>Enter a path to an image file or an http(s) URL.</value></data>
+  <data name="Error_FileNotFound" xml:space="preserve"><value>File not found: {0}</value></data>
+  <data name="Error_IoError" xml:space="preserve"><value>I/O error: {0}</value></data>
+  <data name="Error_Network" xml:space="preserve"><value>Network error: {0}</value></data>
+  <data name="Dialog_ImageFilter" xml:space="preserve"><value>Disk images and archives</value></data>
+  <data name="Dialog_AllFiles" xml:space="preserve"><value>All files</value></data>
+  <data name="Dialog_SelectImage" xml:space="preserve"><value>Select an image</value></data>
+  <data name="Dialog_SaveImage" xml:space="preserve"><value>Save image as</value></data>
+  <data name="Exit_BusyTitle" xml:space="preserve"><value>An operation is running</value></data>
+  <data name="Exit_BusyMessage" xml:space="preserve"><value>Cancel the current operation and exit? A device whose writing was interrupted stays unusable until it is written again.</value></data>
+  <data name="Exit_Confirm" xml:space="preserve"><value>Cancel and exit</value></data>
+</root>

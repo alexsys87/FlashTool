@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="App_Title" xml:space="preserve"><value>FlashTool</value></data>
+  <data name="Nav_Write" xml:space="preserve"><value>Запись образа</value></data>
+  <data name="Nav_Read" xml:space="preserve"><value>Создание образа</value></data>
+  <data name="Nav_Settings" xml:space="preserve"><value>Настройки</value></data>
+  <data name="Write_Header" xml:space="preserve"><value>Запись образа на носитель</value></data>
+  <data name="Write_SourceTitle" xml:space="preserve"><value>Образ</value></data>
+  <data name="Write_SourceHint" xml:space="preserve"><value>Файл образа или ссылка (img, iso, zip, xz, 7z, gz)</value></data>
+  <data name="Write_Browse" xml:space="preserve"><value>Обзор…</value></data>
+  <data name="Write_Load" xml:space="preserve"><value>Открыть</value></data>
+  <data name="Write_Loading" xml:space="preserve"><value>Открытие образа…</value></data>
+  <data name="Write_EntryLabel" xml:space="preserve"><value>Образ в архиве</value></data>
+  <data name="Write_EntryChecking" xml:space="preserve"><value>проверка…</value></data>
+  <data name="Write_TargetTitle" xml:space="preserve"><value>Целевой носитель</value></data>
+  <data name="Write_OptionsTitle" xml:space="preserve"><value>Параметры</value></data>
+  <data name="Write_Verify" xml:space="preserve"><value>Проверять после записи</value></data>
+  <data name="Write_VerifyDescription" xml:space="preserve"><value>Прочитать носитель и сравнить с образом</value></data>
+  <data name="Write_Expand" xml:space="preserve"><value>Расширить последний раздел на весь носитель</value></data>
+  <data name="Write_ExpandDescription" xml:space="preserve"><value>Действует, если образ меньше носителя</value></data>
+  <data name="Write_Start" xml:space="preserve"><value>Записать</value></data>
+  <data name="Write_ConfirmTitle" xml:space="preserve"><value>Стереть носитель?</value></data>
+  <data name="Write_ConfirmMessage" xml:space="preserve"><value>Все данные на «{0}» ({1}) будут уничтожены.
+
+Продолжить?</value></data>
+  <data name="Write_ConfirmButton" xml:space="preserve"><value>Стереть и записать</value></data>
+  <data name="Write_NotImageTitle" xml:space="preserve"><value>Это не образ диска</value></data>
+  <data name="Write_NotImageMessage" xml:space="preserve"><value>В «{0}» нет таблицы разделов или известной файловой системы. После записи носитель, скорее всего, будет непригоден.
+
+Всё равно записать?</value></data>
+  <data name="Write_WriteAnyway" xml:space="preserve"><value>Всё равно записать</value></data>
+  <data name="Write_Success" xml:space="preserve"><value>Образ успешно записан</value></data>
+  <data name="Write_SuccessDetails" xml:space="preserve"><value>Записано {0} за {1}.</value></data>
+  <data name="Write_Verified" xml:space="preserve"><value>Проверка пройдена.</value></data>
+  <data name="Write_PartitionExtended" xml:space="preserve"><value>Раздел {0} ({1}) расширен с {2} до {3}.</value></data>
+  <data name="Write_FsNotResized" xml:space="preserve"><value>Файловая система {0} внутри раздела не изменялась; дистрибутивы Linux обычно расширяют её при первой загрузке.</value></data>
+  <data name="Write_GptRelocated" xml:space="preserve"><value>Резервная GPT перенесена в конец носителя.</value></data>
+  <data name="Write_Failed" xml:space="preserve"><value>Ошибка записи</value></data>
+  <data name="Image_Size" xml:space="preserve"><value>Размер</value></data>
+  <data name="Image_SizeUnknown" xml:space="preserve"><value>станет известен после распаковки</value></data>
+  <data name="Image_Format" xml:space="preserve"><value>Формат</value></data>
+  <data name="Image_Type" xml:space="preserve"><value>Тип</value></data>
+  <data name="Image_Kind_MbrDisk" xml:space="preserve"><value>Образ диска (MBR)</value></data>
+  <data name="Image_Kind_GptDisk" xml:space="preserve"><value>Образ диска (GPT)</value></data>
+  <data name="Image_Kind_HybridIso" xml:space="preserve"><value>Загрузочный гибридный ISO</value></data>
+  <data name="Image_Kind_Iso9660" xml:space="preserve"><value>ISO 9660 (не гибридный)</value></data>
+  <data name="Image_Kind_Superfloppy" xml:space="preserve"><value>Файловая система без таблицы разделов</value></data>
+  <data name="Image_Kind_Unknown" xml:space="preserve"><value>Не образ диска</value></data>
+  <data name="Image_Partitions" xml:space="preserve"><value>Разделы</value></data>
+  <data name="Image_IsoWarning" xml:space="preserve"><value>В этом ISO нет гибридной загрузочной записи. При побайтовой записи он обычно не загружается (для установочных ISO Windows нужна специальная утилита).</value></data>
+  <data name="Image_NotImageWarning" xml:space="preserve"><value>Выбранный файл не распознан как образ диска.</value></data>
+  <data name="Image_TooLarge" xml:space="preserve"><value>Образ ({0}) больше выбранного носителя ({1}).</value></data>
+  <data name="Image_Remote" xml:space="preserve"><value>Данные идут из сети прямо на носитель, без сохранения на диск.</value></data>
+  <data name="Image_EntriesSummary" xml:space="preserve"><value>Файлов в архиве: {0}, образов дисков: {1}</value></data>
+  <data name="Read_Header" xml:space="preserve"><value>Создание образа носителя</value></data>
+  <data name="Read_SourceTitle" xml:space="preserve"><value>Исходный носитель</value></data>
+  <data name="Read_DestinationTitle" xml:space="preserve"><value>Файл образа</value></data>
+  <data name="Read_DestinationHint" xml:space="preserve"><value>Куда сохранить образ</value></data>
+  <data name="Read_SaveAs" xml:space="preserve"><value>Сохранить как…</value></data>
+  <data name="Read_Format" xml:space="preserve"><value>Формат</value></data>
+  <data name="Read_Compression" xml:space="preserve"><value>Сжатие</value></data>
+  <data name="Read_OnlyAllocated" xml:space="preserve"><value>Только размеченные разделы</value></data>
+  <data name="Read_OnlyAllocatedDescription" xml:space="preserve"><value>Читать до конца последнего раздела, чтобы сэкономить место</value></data>
+  <data name="Read_Verify" xml:space="preserve"><value>Проверять образ после создания</value></data>
+  <data name="Read_VerifyDescription" xml:space="preserve"><value>Распаковать созданный файл и сравнить с данными носителя</value></data>
+  <data name="Read_Start" xml:space="preserve"><value>Создать образ</value></data>
+  <data name="Read_OverwriteTitle" xml:space="preserve"><value>Заменить файл?</value></data>
+  <data name="Read_OverwriteMessage" xml:space="preserve"><value>Файл «{0}» уже существует. Заменить его?</value></data>
+  <data name="Read_Success" xml:space="preserve"><value>Образ успешно создан</value></data>
+  <data name="Read_SuccessDetails" xml:space="preserve"><value>Прочитано {0} за {1}, размер файла {2}.</value></data>
+  <data name="Read_Failed" xml:space="preserve"><value>Ошибка создания образа</value></data>
+  <data name="Read_DeviceLayout" xml:space="preserve"><value>{0}, разделы заканчиваются на {1} из {2}</value></data>
+  <data name="Read_DeviceLayoutUnknown" xml:space="preserve"><value>Таблица разделов не найдена, будет прочитан весь носитель</value></data>
+  <data name="Read_DeviceLayoutError" xml:space="preserve"><value>Не удалось прочитать таблицу разделов: {0}</value></data>
+  <data name="Read_WillRead" xml:space="preserve"><value>Будет прочитано: {0}</value></data>
+  <data name="Format_Raw" xml:space="preserve"><value>Без сжатия (.img)</value></data>
+  <data name="Format_Zip" xml:space="preserve"><value>ZIP (.zip)</value></data>
+  <data name="Format_Xz" xml:space="preserve"><value>XZ (.xz) — лучшее сжатие</value></data>
+  <data name="Format_SevenZip" xml:space="preserve"><value>7-Zip (.7z)</value></data>
+  <data name="Format_Gzip" xml:space="preserve"><value>GZip (.gz)</value></data>
+  <data name="Compression_Fastest" xml:space="preserve"><value>Самое быстрое</value></data>
+  <data name="Compression_Fast" xml:space="preserve"><value>Быстрое</value></data>
+  <data name="Compression_Normal" xml:space="preserve"><value>Обычное</value></data>
+  <data name="Compression_Maximum" xml:space="preserve"><value>Максимальное</value></data>
+  <data name="Devices_Refresh" xml:space="preserve"><value>Обновить</value></data>
+  <data name="Devices_ShowAll" xml:space="preserve"><value>Показывать несъёмные диски</value></data>
+  <data name="Devices_None" xml:space="preserve"><value>Устройства не найдены. Вставьте USB-флешку или SD-карту.</value></data>
+  <data name="Devices_Kind_UsbFlash" xml:space="preserve"><value>USB-флешка</value></data>
+  <data name="Devices_Kind_SdCard" xml:space="preserve"><value>SD-карта</value></data>
+  <data name="Devices_Kind_ExternalDrive" xml:space="preserve"><value>Внешний диск</value></data>
+  <data name="Devices_Kind_InternalDrive" xml:space="preserve"><value>Внутренний диск</value></data>
+  <data name="Devices_System" xml:space="preserve"><value>Системный диск</value></data>
+  <data name="Devices_WriteProtected" xml:space="preserve"><value>Защищён от записи</value></data>
+  <data name="Devices_NoMedia" xml:space="preserve"><value>Нет носителя</value></data>
+  <data name="Devices_DiskNumber" xml:space="preserve"><value>Диск {0}</value></data>
+  <data name="Phase_Preparing" xml:space="preserve"><value>Подготовка…</value></data>
+  <data name="Phase_Writing" xml:space="preserve"><value>Запись</value></data>
+  <data name="Phase_Reading" xml:space="preserve"><value>Чтение</value></data>
+  <data name="Phase_Verifying" xml:space="preserve"><value>Проверка</value></data>
+  <data name="Phase_Finalizing" xml:space="preserve"><value>Завершение…</value></data>
+  <data name="Phase_Completed" xml:space="preserve"><value>Готово</value></data>
+  <data name="Progress_Details" xml:space="preserve"><value>{0} из {1} · {2}/с · осталось {3}</value></data>
+  <data name="Progress_DetailsNoTotal" xml:space="preserve"><value>{0} · {1}/с</value></data>
+  <data name="Cancelled" xml:space="preserve"><value>Операция отменена</value></data>
+  <data name="Cancel" xml:space="preserve"><value>Отмена</value></data>
+  <data name="Close" xml:space="preserve"><value>Закрыть</value></data>
+  <data name="Replace" xml:space="preserve"><value>Заменить</value></data>
+  <data name="Unit_B" xml:space="preserve"><value>Б</value></data>
+  <data name="Unit_KB" xml:space="preserve"><value>КБ</value></data>
+  <data name="Unit_MB" xml:space="preserve"><value>МБ</value></data>
+  <data name="Unit_GB" xml:space="preserve"><value>ГБ</value></data>
+  <data name="Unit_TB" xml:space="preserve"><value>ТБ</value></data>
+  <data name="Settings_Header" xml:space="preserve"><value>Настройки</value></data>
+  <data name="Settings_Appearance" xml:space="preserve"><value>Оформление</value></data>
+  <data name="Settings_Theme" xml:space="preserve"><value>Тема</value></data>
+  <data name="Settings_ThemeDescription" xml:space="preserve"><value>«Системная» следует настройке Windows</value></data>
+  <data name="Theme_System" xml:space="preserve"><value>Системная</value></data>
+  <data name="Theme_Light" xml:space="preserve"><value>Светлая</value></data>
+  <data name="Theme_Dark" xml:space="preserve"><value>Тёмная</value></data>
+  <data name="Settings_Language" xml:space="preserve"><value>Язык</value></data>
+  <data name="Settings_LanguageDescription" xml:space="preserve"><value>«Системный» использует язык интерфейса Windows</value></data>
+  <data name="Language_System" xml:space="preserve"><value>Системный</value></data>
+  <data name="Language_English" xml:space="preserve"><value>English</value></data>
+  <data name="Language_Russian" xml:space="preserve"><value>Русский</value></data>
+  <data name="Settings_Devices" xml:space="preserve"><value>Устройства</value></data>
+  <data name="Settings_ShowAllDescription" xml:space="preserve"><value>Внутренние HDD/SSD скрыты, чтобы их нельзя было стереть по ошибке. Запись на системный диск запрещена всегда.</value></data>
+  <data name="Settings_Defaults" xml:space="preserve"><value>Параметры по умолчанию</value></data>
+  <data name="Settings_About" xml:space="preserve"><value>О программе</value></data>
+  <data name="Settings_Version" xml:space="preserve"><value>Версия {0} · .NET {1}</value></data>
+  <data name="Settings_AboutText" xml:space="preserve"><value>Запись образов на SD-карты, USB-флешки и диски и создание их образов.</value></data>
+  <data name="Settings_Admin" xml:space="preserve"><value>Запущено от имени администратора</value></data>
+  <data name="Settings_NotAdmin" xml:space="preserve"><value>Запущено без прав администратора: доступ к устройствам невозможен</value></data>
+  <data name="Settings_Formats" xml:space="preserve"><value>Доступные форматы: {0}</value></data>
+  <data name="Error_Title" xml:space="preserve"><value>Ошибка</value></data>
+  <data name="Error_Unknown" xml:space="preserve"><value>Непредвиденная ошибка: {0}</value></data>
+  <data name="Error_NotADiskImage" xml:space="preserve"><value>«{0}» не распознан как образ диска.</value></data>
+  <data name="Error_ImageTooLarge" xml:space="preserve"><value>Образ больше носителя.</value></data>
+  <data name="Error_UnexpectedEndOfImage" xml:space="preserve"><value>Образ неожиданно закончился (файл повреждён или не докачан).</value></data>
+  <data name="Error_UnsupportedContainer" xml:space="preserve"><value>Архив повреждён или имеет неподдерживаемый формат.</value></data>
+  <data name="Error_UnsupportedCompressionMethod" xml:space="preserve"><value>В архиве используется неподдерживаемый метод сжатия.</value></data>
+  <data name="Error_ArchiveHasNoImages" xml:space="preserve"><value>В архиве нет файлов.</value></data>
+  <data name="Error_ContainerBackendUnavailable" xml:space="preserve"><value>Поддержка {0} недоступна (нет нативной библиотеки).</value></data>
+  <data name="Error_SourceNotSeekable" xml:space="preserve"><value>Сервер не поддерживает частичную загрузку, которая нужна для архивов {0}. Скачайте файл заранее или используйте образ .xz/.gz.</value></data>
+  <data name="Error_HttpError" xml:space="preserve"><value>Ошибка загрузки: HTTP {0} {1}</value></data>
+  <data name="Error_DeviceNotFound" xml:space="preserve"><value>Устройство отключено.</value></data>
+  <data name="Error_DeviceAccessDenied" xml:space="preserve"><value>Нет доступа к устройству. Запустите программу от имени администратора.</value></data>
+  <data name="Error_DeviceLockFailed" xml:space="preserve"><value>Том {0} используется другой программой. Закройте открытые файлы и окна Проводника и повторите.</value></data>
+  <data name="Error_DeviceWriteProtected" xml:space="preserve"><value>Носитель защищён от записи (проверьте переключатель на SD-карте).</value></data>
+  <data name="Error_DeviceIoError" xml:space="preserve"><value>Ошибка ввода-вывода: {0}</value></data>
+  <data name="Error_TargetIsSystemDisk" xml:space="preserve"><value>Запись на системный диск запрещена.</value></data>
+  <data name="Error_VerificationFailed" xml:space="preserve"><value>Проверка не пройдена: данные отличаются по смещению {0}. Носитель может быть неисправен или поддельным.</value></data>
+  <data name="Error_PartitionTableUpdateFailed" xml:space="preserve"><value>Образ записан, но изменить таблицу разделов не удалось.</value></data>
+  <data name="Error_InvalidSource" xml:space="preserve"><value>Укажите путь к файлу образа или ссылку http(s).</value></data>
+  <data name="Error_FileNotFound" xml:space="preserve"><value>Файл не найден: {0}</value></data>
+  <data name="Error_IoError" xml:space="preserve"><value>Ошибка ввода-вывода: {0}</value></data>
+  <data name="Error_Network" xml:space="preserve"><value>Ошибка сети: {0}</value></data>
+  <data name="Dialog_ImageFilter" xml:space="preserve"><value>Образы дисков и архивы</value></data>
+  <data name="Dialog_AllFiles" xml:space="preserve"><value>Все файлы</value></data>
+  <data name="Dialog_SelectImage" xml:space="preserve"><value>Выбор образа</value></data>
+  <data name="Dialog_SaveImage" xml:space="preserve"><value>Сохранить образ как</value></data>
+  <data name="Exit_BusyTitle" xml:space="preserve"><value>Идёт операция</value></data>
+  <data name="Exit_BusyMessage" xml:space="preserve"><value>Отменить текущую операцию и выйти? Носитель с прерванной записью будет непригоден, пока его не записать заново.</value></data>
+  <data name="Exit_Confirm" xml:space="preserve"><value>Отменить и выйти</value></data>
+</root>
