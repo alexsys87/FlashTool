@@ -82,7 +82,8 @@ public sealed class SevenZipContainerHandler : IContainerHandler
         compressor.CustomParameters["mt"] = settings.EffectiveThreads.ToString(System.Globalization.CultureInfo.InvariantCulture);
 
         var pipe = new StreamPipe();
-        var reader = pipe.CreateReader(length);
+        // SevenZipSharp rejects non-seekable input streams although 7-Zip reads them sequentially.
+        var reader = pipe.CreateReader(length, reportSeekable: true);
         var writer = pipe.CreateWriter();
         var task = Task.Factory.StartNew(
             () =>

@@ -21,7 +21,13 @@ public sealed class StreamPipe
     }
 
     /// <summary>Creates the consumer side. <paramref name="declaredLength"/> is reported as <see cref="Stream.Length"/>.</summary>
-    public Stream CreateReader(long? declaredLength = null) => new ReaderStream(_pipe.Reader, declaredLength);
+    /// <param name="declaredLength">Total number of bytes the producer will write, if known.</param>
+    /// <param name="reportSeekable">
+    /// Report <see cref="Stream.CanSeek"/> = true for consumers that insist on it but read
+    /// sequentially (SevenZipSharp). Only no-op seeks are honored; see <see cref="ReaderStream.Seek"/>.
+    /// </param>
+    public Stream CreateReader(long? declaredLength = null, bool reportSeekable = false)
+        => new ReaderStream(_pipe.Reader, declaredLength, reportSeekable);
 
     /// <summary>Creates the producer side. Disposing it completes the pipe.</summary>
     public Stream CreateWriter() => new WriterStream(_pipe.Writer);
@@ -36,19 +42,25 @@ public sealed class StreamPipe
     {
         private readonly PipeReader _reader;
         private readonly long? _length;
+        private readonly bool _reportSeekable;
         private readonly Stream _inner;
         private long _position;
 
-        public ReaderStream(PipeReader reader, long? length)
+        // Position requested through Seek before any data was consumed (e.g. a size probe
+        // via Seek(0, End)); reading is only allowed once it is back at the real position.
+        private long _virtualPosition;
+
+        public ReaderStream(PipeReader reader, long? length, bool reportSeekable)
         {
             _reader = reader;
             _length = length;
+            _reportSeekable = reportSeekable && length.HasValue;
             _inner = reader.AsStream(leaveOpen: true);
         }
 
         public override bool CanRead => true;
 
-        public override bool CanSeek => false;
+        public override bool CanSeek => _reportSeekable;
 
         public override bool CanWrite => false;
 
@@ -56,35 +68,60 @@ public sealed class StreamPipe
 
         public override long Position
         {
-            get => _position;
-            set => throw new NotSupportedException();
+            get => _virtualPosition;
+            set => Seek(value, SeekOrigin.Begin);
         }
 
         public override int Read(byte[] buffer, int offset, int count) => Read(buffer.AsSpan(offset, count));
 
         public override int Read(Span<byte> buffer)
         {
+            EnsureAtRealPosition();
             var n = _inner.Read(buffer);
             _position += n;
+            _virtualPosition = _position;
             return n;
         }
 
         public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
         {
+            EnsureAtRealPosition();
             var n = await _inner.ReadAsync(buffer, cancellationToken).ConfigureAwait(false);
             _position += n;
+            _virtualPosition = _position;
             return n;
         }
 
+        /// <summary>
+        /// Honors only seeks that do not require moving through the data: to the current
+        /// position (position queries) or, before anything was read, anywhere and back
+        /// (size probes such as Seek(0, End) followed by Seek(0, Begin)).
+        /// </summary>
         public override long Seek(long offset, SeekOrigin origin)
         {
-            // Some native libraries query the current position via Seek(0, Current).
-            if (offset == 0 && origin == SeekOrigin.Current)
+            var target = origin switch
             {
-                return _position;
+                SeekOrigin.Begin => offset,
+                SeekOrigin.Current => _virtualPosition + offset,
+                SeekOrigin.End when _length.HasValue => _length.Value + offset,
+                _ => throw new NotSupportedException(),
+            };
+
+            if (target == _position || (_position == 0 && _reportSeekable && target >= 0))
+            {
+                _virtualPosition = target;
+                return target;
             }
 
-            throw new NotSupportedException();
+            throw new NotSupportedException("A pipe can only be read sequentially.");
+        }
+
+        private void EnsureAtRealPosition()
+        {
+            if (_virtualPosition != _position)
+            {
+                throw new NotSupportedException("A pipe can only be read sequentially.");
+            }
         }
 
         public override void Flush()
