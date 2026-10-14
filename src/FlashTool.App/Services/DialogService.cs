@@ -14,14 +14,14 @@ public sealed class DialogService
 
     public DialogService(IContentDialogService contentDialogs) => _contentDialogs = contentDialogs;
 
-    public async Task<bool> ConfirmAsync(string title, string message, string primaryText, bool destructive = true)
+    public async Task<bool> ConfirmAsync(string title, string message, string primaryText, bool destructive = true, string? closeText = null)
     {
         var dialog = new ContentDialog
         {
             Title = title,
             Content = new System.Windows.Controls.TextBlock { Text = message, TextWrapping = System.Windows.TextWrapping.Wrap, MaxWidth = 460 },
             PrimaryButtonText = primaryText,
-            CloseButtonText = Loc.Get("Cancel"),
+            CloseButtonText = closeText ?? Loc.Get("Cancel"),
             DefaultButton = ContentDialogButton.Close,
             PrimaryButtonAppearance = destructive ? ControlAppearance.Danger : ControlAppearance.Primary,
         };

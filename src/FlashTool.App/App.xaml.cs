@@ -42,13 +42,21 @@ public partial class App : Application
         window.Show();
         _ = _services.GetRequiredService<DeviceListService>().RefreshAsync();
 
-        // "FlashTool.exe image.img.xz" (or a file dropped onto the exe) opens the image right away.
+        var write = _services.GetRequiredService<WritePageViewModel>();
         if (e.Args.Length > 0)
         {
-            var write = _services.GetRequiredService<WritePageViewModel>();
+            // "FlashTool.exe image.img.xz" (or a file dropped onto the exe) opens the image right away.
+            window.Loaded += (_, _) => window.ShowPage(typeof(WritePage));
             write.Image.SourceText = e.Args[0];
             _ = write.Image.LoadSourceAsync();
         }
+        else
+        {
+            // Bring back what was selected last time.
+            _ = write.RestoreAsync();
+        }
+
+        _ = _services.GetRequiredService<VerifyPageViewModel>().RestoreAsync();
     }
 
     protected override void OnExit(ExitEventArgs e)
@@ -93,6 +101,7 @@ public partial class App : Application
         services.AddSingleton<OperationState>();
         services.AddSingleton<IContentDialogService, ContentDialogService>();
         services.AddSingleton<DialogService>();
+        services.AddSingleton<IoErrorPrompt>();
 
         // Every page that picks an image gets its own picker state.
         services.AddTransient<ImageSourceViewModel>();

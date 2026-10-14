@@ -196,6 +196,14 @@ S = [
 ("Dialog_SelectImage", "Select an image", "Выбор образа"),
 ("Dialog_SaveImage", "Save image as", "Сохранить образ как"),
 
+("IoError_ReadTitle", "Read error", "Ошибка чтения"),
+("IoError_WriteTitle", "Write error", "Ошибка записи"),
+("IoError_VerbRead", "read", "прочитать"),
+("IoError_VerbWrite", "write", "записать"),
+("IoError_Message", "Could not {0} {1} at offset {2} after {3} attempts:\n{4}\n\nCheck that the device is connected, then press \"Retry\" to continue from the same place.", "Не удалось {0} {1} по смещению {2} после {3} попыток:\n{4}\n\nПроверьте, что носитель подключён, и нажмите «Повторить», чтобы продолжить с того же места."),
+("IoError_Retry", "Retry", "Повторить"),
+("IoError_Abort", "Cancel operation", "Отменить операцию"),
+
 ("Exit_BusyTitle", "An operation is running", "Идёт операция"),
 ("Exit_BusyMessage", "Cancel the current operation and exit? A device whose writing was interrupted stays unusable until it is written again.", "Отменить текущую операцию и выйти? Носитель с прерванной записью будет непригоден, пока его не записать заново."),
 ("Exit_Confirm", "Cancel and exit", "Отменить и выйти"),

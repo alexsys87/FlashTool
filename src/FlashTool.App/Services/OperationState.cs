@@ -41,6 +41,10 @@ public sealed partial class OperationState : ObservableObject
         TaskbarState = TaskbarItemProgressState.Normal;
     }
 
+    /// <summary>Shows the operation as paused (e.g. while an I/O error question is open).</summary>
+    public void SetPaused(bool paused)
+        => TaskbarState = paused ? TaskbarItemProgressState.Paused : TaskbarItemProgressState.Normal;
+
     public void End(bool failed)
     {
         IsBusy = false;

@@ -40,6 +40,9 @@ public sealed class DeviceItemViewModel : LocalizedViewModel
 
     public bool CanBeRead => Info.HasMedia && Info.Size > 0;
 
+    /// <summary>Identity across program runs (disk numbers change between sessions).</summary>
+    public string Key => $"{Info.Vendor}|{Info.Model}|{Info.SerialNumber}|{Info.Size}";
+
     /// <summary>Identity across refreshes (disk numbers may shift after re-plugging).</summary>
     public bool Matches(DiskInfo other)
         => other.DevicePath == Info.DevicePath

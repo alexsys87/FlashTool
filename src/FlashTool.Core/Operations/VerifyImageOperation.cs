@@ -15,6 +15,9 @@ public sealed record VerifyImageOptions
     public int ChunkSize { get; init; } = 4 * 1024 * 1024;
 
     public int PipelineDepth { get; init; } = 8;
+
+    /// <summary>Retries of failed device reads/writes (bad sectors, timeouts).</summary>
+    public IoRetryPolicy IoRetry { get; init; } = IoRetryPolicy.Default;
 }
 
 /// <summary>Where a differing range lies on the disk.</summary>
@@ -74,7 +77,10 @@ public static class VerifyImageOperation
         var image = ImageInspector.Inspect(head);
         var source = new PrefixedStream(head, reader.Data);
 
-        using var device = await Task.Run(openDevice, cancellationToken).ConfigureAwait(false);
+        using var device = new ResilientBlockDevice(
+            await Task.Run(openDevice, cancellationToken).ConfigureAwait(false),
+            options.IoRetry,
+            cancellationToken);
         if (entry.Length > device.Length)
         {
             throw new FlashToolException(FlashErrorCode.ImageTooLarge, "The image is larger than the device.", null, entry.Length, device.Length);

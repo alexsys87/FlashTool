@@ -188,6 +188,16 @@ Write anyway?</value></data>
   <data name="Dialog_AllFiles" xml:space="preserve"><value>All files</value></data>
   <data name="Dialog_SelectImage" xml:space="preserve"><value>Select an image</value></data>
   <data name="Dialog_SaveImage" xml:space="preserve"><value>Save image as</value></data>
+  <data name="IoError_ReadTitle" xml:space="preserve"><value>Read error</value></data>
+  <data name="IoError_WriteTitle" xml:space="preserve"><value>Write error</value></data>
+  <data name="IoError_VerbRead" xml:space="preserve"><value>read</value></data>
+  <data name="IoError_VerbWrite" xml:space="preserve"><value>write</value></data>
+  <data name="IoError_Message" xml:space="preserve"><value>Could not {0} {1} at offset {2} after {3} attempts:
+{4}
+
+Check that the device is connected, then press "Retry" to continue from the same place.</value></data>
+  <data name="IoError_Retry" xml:space="preserve"><value>Retry</value></data>
+  <data name="IoError_Abort" xml:space="preserve"><value>Cancel operation</value></data>
   <data name="Exit_BusyTitle" xml:space="preserve"><value>An operation is running</value></data>
   <data name="Exit_BusyMessage" xml:space="preserve"><value>Cancel the current operation and exit? A device whose writing was interrupted stays unusable until it is written again.</value></data>
   <data name="Exit_Confirm" xml:space="preserve"><value>Cancel and exit</value></data>

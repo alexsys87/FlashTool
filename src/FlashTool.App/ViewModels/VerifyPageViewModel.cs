@@ -19,6 +19,9 @@ public sealed partial class VerifyPageViewModel : LocalizedViewModel
     private const int MaxRowsShown = 500;
 
     private readonly IDiskManager _diskManager;
+    private readonly IoErrorPrompt _ioErrors;
+    private readonly SettingsService _settings;
+    private readonly RememberedDevice? _rememberedDevice;
     private VerifyImageResult? _report;
 
     [ObservableProperty]
@@ -26,16 +29,46 @@ public sealed partial class VerifyPageViewModel : LocalizedViewModel
     [NotifyPropertyChangedFor(nameof(SizeWarning))]
     private DeviceItemViewModel? _selectedDevice;
 
-    public VerifyPageViewModel(ImageSourceViewModel image, IDiskManager diskManager, DeviceListService devices, OperationState operation)
+    public VerifyPageViewModel(
+        ImageSourceViewModel image,
+        IDiskManager diskManager,
+        DeviceListService devices,
+        OperationState operation,
+        IoErrorPrompt ioErrors,
+        SettingsService settings)
     {
         Image = image;
         _diskManager = diskManager;
+        _ioErrors = ioErrors;
         Devices = devices;
         Operation = operation;
         Operation.PropertyChanged += OnOperationChanged;
         Image.Loading += (_, _) => ClearReport();
         Image.PropertyChanged += OnImageChanged;
+
+        _settings = settings;
+        var selection = settings.Settings.VerifySelection;
+        Image.SelectionChanged += (_, _) =>
+        {
+            selection.Source = Image.LoadedSource;
+            selection.Entry = Image.SelectedEntry?.Name;
+            settings.Save();
+        };
+        _rememberedDevice = new RememberedDevice(
+            devices,
+            () => selection.DeviceKey,
+            key =>
+            {
+                selection.DeviceKey = key;
+                settings.Save();
+            },
+            () => SelectedDevice,
+            d => SelectedDevice = d,
+            d => d.CanBeRead);
     }
+
+    /// <summary>Reopens the image used last time.</summary>
+    public Task RestoreAsync() => Image.RestoreAsync(_settings.Settings.VerifySelection.Source, _settings.Settings.VerifySelection.Entry);
 
     /// <summary>The reference image.</summary>
     public ImageSourceViewModel Image { get; }
@@ -81,6 +114,7 @@ public sealed partial class VerifyPageViewModel : LocalizedViewModel
 
     partial void OnSelectedDeviceChanged(DeviceItemViewModel? value)
     {
+        _rememberedDevice?.OnSelectionChanged(value);
         if (!Operation.IsBusy)
         {
             ClearReport();
@@ -118,7 +152,7 @@ public sealed partial class VerifyPageViewModel : LocalizedViewModel
                 container,
                 entry.Entry,
                 () => _diskManager.Open(device.Info, DiskAccessMode.Read),
-                new VerifyImageOptions(),
+                new VerifyImageOptions { IoRetry = _ioErrors.Policy },
                 progress,
                 token);
 

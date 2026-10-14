@@ -188,6 +188,16 @@
   <data name="Dialog_AllFiles" xml:space="preserve"><value>Все файлы</value></data>
   <data name="Dialog_SelectImage" xml:space="preserve"><value>Выбор образа</value></data>
   <data name="Dialog_SaveImage" xml:space="preserve"><value>Сохранить образ как</value></data>
+  <data name="IoError_ReadTitle" xml:space="preserve"><value>Ошибка чтения</value></data>
+  <data name="IoError_WriteTitle" xml:space="preserve"><value>Ошибка записи</value></data>
+  <data name="IoError_VerbRead" xml:space="preserve"><value>прочитать</value></data>
+  <data name="IoError_VerbWrite" xml:space="preserve"><value>записать</value></data>
+  <data name="IoError_Message" xml:space="preserve"><value>Не удалось {0} {1} по смещению {2} после {3} попыток:
+{4}
+
+Проверьте, что носитель подключён, и нажмите «Повторить», чтобы продолжить с того же места.</value></data>
+  <data name="IoError_Retry" xml:space="preserve"><value>Повторить</value></data>
+  <data name="IoError_Abort" xml:space="preserve"><value>Отменить операцию</value></data>
   <data name="Exit_BusyTitle" xml:space="preserve"><value>Идёт операция</value></data>
   <data name="Exit_BusyMessage" xml:space="preserve"><value>Отменить текущую операцию и выйти? Носитель с прерванной записью будет непригоден, пока его не записать заново.</value></data>
   <data name="Exit_Confirm" xml:space="preserve"><value>Отменить и выйти</value></data>
