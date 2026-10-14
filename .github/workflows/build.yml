@@ -9,9 +9,9 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: |
             8.0.x
@@ -26,7 +26,7 @@ jobs:
       - name: Publish (win-x64, .NET 10)
         run: dotnet publish src/FlashTool.App -c Release -f net10.0-windows -r win-x64 --self-contained false -o publish/FlashTool
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: FlashTool-win-x64
           path: publish/FlashTool
@@ -34,7 +34,8 @@ jobs:
       - name: Publish standalone single exe (no .NET install needed)
         run: dotnet publish src/FlashTool.App -f net10.0-windows -p:PublishProfile=win-x64-standalone
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: FlashTool-win-x64-standalone
           path: src/FlashTool.App/bin/publish/win-x64-standalone/FlashTool.exe
+
