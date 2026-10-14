@@ -1,0 +1,106 @@
+<Page
+    x:Class="FlashTool.App.Views.Pages.VerifyPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="clr-namespace:FlashTool.App.Views.Controls"
+    xmlns:loc="clr-namespace:FlashTool.App.Localization"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+    ScrollViewer.CanContentScroll="False">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="32,16,32,32" MaxWidth="900">
+            <TextBlock Margin="0,0,0,20" FontSize="26" FontWeight="SemiBold" Text="{loc:Tr Verify_Header}" />
+
+            <!-- Reference image -->
+            <controls:ImageSourcePanel Margin="0,0,0,20" DataContext="{Binding Image}" />
+
+            <!-- Device -->
+            <controls:DeviceListPanel Margin="0,0,0,8" RequireWritable="False" Title="{loc:Tr Verify_DeviceTitle}" />
+            <ui:InfoBar
+                Margin="0,0,0,12"
+                IsClosable="False"
+                IsOpen="True"
+                Message="{Binding SizeWarning}"
+                Severity="Error"
+                Visibility="{Binding SizeWarning, Converter={StaticResource NullToVisibility}}" />
+
+            <!-- Method -->
+            <ui:CardControl Margin="0,12,0,20" Icon="{ui:SymbolIcon ShieldTask24}">
+                <ui:CardControl.Header>
+                    <StackPanel>
+                        <TextBlock Text="{loc:Tr Verify_MethodTitle}" />
+                        <TextBlock Style="{StaticResource SecondaryText}" Text="{loc:Tr Verify_MethodText}" />
+                    </StackPanel>
+                </ui:CardControl.Header>
+            </ui:CardControl>
+
+            <!-- Action -->
+            <controls:OperationPanel Margin="0,0,0,12" DataContext="{Binding Progress}" />
+            <ui:InfoBar
+                Margin="0,0,0,12"
+                IsClosable="True"
+                IsOpen="{Binding Result.IsOpen, Mode=TwoWay}"
+                Message="{Binding Result.Message}"
+                Severity="{Binding Result.Severity}"
+                Title="{Binding Result.Title}" />
+            <StackPanel Margin="0,0,0,20" HorizontalAlignment="Right" Orientation="Horizontal">
+                <ui:Button
+                    Margin="0,0,8,0"
+                    Command="{Binding CancelCommand}"
+                    Content="{loc:Tr Cancel}"
+                    Icon="{ui:SymbolIcon Dismiss24}"
+                    Visibility="{Binding Operation.IsBusy, Converter={StaticResource BoolToVisibility}}" />
+                <ui:Button
+                    MinWidth="160"
+                    Appearance="Primary"
+                    Command="{Binding VerifyCommand}"
+                    Content="{loc:Tr Verify_Start}"
+                    Icon="{ui:SymbolIcon ShieldTask24}" />
+            </StackPanel>
+
+            <!-- Report -->
+            <StackPanel Visibility="{Binding HasReport, Converter={StaticResource BoolToVisibility}}">
+                <TextBlock Style="{StaticResource SectionTitle}" Text="{loc:Tr Verify_ReportTitle}" />
+                <ui:Card>
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource SecondaryText}" Text="{loc:Tr Verify_ImageHash}" />
+                        <TextBox
+                            Margin="0,2,0,8"
+                            FontFamily="Consolas, Courier New"
+                            IsReadOnly="True"
+                            Text="{Binding ImageHash, Mode=OneWay}" />
+                        <TextBlock Style="{StaticResource SecondaryText}" Text="{loc:Tr Verify_DeviceHash}" />
+                        <TextBox
+                            Margin="0,2,0,0"
+                            FontFamily="Consolas, Courier New"
+                            IsReadOnly="True"
+                            Text="{Binding DeviceHash, Mode=OneWay}" />
+
+                        <StackPanel Margin="0,16,0,0" Visibility="{Binding HasDifferences, Converter={StaticResource BoolToVisibility}}">
+                            <TextBlock Margin="0,0,0,4" FontWeight="SemiBold" Text="{loc:Tr Verify_Differences}" />
+                            <DataGrid
+                                MaxHeight="320"
+                                AutoGenerateColumns="False"
+                                CanUserAddRows="False"
+                                HeadersVisibility="Column"
+                                IsReadOnly="True"
+                                ItemsSource="{Binding Differences}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Width="*" Binding="{Binding Offset}" Header="{loc:Tr Verify_Offset}" />
+                                    <DataGridTextColumn Binding="{Binding Length}" Header="{loc:Tr Verify_Length}" />
+                                    <DataGridTextColumn Binding="{Binding Location}" Header="{loc:Tr Verify_Area}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                            <TextBlock
+                                Margin="0,4,0,0"
+                                Style="{StaticResource SecondaryText}"
+                                Text="{Binding MoreRangesText}"
+                                Visibility="{Binding MoreRangesText, Converter={StaticResource NullToVisibility}}" />
+                        </StackPanel>
+                    </StackPanel>
+                </ui:Card>
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

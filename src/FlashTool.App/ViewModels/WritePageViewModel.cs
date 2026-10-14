@@ -1,20 +1,12 @@
-using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.IO;
-using System.Net.Http;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FlashTool.App.Localization;
 using FlashTool.App.Services;
-using FlashTool.Core;
-using FlashTool.Core.Containers;
 using FlashTool.Core.Devices;
 using FlashTool.Core.FileSystems.Ext4;
-using FlashTool.Core.Imaging;
-using FlashTool.Core.IO;
 using FlashTool.Core.Operations;
 using FlashTool.Core.Partitioning;
-using FlashTool.Core.Sources;
 using FlashTool.Platform.Windows;
 using Wpf.Ui.Controls;
 
@@ -23,34 +15,9 @@ namespace FlashTool.App.ViewModels;
 /// <summary>"Write image" page: pick an image (file, archive or URL) and a device.</summary>
 public sealed partial class WritePageViewModel : LocalizedViewModel
 {
-    private const int MaxEntriesToProbe = 32;
-
-    private readonly ContainerRegistry _registry;
     private readonly IDiskManager _diskManager;
-    private readonly HttpClient _http;
     private readonly SettingsService _settings;
     private readonly DialogService _dialogs;
-    private IImageContainer? _container;
-    private CancellationTokenSource? _loadCts;
-
-    [ObservableProperty]
-    private string _sourceText = string.Empty;
-
-    [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(WriteCommand), nameof(LoadSourceCommand), nameof(BrowseCommand))]
-    private bool _isLoading;
-
-    [ObservableProperty]
-    private string? _sourceError;
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(HasSource), nameof(FormatText), nameof(IsRemote), nameof(EntriesSummary), nameof(HasSeveralEntries))]
-    private IStreamSource? _source;
-
-    [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(WriteCommand))]
-    [NotifyPropertyChangedFor(nameof(SizeWarning))]
-    private ImageEntryViewModel? _selectedEntry;
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(WriteCommand))]
@@ -58,23 +25,26 @@ public sealed partial class WritePageViewModel : LocalizedViewModel
     private DeviceItemViewModel? _selectedDevice;
 
     public WritePageViewModel(
-        ContainerRegistry registry,
+        ImageSourceViewModel image,
         IDiskManager diskManager,
-        HttpClient http,
         SettingsService settings,
         DialogService dialogs,
         DeviceListService devices,
         OperationState operation)
     {
-        _registry = registry;
+        Image = image;
         _diskManager = diskManager;
-        _http = http;
         _settings = settings;
         _dialogs = dialogs;
         Devices = devices;
         Operation = operation;
         Operation.PropertyChanged += OnOperationChanged;
+        Image.Loading += (_, _) => Result.Hide();
+        Image.PropertyChanged += OnImageChanged;
     }
+
+    /// <summary>The image to write.</summary>
+    public ImageSourceViewModel Image { get; }
 
     public DeviceListService Devices { get; }
 
@@ -84,20 +54,8 @@ public sealed partial class WritePageViewModel : LocalizedViewModel
 
     public ResultViewModel Result { get; } = new();
 
-    public ObservableCollection<ImageEntryViewModel> Entries { get; } = [];
-
-    public bool HasSource => Source != null;
-
-    public bool IsRemote => Source?.IsRemote == true;
-
-    public bool HasSeveralEntries => Entries.Count > 1;
-
-    public string FormatText => _container is { } c ? c.Format.ToString().ToUpperInvariant() : string.Empty;
-
-    public string EntriesSummary => Loc.Format("Image_EntriesSummary", Entries.Count, Entries.Count(e => e.IsDiskImage));
-
     public string? SizeWarning
-        => SelectedEntry?.Entry.Length is { } length && SelectedDevice is { HasMedia: true } device && length > device.Info.Size
+        => Image.SelectedEntry?.Entry.Length is { } length && SelectedDevice is { HasMedia: true } device && length > device.Info.Size
             ? Loc.Format("Image_TooLarge", Formatting.Size(length), Formatting.Size(device.Info.Size))
             : null;
 
@@ -123,176 +81,20 @@ public sealed partial class WritePageViewModel : LocalizedViewModel
         }
     }
 
-    private bool CanChangeSource => !IsLoading && !Operation.IsBusy;
-
-    [RelayCommand(CanExecute = nameof(CanChangeSource))]
-    private async Task BrowseAsync()
-    {
-        var path = _dialogs.PickImageFile(_settings.Settings.LastImageFolder);
-        if (path != null)
-        {
-            SourceText = path;
-            await LoadSourceAsync();
-        }
-    }
-
-    /// <summary>Opens the file/URL in <see cref="SourceText"/>, lists entries and inspects them.</summary>
-    [RelayCommand(CanExecute = nameof(CanChangeSource))]
-    public async Task LoadSourceAsync()
-    {
-        _loadCts?.Cancel();
-        var cts = _loadCts = new CancellationTokenSource();
-        CloseSource();
-        SourceError = null;
-        Result.Hide();
-
-        var input = SourceText.Trim().Trim('"');
-        if (input.Length == 0)
-        {
-            return;
-        }
-
-        IsLoading = true;
-        try
-        {
-            IStreamSource source;
-            if (Uri.TryCreate(input, UriKind.Absolute, out var uri) && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps))
-            {
-                source = await HttpStreamSource.CreateAsync(_http, uri, cts.Token);
-            }
-            else if (File.Exists(input))
-            {
-                source = new FileStreamSource(input);
-                _settings.Settings.LastImageFolder = Path.GetDirectoryName(source.Location);
-                _settings.Save();
-            }
-            else
-            {
-                SourceError = Path.IsPathRooted(input) ? Loc.Format("Error_FileNotFound", input) : Loc.Get("Error_InvalidSource");
-                return;
-            }
-
-            var container = await Task.Run(() => _registry.Open(source, cts.Token), cts.Token);
-            if (cts.IsCancellationRequested)
-            {
-                container.Dispose();
-                return;
-            }
-
-            if (container.Entries.Count == 0)
-            {
-                container.Dispose();
-                throw new FlashToolException(FlashErrorCode.ArchiveHasNoImages);
-            }
-
-            _container = container;
-            foreach (var entry in container.Entries)
-            {
-                Entries.Add(new ImageEntryViewModel(entry));
-            }
-
-            Source = source;
-            OnPropertyChanged(nameof(HasSeveralEntries));
-
-            await ProbeEntriesAsync(container, cts.Token);
-            SelectedEntry = Entries.FirstOrDefault(e => e.IsDiskImage) ?? Entries.FirstOrDefault(e => ContainerNaming.HasImageExtension(e.Name)) ?? Entries[0];
-            OnPropertyChanged(nameof(EntriesSummary));
-        }
-        catch (OperationCanceledException) when (cts.IsCancellationRequested)
-        {
-        }
-        catch (Exception ex)
-        {
-            CloseSource();
-            SourceError = Formatting.Error(ex);
-        }
-        finally
-        {
-            if (_loadCts == cts)
-            {
-                IsLoading = false;
-            }
-        }
-    }
-
-    private async Task ProbeEntriesAsync(IImageContainer container, CancellationToken ct)
-    {
-        // Inspect plausible candidates only: archives may contain docs, checksums, etc.
-        var candidates = Entries
-            .Where(e => Entries.Count == 1 || ContainerNaming.HasImageExtension(e.Name) || (!container.Source.IsRemote && e.Entry.Length is null or >= 1024 * 1024))
-            .Take(MaxEntriesToProbe)
-            .ToList();
-
-        foreach (var item in candidates)
-        {
-            item.IsChecking = true;
-            try
-            {
-                item.Info = await Task.Run(() => Probe(container, item.Entry, ct), ct);
-            }
-            catch (Exception ex) when (ex is not OperationCanceledException)
-            {
-                item.Info = ImageInfo.Unknown;
-                if (Entries.Count == 1)
-                {
-                    throw;
-                }
-            }
-            finally
-            {
-                item.IsChecking = false;
-            }
-        }
-
-        foreach (var item in Entries.Where(e => e.Info == null))
-        {
-            item.Info = ImageInfo.Unknown;
-        }
-    }
-
-    private static ImageInfo Probe(IImageContainer container, ImageEntry entry, CancellationToken ct)
-    {
-        byte[] head;
-        using (var reader = container.OpenEntry(entry, ct))
-        {
-            head = new byte[ImageInspector.HeadSize];
-            Array.Resize(ref head, reader.Data.ReadUpTo(head));
-        }
-
-        // A local uncompressed image allows random access: file systems of all partitions can be detected.
-        if (container.Format == ContainerFormat.Raw && !container.Source.IsRemote)
-        {
-            using var file = container.Source.Open(ct);
-            return ImageInspector.Inspect(head, (offset, count) =>
-            {
-                if (offset < 0 || offset + count > file.Length)
-                {
-                    return null;
-                }
-
-                var buffer = new byte[count];
-                file.Position = offset;
-                file.ReadExactly(buffer);
-                return buffer;
-            });
-        }
-
-        return ImageInspector.Inspect(head);
-    }
-
     private bool CanWrite()
-        => SelectedEntry is { IsChecking: false }
+        => Image.SelectedEntry is { IsChecking: false }
+           && Image.Container != null
            && SelectedDevice is { CanBeWritten: true }
            && SizeWarning == null
-           && !IsLoading
+           && !Image.IsLoading
            && !Operation.IsBusy;
 
     [RelayCommand(CanExecute = nameof(CanWrite))]
     private async Task WriteAsync()
     {
-        var entry = SelectedEntry!;
+        var entry = Image.SelectedEntry!;
         var device = SelectedDevice!;
-        var container = _container!;
+        var container = Image.Container!;
 
         var requireImage = true;
         if (!entry.IsDiskImage)
@@ -397,14 +199,13 @@ public sealed partial class WritePageViewModel : LocalizedViewModel
         return string.Join(Environment.NewLine, lines);
     }
 
-    private void CloseSource()
+    private void OnImageChanged(object? sender, PropertyChangedEventArgs e)
     {
-        SelectedEntry = null;
-        Entries.Clear();
-        _container?.Dispose();
-        _container = null;
-        Source = null;
-        OnPropertyChanged(nameof(HasSeveralEntries));
+        if (e.PropertyName is nameof(ImageSourceViewModel.SelectedEntry) or nameof(ImageSourceViewModel.IsLoading))
+        {
+            OnPropertyChanged(nameof(SizeWarning));
+            WriteCommand.NotifyCanExecuteChanged();
+        }
     }
 
     private void OnOperationChanged(object? sender, PropertyChangedEventArgs e)
@@ -412,8 +213,6 @@ public sealed partial class WritePageViewModel : LocalizedViewModel
         if (e.PropertyName == nameof(OperationState.IsBusy))
         {
             WriteCommand.NotifyCanExecuteChanged();
-            LoadSourceCommand.NotifyCanExecuteChanged();
-            BrowseCommand.NotifyCanExecuteChanged();
         }
     }
 }
