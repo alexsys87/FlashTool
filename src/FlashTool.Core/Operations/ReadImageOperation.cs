@@ -84,7 +84,18 @@ public static class ReadImageOperation
         {
             var reporter = new ProgressReporter(progress, OperationPhase.Reading, length);
             var output = new FileStream(destinationPath, FileMode.Create, FileAccess.ReadWrite, FileShare.None, 1024 * 1024);
-            var sink = handler.Create(output, entryName, length, options.Compression);
+            Stream sink;
+            try
+            {
+                sink = handler.Create(output, entryName, length, options.Compression);
+            }
+            catch
+            {
+                // Close the file so the cleanup below can delete it.
+                output.Dispose();
+                throw;
+            }
+
             try
             {
                 long readPosition = 0;

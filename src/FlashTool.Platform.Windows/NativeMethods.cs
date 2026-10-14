@@ -26,6 +26,9 @@ internal static unsafe partial class NativeMethods
     public const uint FsctlDismountVolume = 0x00090020;
     public const uint FsctlGetNtfsVolumeData = 0x00090064;
     public const uint FsctlExtendVolume = 0x000900F0;
+    public const uint IoctlStorageGetDeviceNumber = 0x002D1080;
+    public const uint IoctlStorageMediaRemoval = 0x002D4804;
+    public const uint IoctlStorageEjectMedia = 0x002D4808;
 
     public const int ErrorFileNotFound = 2;
     public const int ErrorAccessDenied = 5;
@@ -71,6 +74,58 @@ internal static unsafe partial class NativeMethods
     [LibraryImport("kernel32.dll", EntryPoint = "GetVolumePathNamesForVolumeNameW", SetLastError = true, StringMarshalling = StringMarshalling.Utf16)]
     [return: MarshalAs(UnmanagedType.Bool)]
     public static partial bool GetVolumePathNamesForVolumeName(string volumeName, char* volumePathNames, uint bufferLength, out uint returnLength);
+
+    // SetupAPI / Configuration Manager: map a disk number to its PnP device node and eject it.
+    public static readonly Guid GuidDevInterfaceDisk = new("53F56307-B6BF-11D0-94F2-00A0C91EFB8B");
+    public const uint DigcfPresent = 0x2;
+    public const uint DigcfDeviceInterface = 0x10;
+    public const uint CmDrpCapabilities = 0x10;
+    public const uint CmDevcapRemovable = 0x4;
+    public const uint CrSuccess = 0;
+    public const int PnpVetoTypeUnknown = 0;
+    public const int MaxPath = 260;
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct SpDeviceInterfaceData
+    {
+        public uint CbSize;
+        public Guid InterfaceClassGuid;
+        public uint Flags;
+        public nuint Reserved;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct SpDevInfoData
+    {
+        public uint CbSize;
+        public Guid ClassGuid;
+        public uint DevInst;
+        public nuint Reserved;
+    }
+
+    [LibraryImport("setupapi.dll", EntryPoint = "SetupDiGetClassDevsW", SetLastError = true)]
+    public static partial nint SetupDiGetClassDevs(Guid* classGuid, char* enumerator, nint parent, uint flags);
+
+    [LibraryImport("setupapi.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool SetupDiEnumDeviceInterfaces(nint deviceInfoSet, SpDevInfoData* deviceInfoData, Guid* interfaceClassGuid, uint memberIndex, SpDeviceInterfaceData* deviceInterfaceData);
+
+    [LibraryImport("setupapi.dll", EntryPoint = "SetupDiGetDeviceInterfaceDetailW", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool SetupDiGetDeviceInterfaceDetail(nint deviceInfoSet, SpDeviceInterfaceData* deviceInterfaceData, void* detail, uint detailSize, uint* requiredSize, SpDevInfoData* deviceInfoData);
+
+    [LibraryImport("setupapi.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool SetupDiDestroyDeviceInfoList(nint deviceInfoSet);
+
+    [LibraryImport("cfgmgr32.dll", EntryPoint = "CM_Get_Parent")]
+    public static partial uint CmGetParent(uint* parent, uint devInst, uint flags);
+
+    [LibraryImport("cfgmgr32.dll", EntryPoint = "CM_Get_DevNode_Registry_PropertyW")]
+    public static partial uint CmGetDevNodeRegistryProperty(uint devInst, uint property, uint* type, void* buffer, uint* length, uint flags);
+
+    [LibraryImport("cfgmgr32.dll", EntryPoint = "CM_Request_Device_EjectW")]
+    public static partial uint CmRequestDeviceEject(uint devInst, int* vetoType, char* vetoName, uint nameLength, uint flags);
 
     /// <summary>Calls DeviceIoControl with byte buffers. Returns false and the Win32 error on failure.</summary>
     public static bool Ioctl(SafeFileHandle handle, uint code, ReadOnlySpan<byte> input, Span<byte> output, out int returned, out int error)

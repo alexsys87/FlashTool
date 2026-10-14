@@ -109,6 +109,17 @@ public sealed partial class WritePageViewModel : LocalizedViewModel
         }
     }
 
+    public bool EjectAfterWrite
+    {
+        get => _settings.Settings.EjectAfterWrite;
+        set
+        {
+            _settings.Settings.EjectAfterWrite = value;
+            _settings.Save();
+            OnPropertyChanged();
+        }
+    }
+
     private bool CanWrite()
         => Image.SelectedEntry is { IsChecking: false }
            && Image.Container != null
@@ -170,7 +181,25 @@ public sealed partial class WritePageViewModel : LocalizedViewModel
                 progress,
                 token);
 
-            Result.Show(InfoBarSeverity.Success, Loc.Get("Write_Success"), DescribeResult(result));
+            var details = DescribeResult(result);
+            var severity = InfoBarSeverity.Success;
+            if (EjectAfterWrite)
+            {
+                // The operation has closed the disk by now, so nothing of ours keeps it busy.
+                Progress.Update(new OperationProgress(OperationPhase.Ejecting, 0, null, 0, 0, null));
+                try
+                {
+                    await Task.Run(() => _diskManager.Eject(device.Info), CancellationToken.None);
+                    details += Environment.NewLine + Loc.Get("Write_Ejected");
+                }
+                catch (Exception ex) when (ex is not OutOfMemoryException)
+                {
+                    severity = InfoBarSeverity.Warning;
+                    details += Environment.NewLine + Formatting.Error(ex);
+                }
+            }
+
+            Result.Show(severity, Loc.Get("Write_Success"), details);
         }
         catch (OperationCanceledException)
         {

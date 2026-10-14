@@ -108,6 +108,17 @@ public sealed class WindowsDiskManager : IDiskManager
         }
     }
 
+    public void Eject(DiskInfo disk)
+    {
+        ArgumentNullException.ThrowIfNull(disk);
+        if (disk.IsSystemDisk)
+        {
+            throw new FlashToolException(FlashErrorCode.DeviceEjectFailed, "Refusing to eject the system disk.", null, "system disk");
+        }
+
+        DeviceEjector.Eject(disk.Number);
+    }
+
     private static DiskInfo? TryQueryDisk(int number, List<VolumeInfo> volumes, HashSet<int> systemDisks)
     {
         var path = $@"\\.\PhysicalDrive{number}";
@@ -230,7 +241,7 @@ public sealed class WindowsDiskManager : IDiskManager
     /// Locks and dismounts a volume so Windows lets us overwrite its sectors.
     /// The returned handle keeps the lock until it is closed.
     /// </summary>
-    private static SafeFileHandle LockAndDismount(VolumeInfo volume)
+    internal static SafeFileHandle LockAndDismount(VolumeInfo volume)
     {
         var handle = NativeMethods.CreateFile(
             volume.VolumeName,

@@ -12,7 +12,7 @@ public sealed record WriteImageOptions
     public bool Verify { get; init; } = true;
 
     /// <summary>Grow the last partition to the end of the device.</summary>
-    public bool ExpandLastPartition { get; init; } = true;
+    public bool ExpandLastPartition { get; init; }
 
     /// <summary>Refuse content that is not recognized as a disk image.</summary>
     public bool RequireRecognizedImage { get; init; } = true;

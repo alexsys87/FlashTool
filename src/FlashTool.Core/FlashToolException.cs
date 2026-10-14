@@ -25,6 +25,7 @@ public enum FlashErrorCode
     VerificationFailed,
     PartitionTableUpdateFailed,
     FileSystemResizeFailed,
+    DeviceEjectFailed,
 }
 
 /// <summary>

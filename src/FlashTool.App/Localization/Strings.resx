@@ -45,6 +45,9 @@
   <data name="Write_VerifyDescription" xml:space="preserve"><value>Read the device back and compare it with the image</value></data>
   <data name="Write_Expand" xml:space="preserve"><value>Expand the last partition to the whole device</value></data>
   <data name="Write_ExpandDescription" xml:space="preserve"><value>When the image is smaller than the device; ext2/3/4 and NTFS file systems are expanded too</value></data>
+  <data name="Write_Eject" xml:space="preserve"><value>Eject the device after writing</value></data>
+  <data name="Write_EjectDescription" xml:space="preserve"><value>Safely remove the device when writing succeeds, so it can be unplugged right away</value></data>
+  <data name="Write_Ejected" xml:space="preserve"><value>The device was ejected and can be unplugged.</value></data>
   <data name="Write_Start" xml:space="preserve"><value>Write</value></data>
   <data name="Write_ConfirmTitle" xml:space="preserve"><value>Erase the device?</value></data>
   <data name="Write_ConfirmMessage" xml:space="preserve"><value>All data on "{0}" ({1}) will be destroyed.
@@ -127,6 +130,7 @@ Write anyway?</value></data>
   <data name="Phase_Reading" xml:space="preserve"><value>Reading</value></data>
   <data name="Phase_Verifying" xml:space="preserve"><value>Verifying</value></data>
   <data name="Phase_Finalizing" xml:space="preserve"><value>Finishing…</value></data>
+  <data name="Phase_Ejecting" xml:space="preserve"><value>Ejecting the device…</value></data>
   <data name="Phase_Completed" xml:space="preserve"><value>Done</value></data>
   <data name="Progress_Details" xml:space="preserve"><value>{0} of {1} · {2}/s · {3} left</value></data>
   <data name="Progress_DetailsNoTotal" xml:space="preserve"><value>{0} · {1}/s</value></data>
@@ -178,6 +182,10 @@ Write anyway?</value></data>
   <data name="Error_DeviceIoError" xml:space="preserve"><value>Device I/O error: {0}</value></data>
   <data name="Error_TargetIsSystemDisk" xml:space="preserve"><value>Writing to the system disk is not allowed.</value></data>
   <data name="Error_VerificationFailed" xml:space="preserve"><value>Verification failed: data differs at offset {0}. The device may be faulty or counterfeit.</value></data>
+  <data name="Error_DeviceEjectFailed" xml:space="preserve"><value>The device could not be ejected: {0}. Remove it with "Safely Remove Hardware" in the taskbar.</value></data>
+  <data name="Eject_InUse" xml:space="preserve"><value>it is used by another program ({0})</value></data>
+  <data name="Eject_NotSupported" xml:space="preserve"><value>the device does not support ejecting ({0})</value></data>
+  <data name="Eject_Refused" xml:space="preserve"><value>Windows refused ({0})</value></data>
   <data name="Error_FileSystemResizeFailed" xml:space="preserve"><value>The file system could not be expanded.</value></data>
   <data name="Error_PartitionTableUpdateFailed" xml:space="preserve"><value>The image was written, but the partition table could not be adjusted.</value></data>
   <data name="Error_InvalidSource" xml:space="preserve"><value>Enter a path to an image file or an http(s) URL.</value></data>

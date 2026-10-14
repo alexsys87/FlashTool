@@ -1,5 +1,6 @@
 #if DEBUG
 using System.IO;
+using FlashTool.Core;
 using FlashTool.Core.Devices;
 using FlashTool.Core.IO;
 
@@ -9,6 +10,8 @@ namespace FlashTool.App.Services;
 /// Debug-only stand-in for <see cref="IDiskManager"/> (enabled with FLASHTOOL_DEMO=1):
 /// lists one device of each kind backed by sparse files in %TEMP%\FlashToolDemo,
 /// so the UI and the full write/read pipeline can be exercised without real hardware.
+/// Like real disks, a disk opened for writing is exclusive, so a handle leaked by one
+/// page shows up as a "disk is in use" error on the next operation.
 /// </summary>
 public sealed class DemoDiskManager : IDiskManager
 {
@@ -24,9 +27,76 @@ public sealed class DemoDiskManager : IDiskManager
         Disk(0, "Samsung", "SSD 980 PRO", 64 * GiB, DiskBusType.Nvme, removable: false) with { IsSystemDisk = true, MountPoints = ["C:\\"] },
     ];
 
-    public IReadOnlyList<DiskInfo> GetDisks() => Disks;
+    /// <summary>Ejected disks reappear after this long, as if they were plugged back in.</summary>
+    private static readonly TimeSpan ReinsertDelay = TimeSpan.FromSeconds(10);
+
+    private readonly object _sync = new();
+    private readonly Dictionary<int, (int Readers, bool Writer)> _open = [];
+    private readonly Dictionary<int, DateTime> _ejected = [];
+
+    public IReadOnlyList<DiskInfo> GetDisks()
+    {
+        lock (_sync)
+        {
+            return Disks.Where(d => !_ejected.TryGetValue(d.Number, out var at) || DateTime.UtcNow - at > ReinsertDelay).ToList();
+        }
+    }
+
+    public void Eject(DiskInfo disk)
+    {
+        lock (_sync)
+        {
+            if (_open.ContainsKey(disk.Number))
+            {
+                throw new FlashToolException(FlashErrorCode.DeviceEjectFailed, "Demo disk is still open.", null, EjectFailure.InUse, disk.DevicePath);
+            }
+
+            _ejected[disk.Number] = DateTime.UtcNow;
+        }
+    }
 
     public IBlockDevice Open(DiskInfo disk, DiskAccessMode mode)
+    {
+        lock (_sync)
+        {
+            _open.TryGetValue(disk.Number, out var state);
+            if (state.Writer || (mode == DiskAccessMode.Write && state.Readers > 0))
+            {
+                throw new FlashToolException(FlashErrorCode.DeviceLockFailed, "Demo disk is still open.", null, disk.DevicePath);
+            }
+
+            _open[disk.Number] = mode == DiskAccessMode.Write ? (0, true) : (state.Readers + 1, false);
+        }
+
+        try
+        {
+            return new TrackedDevice(OpenFile(disk, mode), () => Release(disk.Number, mode));
+        }
+        catch
+        {
+            Release(disk.Number, mode);
+            throw;
+        }
+    }
+
+    private void Release(int number, DiskAccessMode mode)
+    {
+        lock (_sync)
+        {
+            var state = _open[number];
+            state = mode == DiskAccessMode.Write ? (state.Readers, false) : (state.Readers - 1, state.Writer);
+            if (state is (0, false))
+            {
+                _open.Remove(number);
+            }
+            else
+            {
+                _open[number] = state;
+            }
+        }
+    }
+
+    private static IBlockDevice OpenFile(DiskInfo disk, DiskAccessMode mode)
     {
         Directory.CreateDirectory(Folder);
         var path = Path.Combine(Folder, $"disk{disk.Number}.bin");
@@ -42,6 +112,41 @@ public sealed class DemoDiskManager : IDiskManager
         return disk.Number == 1 && int.TryParse(Environment.GetEnvironmentVariable("FLASHTOOL_DEMO_FAULT"), out var faults) && faults > 0
             ? new FaultyDevice(device, 64L * 1024 * 1024, faults)
             : device;
+    }
+
+    /// <summary>Reports when the device is closed; using it afterwards is a bug.</summary>
+    private sealed class TrackedDevice(IBlockDevice inner, Action released) : IBlockDevice
+    {
+        private int _disposed;
+
+        public long Length => inner.Length;
+
+        public int SectorSize => inner.SectorSize;
+
+        public bool CanWrite => inner.CanWrite;
+
+        public void Read(long offset, Span<byte> buffer)
+        {
+            ObjectDisposedException.ThrowIf(_disposed != 0, this);
+            inner.Read(offset, buffer);
+        }
+
+        public void Write(long offset, ReadOnlySpan<byte> buffer)
+        {
+            ObjectDisposedException.ThrowIf(_disposed != 0, this);
+            inner.Write(offset, buffer);
+        }
+
+        public void Flush() => inner.Flush();
+
+        public void Dispose()
+        {
+            if (Interlocked.Exchange(ref _disposed, 1) == 0)
+            {
+                inner.Dispose();
+                released();
+            }
+        }
     }
 
     private sealed class FaultyDevice(IBlockDevice inner, long badOffset, int faults) : IBlockDevice
