@@ -118,6 +118,9 @@
   <data name="Compression_Normal" xml:space="preserve"><value>Обычное</value></data>
   <data name="Compression_Maximum" xml:space="preserve"><value>Максимальное</value></data>
   <data name="Devices_Refresh" xml:space="preserve"><value>Обновить</value></data>
+  <data name="Devices_Eject" xml:space="preserve"><value>Безопасно извлечь</value></data>
+  <data name="Eject_Done" xml:space="preserve"><value>«{0}» извлечён, его можно отключить</value></data>
+  <data name="Eject_FailedTitle" xml:space="preserve"><value>Носитель не извлечён</value></data>
   <data name="Devices_ShowAll" xml:space="preserve"><value>Показывать несъёмные диски</value></data>
   <data name="Devices_None" xml:space="preserve"><value>Устройства не найдены. Вставьте USB-флешку или SD-карту.</value></data>
   <data name="Devices_Kind_UsbFlash" xml:space="preserve"><value>USB-флешка</value></data>

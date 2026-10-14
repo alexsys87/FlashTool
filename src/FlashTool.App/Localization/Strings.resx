@@ -118,6 +118,9 @@ Write anyway?</value></data>
   <data name="Compression_Normal" xml:space="preserve"><value>Normal</value></data>
   <data name="Compression_Maximum" xml:space="preserve"><value>Maximum</value></data>
   <data name="Devices_Refresh" xml:space="preserve"><value>Refresh</value></data>
+  <data name="Devices_Eject" xml:space="preserve"><value>Safely remove</value></data>
+  <data name="Eject_Done" xml:space="preserve"><value>"{0}" was ejected and can be unplugged</value></data>
+  <data name="Eject_FailedTitle" xml:space="preserve"><value>The device was not ejected</value></data>
   <data name="Devices_ShowAll" xml:space="preserve"><value>Show non-removable disks</value></data>
   <data name="Devices_None" xml:space="preserve"><value>No devices found. Insert a USB flash drive or an SD card.</value></data>
   <data name="Devices_Kind_UsbFlash" xml:space="preserve"><value>USB flash drive</value></data>

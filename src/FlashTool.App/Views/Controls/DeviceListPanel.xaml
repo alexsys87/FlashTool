@@ -70,5 +70,12 @@
                     Visibility="{Binding Devices.IsRefreshing, Converter={StaticResource BoolToVisibility}}" />
             </Grid>
         </ui:Card>
+        <ui:InfoBar
+            Margin="0,8,0,0"
+            IsClosable="True"
+            IsOpen="{Binding Devices.EjectResult.IsOpen, Mode=TwoWay}"
+            Message="{Binding Devices.EjectResult.Message}"
+            Severity="{Binding Devices.EjectResult.Severity}"
+            Title="{Binding Devices.EjectResult.Title}" />
     </StackPanel>
 </UserControl>
