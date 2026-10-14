@@ -11,6 +11,8 @@
     <SatelliteResourceLanguages>en;ru</SatelliteResourceLanguages>
     <!-- CA1822: data-bound members must be instance members. CA1001: app-lifetime singletons. -->
     <NoWarn>$(NoWarn);CA1822;CA1001</NoWarn>
+    <!-- The publish target of 7z.Libs breaks RID-specific publishing (MSB4096); 7z.dll is published below instead. -->
+    <NG7zLibsResolvePublish>false</NG7zLibsResolvePublish>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,6 +26,14 @@
   <ItemGroup>
     <ProjectReference Include="..\FlashTool.Core\FlashTool.Core.csproj" />
     <ProjectReference Include="..\FlashTool.Platform.Windows\FlashTool.Platform.Windows.csproj" />
+  </ItemGroup>
+
+  <!-- Publish only 7z.dll and its license (the build output also gets them from the 7z.Libs targets). -->
+  <ItemGroup Condition="'$(NG7zLibsPathToBin)' != ''">
+    <None Include="$(NG7zLibsPathToBin)x64\7z.dll" Link="x64\7z.dll" CopyToPublishDirectory="PreserveNewest" Visible="false" />
+    <None Include="$(NG7zLibsPathToBin)x86\7z.dll" Link="x86\7z.dll" CopyToPublishDirectory="PreserveNewest" Visible="false" />
+    <None Include="$(NG7zLibsPathToBin)License.txt" Link="x64\License.7z.txt" CopyToPublishDirectory="PreserveNewest" Visible="false" />
+    <None Include="$(NG7zLibsPathToBin)License.txt" Link="x86\License.7z.txt" CopyToPublishDirectory="PreserveNewest" Visible="false" />
   </ItemGroup>
 
   <ItemGroup>
