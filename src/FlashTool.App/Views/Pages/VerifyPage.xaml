@@ -64,20 +64,22 @@
                 <TextBlock Style="{StaticResource SectionTitle}" Text="{loc:Tr Verify_ReportTitle}" />
                 <ui:Card>
                     <StackPanel>
-                        <TextBlock Style="{StaticResource SecondaryText}" Text="{loc:Tr Verify_ImageHash}" />
-                        <TextBox
-                            Margin="0,2,0,8"
-                            FontFamily="Consolas, Courier New"
-                            IsReadOnly="True"
-                            Text="{Binding ImageHash, Mode=OneWay}" />
-                        <TextBlock Style="{StaticResource SecondaryText}" Text="{loc:Tr Verify_DeviceHash}" />
-                        <TextBox
-                            Margin="0,2,0,0"
-                            FontFamily="Consolas, Courier New"
-                            IsReadOnly="True"
-                            Text="{Binding DeviceHash, Mode=OneWay}" />
+                        <StackPanel Margin="0,0,0,16" Visibility="{Binding HasHashes, Converter={StaticResource BoolToVisibility}}">
+                            <TextBlock Style="{StaticResource SecondaryText}" Text="{loc:Tr Verify_ImageHash}" />
+                            <TextBox
+                                Margin="0,2,0,8"
+                                FontFamily="Consolas, Courier New"
+                                IsReadOnly="True"
+                                Text="{Binding ImageHash, Mode=OneWay}" />
+                            <TextBlock Style="{StaticResource SecondaryText}" Text="{loc:Tr Verify_DeviceHash}" />
+                            <TextBox
+                                Margin="0,2,0,0"
+                                FontFamily="Consolas, Courier New"
+                                IsReadOnly="True"
+                                Text="{Binding DeviceHash, Mode=OneWay}" />
+                        </StackPanel>
 
-                        <StackPanel Margin="0,16,0,0" Visibility="{Binding HasDifferences, Converter={StaticResource BoolToVisibility}}">
+                        <StackPanel Visibility="{Binding HasDifferences, Converter={StaticResource BoolToVisibility}}">
                             <TextBlock Margin="0,0,0,4" FontWeight="SemiBold" Text="{loc:Tr Verify_Differences}" />
                             <DataGrid
                                 MaxHeight="320"

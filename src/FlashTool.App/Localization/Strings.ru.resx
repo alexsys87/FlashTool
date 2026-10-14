@@ -18,6 +18,9 @@
   <data name="Verify_IdenticalDetails" xml:space="preserve"><value>Побайтно сравнено {0} за {1}.</value></data>
   <data name="Verify_Different" xml:space="preserve"><value>Носитель отличается от образа</value></data>
   <data name="Verify_DifferentDetails" xml:space="preserve"><value>Отличается {0} из {1}, участков: {2}.</value></data>
+  <data name="Verify_DifferentLive" xml:space="preserve"><value>Найдены отличия, проверка продолжается</value></data>
+  <data name="Verify_DifferentSoFar" xml:space="preserve"><value>Пока отличается {0}, участков: {1}. Первое отличие по смещению {2}.</value></data>
+  <data name="Verify_CancelledAfterDifferences" xml:space="preserve"><value>Проверка отменена, но отличия уже найдены.</value></data>
   <data name="Verify_ExpandNote" xml:space="preserve"><value>Если после записи последний раздел расширялся, отличия в таблице разделов и в служебных данных файловой системы этого раздела ожидаемы.</value></data>
   <data name="Verify_Failed" xml:space="preserve"><value>Ошибка проверки</value></data>
   <data name="Verify_ReportTitle" xml:space="preserve"><value>Отчёт</value></data>

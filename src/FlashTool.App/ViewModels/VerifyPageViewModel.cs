@@ -24,6 +24,9 @@ public sealed partial class VerifyPageViewModel : LocalizedViewModel
     private readonly RememberedDevice? _rememberedDevice;
     private VerifyImageResult? _report;
 
+    /// <summary>Differences found so far by the running (or interrupted) comparison.</summary>
+    private VerifyDifferences? _live;
+
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(VerifyCommand))]
     [NotifyPropertyChangedFor(nameof(SizeWarning))]
@@ -86,15 +89,22 @@ public sealed partial class VerifyPageViewModel : LocalizedViewModel
             ? Loc.Format("Image_TooLarge", Formatting.Size(length), Formatting.Size(device.Info.Size))
             : null;
 
-    public bool HasReport => _report != null;
+    public bool HasReport => _report != null || _live != null;
+
+    /// <summary>Hashes exist only once the whole image was compared.</summary>
+    public bool HasHashes => _report != null;
 
     public string ImageHash => _report?.ImageSha256 ?? string.Empty;
 
     public string DeviceHash => _report?.DeviceSha256 ?? string.Empty;
 
-    public bool HasDifferences => _report is { Identical: false };
+    public bool HasDifferences => _report is { Identical: false } || (_report == null && _live != null);
 
-    public IReadOnlyList<DifferenceRow> Differences => _report?.Ranges
+    private IReadOnlyList<DifferenceRange>? Ranges => _report?.Ranges ?? _live?.Ranges;
+
+    private long RangeCount => _report?.DifferenceRangeCount ?? _live?.RangeCount ?? 0;
+
+    public IReadOnlyList<DifferenceRow> Differences => Ranges?
         .Take(MaxRowsShown)
         .Select(r => new DifferenceRow(
             $"0x{r.Offset:X} ({Formatting.Size(r.Offset)})",
@@ -108,8 +118,8 @@ public sealed partial class VerifyPageViewModel : LocalizedViewModel
         .ToList() ?? [];
 
     public string? MoreRangesText
-        => _report is { } r && r.DifferenceRangeCount > Differences.Count
-            ? Loc.Format("Verify_MoreRanges", Differences.Count, r.DifferenceRangeCount.ToString("N0", Loc.Instance.Culture))
+        => RangeCount > Differences.Count
+            ? Loc.Format("Verify_MoreRanges", Differences.Count, RangeCount.ToString("N0", Loc.Instance.Culture))
             : null;
 
     partial void OnSelectedDeviceChanged(DeviceItemViewModel? value)
@@ -152,7 +162,11 @@ public sealed partial class VerifyPageViewModel : LocalizedViewModel
                 container,
                 entry.Entry,
                 () => _diskManager.Open(device.Info, DiskAccessMode.Read),
-                new VerifyImageOptions { IoRetry = _ioErrors.Policy },
+                new VerifyImageOptions
+                {
+                    IoRetry = _ioErrors.Policy,
+                    DifferencesFound = new Progress<VerifyDifferences>(OnDifferencesFound),
+                },
                 progress,
                 token);
 
@@ -177,12 +191,27 @@ public sealed partial class VerifyPageViewModel : LocalizedViewModel
         }
         catch (OperationCanceledException)
         {
-            Result.Show(InfoBarSeverity.Warning, Loc.Get("Cancelled"), string.Empty);
+            // Differences found before cancelling stay visible: they are already a verdict.
+            if (_live is { } live)
+            {
+                failed = true;
+                Result.Show(InfoBarSeverity.Error, Loc.Get("Verify_Different"), Loc.Get("Verify_CancelledAfterDifferences") + Environment.NewLine + DescribeLive(live));
+            }
+            else
+            {
+                Result.Show(InfoBarSeverity.Warning, Loc.Get("Cancelled"), string.Empty);
+            }
         }
         catch (Exception ex)
         {
             failed = true;
-            Result.Show(InfoBarSeverity.Error, Loc.Get("Verify_Failed"), Formatting.Error(ex));
+            var details = Formatting.Error(ex);
+            if (_live is { } live)
+            {
+                details += Environment.NewLine + DescribeLive(live);
+            }
+
+            Result.Show(InfoBarSeverity.Error, Loc.Get("Verify_Failed"), details);
         }
         finally
         {
@@ -194,10 +223,38 @@ public sealed partial class VerifyPageViewModel : LocalizedViewModel
     [RelayCommand]
     private void Cancel() => Operation.Cancel();
 
+    /// <summary>Shows the mismatch as soon as it is found; the comparison goes on to map all of them.</summary>
+    private void OnDifferencesFound(VerifyDifferences live)
+    {
+        if (!Operation.IsBusy || _report != null)
+        {
+            // A late update from an operation that has already finished.
+            return;
+        }
+
+        _live = live;
+        Result.Show(InfoBarSeverity.Error, Loc.Get("Verify_DifferentLive"), DescribeLive(live));
+        NotifyReportChanged();
+    }
+
+    private static string DescribeLive(VerifyDifferences live)
+        => Loc.Format(
+            "Verify_DifferentSoFar",
+            Formatting.Size(live.DifferentBytes),
+            live.RangeCount.ToString("N0", CultureInfo.CurrentCulture),
+            live.Ranges.Count > 0 ? $"0x{live.Ranges[0].Offset:X} ({Formatting.Size(live.Ranges[0].Offset)})" : "—");
+
     private void SetReport(VerifyImageResult? report)
     {
         _report = report;
+        _live = null;
+        NotifyReportChanged();
+    }
+
+    private void NotifyReportChanged()
+    {
         OnPropertyChanged(nameof(HasReport));
+        OnPropertyChanged(nameof(HasHashes));
         OnPropertyChanged(nameof(ImageHash));
         OnPropertyChanged(nameof(DeviceHash));
         OnPropertyChanged(nameof(HasDifferences));

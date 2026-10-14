@@ -18,7 +18,22 @@ public sealed record VerifyImageOptions
 
     /// <summary>Retries of failed device reads/writes (bad sectors, timeouts).</summary>
     public IoRetryPolicy IoRetry { get; init; } = IoRetryPolicy.Default;
+
+    /// <summary>
+    /// Receives the differences found so far while the comparison is still running:
+    /// right after the first mismatch, then at most every <see cref="DifferenceReportInterval"/>.
+    /// </summary>
+    public IProgress<VerifyDifferences>? DifferencesFound { get; init; }
+
+    public TimeSpan DifferenceReportInterval { get; init; } = TimeSpan.FromMilliseconds(300);
 }
+
+/// <summary>Differences found up to <see cref="ComparedUpTo"/>; the last range may still grow.</summary>
+public sealed record VerifyDifferences(
+    long DifferentBytes,
+    long RangeCount,
+    IReadOnlyList<DifferenceRange> Ranges,
+    long ComparedUpTo);
 
 /// <summary>Where a differing range lies on the disk.</summary>
 public enum DifferenceArea
@@ -88,6 +103,8 @@ public static class VerifyImageOperation
 
         var chunk = WriteImageOperation.AlignChunk(options.ChunkSize, device.SectorSize);
         var collector = new DifferenceCollector(image, options.MaxReportedRanges);
+        var lastDifferenceReport = Stopwatch.StartNew();
+        var differencesReported = false;
         using var imageHash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
         using var deviceHash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
         using var deviceBuffer = new AlignedBuffer(chunk);
@@ -118,6 +135,15 @@ public static class VerifyImageOperation
                 if (!expected.SequenceEqual(actual))
                 {
                     collector.AddDifferences(offset, expected, actual);
+                }
+
+                // The first mismatch is reported at once, later changes are batched.
+                if (options.DifferencesFound != null && collector.Changed
+                    && (!differencesReported || lastDifferenceReport.Elapsed >= options.DifferenceReportInterval))
+                {
+                    options.DifferencesFound.Report(collector.Snapshot(offset + count));
+                    differencesReported = true;
+                    lastDifferenceReport.Restart();
                 }
 
                 reporter.Report(offset + count);
@@ -173,6 +199,27 @@ public static class VerifyImageOperation
 
         public IReadOnlyList<DifferenceRange> Ranges => _ranges;
 
+        /// <summary>True when differences were added since the last <see cref="Snapshot"/>.</summary>
+        public bool Changed { get; private set; }
+
+        /// <summary>Copy of the state, the still open range included.</summary>
+        public VerifyDifferences Snapshot(long comparedUpTo)
+        {
+            Changed = false;
+            var ranges = new List<DifferenceRange>(_ranges);
+            var count = RangeCount;
+            if (_openStart >= 0)
+            {
+                count++;
+                if (ranges.Count < _maxRanges)
+                {
+                    ranges.Add(Describe(_openStart, _openEnd));
+                }
+            }
+
+            return new VerifyDifferences(DifferentBytes, count, ranges, comparedUpTo);
+        }
+
         /// <summary>Closes the last open range; call once after all data was added.</summary>
         public void Complete() => Flush();
 
@@ -200,6 +247,7 @@ public static class VerifyImageOperation
         private void Add(long start, long end)
         {
             DifferentBytes += end - start;
+            Changed = true;
 
             // Runs separated by a few equal bytes are reported as one range.
             const int mergeGap = 512;
@@ -224,11 +272,16 @@ public static class VerifyImageOperation
             RangeCount++;
             if (_ranges.Count < _maxRanges)
             {
-                var (area, number) = Locate(_openStart);
-                _ranges.Add(new DifferenceRange(_openStart, _openEnd - _openStart, area, number));
+                _ranges.Add(Describe(_openStart, _openEnd));
             }
 
             _openStart = -1;
+        }
+
+        private DifferenceRange Describe(long start, long end)
+        {
+            var (area, number) = Locate(start);
+            return new DifferenceRange(start, end - start, area, number);
         }
 
         private bool SameArea(long a, long b) => Locate(a) == Locate(b);
