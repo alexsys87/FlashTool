@@ -42,7 +42,7 @@ try {
     if ($installDirBinding -ne 'INSTALLFOLDER') {
         throw 'The directory selection dialog is not bound to INSTALLFOLDER.'
     }
-    if ((Get-MsiValue 'SELECT `Argument` FROM `ControlEvent` WHERE `Dialog_` = ''WelcomeDlg'' AND `Control_` = ''Next'' AND `Event` = ''NewDialog'' AND `Condition` = ''NOT Installed'' ORDER BY `Ordering` DESC') -ne 'InstallDirDlg') {
+    if ((Get-MsiValue 'SELECT `Argument` FROM `ControlEvent` WHERE `Dialog_` = ''WelcomeDlg'' AND `Control_` = ''Next'' AND `Event` = ''NewDialog'' AND `Condition` = ''NOT Installed'' AND `Ordering` = 3') -ne 'InstallDirDlg') {
         throw 'Welcome must lead directly to directory selection.'
     }
     if ((Get-MsiValue 'SELECT `Argument` FROM `ControlEvent` WHERE `Dialog_` = ''InstallDirDlg'' AND `Control_` = ''ChangeFolder'' AND `Event` = ''SpawnDialog''') -ne 'BrowseDlg') {
