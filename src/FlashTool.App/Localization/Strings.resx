@@ -21,7 +21,7 @@
   <data name="Write_Verify" xml:space="preserve"><value>Verify after writing</value></data>
   <data name="Write_VerifyDescription" xml:space="preserve"><value>Read the device back and compare it with the image</value></data>
   <data name="Write_Expand" xml:space="preserve"><value>Expand the last partition to the whole device</value></data>
-  <data name="Write_ExpandDescription" xml:space="preserve"><value>Applies when the image is smaller than the device</value></data>
+  <data name="Write_ExpandDescription" xml:space="preserve"><value>When the image is smaller than the device; ext2/3/4 and NTFS file systems are expanded too</value></data>
   <data name="Write_Start" xml:space="preserve"><value>Write</value></data>
   <data name="Write_ConfirmTitle" xml:space="preserve"><value>Erase the device?</value></data>
   <data name="Write_ConfirmMessage" xml:space="preserve"><value>All data on "{0}" ({1}) will be destroyed.
@@ -37,7 +37,9 @@ Write anyway?</value></data>
   <data name="Write_SuccessDetails" xml:space="preserve"><value>{0} written in {1}.</value></data>
   <data name="Write_Verified" xml:space="preserve"><value>Verification passed.</value></data>
   <data name="Write_PartitionExtended" xml:space="preserve"><value>Partition {0} ({1}) was extended from {2} to {3}.</value></data>
-  <data name="Write_FsNotResized" xml:space="preserve"><value>The {0} file system inside it was not resized; Linux distributions usually grow it on first boot.</value></data>
+  <data name="Write_FsNotResized" xml:space="preserve"><value>The {0} file system inside it was not resized.</value></data>
+  <data name="Write_FsResized" xml:space="preserve"><value>The {0} file system was expanded to the whole partition.</value></data>
+  <data name="Write_FsResizeFailed" xml:space="preserve"><value>The {0} file system could not be expanded: {1}</value></data>
   <data name="Write_GptRelocated" xml:space="preserve"><value>The backup GPT was moved to the end of the device.</value></data>
   <data name="Write_Failed" xml:space="preserve"><value>Writing failed</value></data>
   <data name="Image_Size" xml:space="preserve"><value>Size</value></data>
@@ -153,6 +155,7 @@ Write anyway?</value></data>
   <data name="Error_DeviceIoError" xml:space="preserve"><value>Device I/O error: {0}</value></data>
   <data name="Error_TargetIsSystemDisk" xml:space="preserve"><value>Writing to the system disk is not allowed.</value></data>
   <data name="Error_VerificationFailed" xml:space="preserve"><value>Verification failed: data differs at offset {0}. The device may be faulty or counterfeit.</value></data>
+  <data name="Error_FileSystemResizeFailed" xml:space="preserve"><value>The file system could not be expanded.</value></data>
   <data name="Error_PartitionTableUpdateFailed" xml:space="preserve"><value>The image was written, but the partition table could not be adjusted.</value></data>
   <data name="Error_InvalidSource" xml:space="preserve"><value>Enter a path to an image file or an http(s) URL.</value></data>
   <data name="Error_FileNotFound" xml:space="preserve"><value>File not found: {0}</value></data>

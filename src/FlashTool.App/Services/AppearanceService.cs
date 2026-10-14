@@ -13,14 +13,17 @@ namespace FlashTool.App.Services;
 public sealed class AppearanceService
 {
     private Window? _window;
+    private bool _watching;
 
     public void Attach(Window window) => _window = window;
 
     public void ApplyTheme(ThemeMode mode)
     {
-        if (_window != null)
+        // UnWatch throws for a window that is not loaded yet, and is only needed after Watch.
+        if (_window != null && _watching && _window.IsLoaded)
         {
             SystemThemeWatcher.UnWatch(_window);
+            _watching = false;
         }
 
         switch (mode)
@@ -33,9 +36,11 @@ public sealed class AppearanceService
                 break;
             default:
                 ApplicationThemeManager.ApplySystemTheme(updateAccent: true);
-                if (_window != null)
+                if (_window != null && !_watching)
                 {
+                    // Watch() itself defers the hook until the window is loaded.
                     SystemThemeWatcher.Watch(_window, WindowBackdropType.Mica, updateAccents: true);
+                    _watching = true;
                 }
 
                 break;

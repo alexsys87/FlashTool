@@ -5,6 +5,8 @@
     xmlns:controls="clr-namespace:FlashTool.App.Views.Controls"
     xmlns:loc="clr-namespace:FlashTool.App.Localization"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+    ScrollViewer.CanContentScroll="False"
     AllowDrop="True"
     Drop="OnDrop"
     DragOver="OnDragOver">

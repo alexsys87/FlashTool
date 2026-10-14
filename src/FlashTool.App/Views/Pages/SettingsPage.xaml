@@ -3,7 +3,9 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:loc="clr-namespace:FlashTool.App.Localization"
-    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml">
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+    ScrollViewer.CanContentScroll="False">
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="32,16,32,32" MaxWidth="900">
@@ -30,7 +32,7 @@
             </ui:CardControl>
 
             <TextBlock Style="{StaticResource SectionTitle}" Text="{loc:Tr Settings_Devices}" />
-            <ui:CardControl Margin="0,0,0,20" Icon="{ui:SymbolIcon HardDrive24}">
+            <ui:CardControl Margin="0,0,0,20" Icon="{ui:SymbolIcon HardDrive20}">
                 <ui:CardControl.Header>
                     <StackPanel>
                         <TextBlock Text="{loc:Tr Devices_ShowAll}" />

@@ -21,6 +21,8 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
     <!-- Native 7z.dll (x86/x64) copied to the output folder. -->
     <PackageReference Include="7z.Libs" />
+    <!-- Referenced here only to locate liblzma.dll for the single-file build. -->
+    <PackageReference Include="Joveler.Compression.XZ" GeneratePathProperty="true" />
   </ItemGroup>
 
   <ItemGroup>
@@ -29,11 +31,17 @@
   </ItemGroup>
 
   <!-- Publish only 7z.dll and its license (the build output also gets them from the 7z.Libs targets). -->
-  <ItemGroup Condition="'$(NG7zLibsPathToBin)' != ''">
+  <ItemGroup Condition="'$(NG7zLibsPathToBin)' != '' And '$(PublishSingleFile)' != 'true'">
     <None Include="$(NG7zLibsPathToBin)x64\7z.dll" Link="x64\7z.dll" CopyToPublishDirectory="PreserveNewest" Visible="false" />
     <None Include="$(NG7zLibsPathToBin)x86\7z.dll" Link="x86\7z.dll" CopyToPublishDirectory="PreserveNewest" Visible="false" />
     <None Include="$(NG7zLibsPathToBin)License.txt" Link="x64\License.7z.txt" CopyToPublishDirectory="PreserveNewest" Visible="false" />
     <None Include="$(NG7zLibsPathToBin)License.txt" Link="x86\License.7z.txt" CopyToPublishDirectory="PreserveNewest" Visible="false" />
+  </ItemGroup>
+
+  <!-- Single-file build: native libraries travel inside the exe and are extracted on first start. -->
+  <ItemGroup Condition="'$(PublishSingleFile)' == 'true'">
+    <EmbeddedResource Include="$(NG7zLibsPathToBin)x64\7z.dll" LogicalName="FlashTool.Native.7z.dll" />
+    <EmbeddedResource Include="$(PkgJoveler_Compression_XZ)\runtimes\win-x64\native\liblzma.dll" LogicalName="FlashTool.Native.liblzma.dll" />
   </ItemGroup>
 
   <ItemGroup>

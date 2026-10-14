@@ -9,11 +9,13 @@ using FlashTool.App.Services;
 using FlashTool.Core;
 using FlashTool.Core.Containers;
 using FlashTool.Core.Devices;
+using FlashTool.Core.FileSystems.Ext4;
 using FlashTool.Core.Imaging;
 using FlashTool.Core.IO;
 using FlashTool.Core.Operations;
 using FlashTool.Core.Partitioning;
 using FlashTool.Core.Sources;
+using FlashTool.Platform.Windows;
 using Wpf.Ui.Controls;
 
 namespace FlashTool.App.ViewModels;
@@ -314,6 +316,7 @@ public sealed partial class WritePageViewModel : LocalizedViewModel
             Verify = Verify,
             ExpandLastPartition = ExpandLastPartition,
             RequireRecognizedImage = requireImage,
+            FileSystemResizers = [new Ext4Resizer(), new NtfsVolumeExtender(device.Info.Number)],
         };
 
         var token = Operation.Begin();
@@ -376,7 +379,15 @@ public sealed partial class WritePageViewModel : LocalizedViewModel
             if (f.PartitionExtended && f.Partition is { } p)
             {
                 lines.Add(Loc.Format("Write_PartitionExtended", p.Number, p.TypeDescription, Formatting.Size(f.OldLength), Formatting.Size(f.NewLength)));
-                if (!f.FileSystemResized && p.FileSystem != FileSystemType.Unknown)
+                if (f.FileSystemResizeError != null)
+                {
+                    lines.Add(Loc.Format("Write_FsResizeFailed", p.FileSystem, f.FileSystemResizeError));
+                }
+                else if (f.FileSystemResized)
+                {
+                    lines.Add(Loc.Format("Write_FsResized", p.FileSystem));
+                }
+                else if (p.FileSystem != FileSystemType.Unknown)
                 {
                     lines.Add(Loc.Format("Write_FsNotResized", p.FileSystem));
                 }

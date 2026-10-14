@@ -25,9 +25,8 @@ public partial class App : Application
         base.OnStartup(e);
         DispatcherUnhandledException += OnUnhandledException;
 
-        // 7z.dll ships in x64/x86 sub-folders (7z.Libs package); without it 7z is simply unavailable.
-        var arch = Environment.Is64BitProcess ? "x64" : "x86";
-        SevenZipContainerHandler.Initialize(Path.Combine(AppContext.BaseDirectory, arch, "7z.dll"));
+        // Without 7z.dll / liblzma the corresponding formats are simply reported as unavailable.
+        NativeLibraries.Initialize();
 
         _services = ConfigureServices();
         var settings = _services.GetRequiredService<SettingsService>();
@@ -42,6 +41,14 @@ public partial class App : Application
         MainWindow = window;
         window.Show();
         _ = _services.GetRequiredService<DeviceListService>().RefreshAsync();
+
+        // "FlashTool.exe image.img.xz" (or a file dropped onto the exe) opens the image right away.
+        if (e.Args.Length > 0)
+        {
+            var write = _services.GetRequiredService<WritePageViewModel>();
+            write.SourceText = e.Args[0];
+            _ = write.LoadSourceAsync();
+        }
     }
 
     protected override void OnExit(ExitEventArgs e)
@@ -55,7 +62,16 @@ public partial class App : Application
         var services = new ServiceCollection();
 
         services.AddSingleton(ContainerRegistry.Default);
-        services.AddSingleton<IDiskManager, WindowsDiskManager>();
+#if DEBUG
+        if (Environment.GetEnvironmentVariable("FLASHTOOL_DEMO") == "1")
+        {
+            services.AddSingleton<IDiskManager, DemoDiskManager>();
+        }
+        else
+#endif
+        {
+            services.AddSingleton<IDiskManager, WindowsDiskManager>();
+        }
         services.AddSingleton(_ =>
         {
             // No automatic decompression: image bytes must arrive exactly as stored on the server.
@@ -91,7 +107,31 @@ public partial class App : Application
 
     private void OnUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
     {
-        MessageBox.Show(Formatting.Error(e.Exception), Loc.Get("Error_Title"), MessageBoxButton.OK, MessageBoxImage.Error);
+        var log = WriteErrorLog(e.Exception);
+        var message = Formatting.Error(e.Exception);
+        if (log != null)
+        {
+            message += Environment.NewLine + Environment.NewLine + log;
+        }
+
+        MessageBox.Show(message, Loc.Get("Error_Title"), MessageBoxButton.OK, MessageBoxImage.Error);
         e.Handled = true;
+    }
+
+    /// <summary>Appends the full exception to %LOCALAPPDATA%\FlashTool\error.log; returns the log path.</summary>
+    private static string? WriteErrorLog(Exception exception)
+    {
+        try
+        {
+            var folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "FlashTool");
+            Directory.CreateDirectory(folder);
+            var path = Path.Combine(folder, "error.log");
+            File.AppendAllText(path, $"[{DateTime.Now:O}] {exception}{Environment.NewLine}{Environment.NewLine}");
+            return path;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            return null;
+        }
     }
 }

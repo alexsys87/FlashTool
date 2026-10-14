@@ -11,6 +11,7 @@ public sealed class XzContainerHandler : IContainerHandler
 {
     private static readonly object InitLock = new();
     private static bool? _available;
+    private static string? _libraryPath;
 
     internal static ReadOnlySpan<byte> Magic => [0xFD, 0x37, 0x7A, 0x58, 0x5A, 0x00];
 
@@ -23,6 +24,21 @@ public sealed class XzContainerHandler : IContainerHandler
     public bool CanCreate => true;
 
     public bool RequiresSeekableSource => false;
+
+    /// <summary>
+    /// Sets an explicit path to liblzma (e.g. extracted from a single-file bundle).
+    /// Must be called before the first use; otherwise the library is searched next to the application.
+    /// </summary>
+    public static void Initialize(string libraryPath)
+    {
+        lock (InitLock)
+        {
+            if (!_available.HasValue)
+            {
+                _libraryPath = libraryPath;
+            }
+        }
+    }
 
     public bool IsMatch(ReadOnlySpan<byte> header) => header.Length >= 6 && header[..6].SequenceEqual(Magic);
 
@@ -97,7 +113,7 @@ public sealed class XzContainerHandler : IContainerHandler
 
             try
             {
-                var path = NativeLibraryLocator.Find(OperatingSystem.IsWindows() ? "liblzma.dll" : OperatingSystem.IsMacOS() ? "liblzma.dylib" : "liblzma.so");
+                var path = _libraryPath ?? NativeLibraryLocator.Find(OperatingSystem.IsWindows() ? "liblzma.dll" : OperatingSystem.IsMacOS() ? "liblzma.dylib" : "liblzma.so");
                 if (path != null)
                 {
                     XZInit.GlobalInit(path);

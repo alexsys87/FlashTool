@@ -24,6 +24,7 @@ public enum FlashErrorCode
     TargetIsSystemDisk,
     VerificationFailed,
     PartitionTableUpdateFailed,
+    FileSystemResizeFailed,
 }
 
 /// <summary>

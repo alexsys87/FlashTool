@@ -61,96 +61,132 @@ public static class WriteImageOperation
             throw new FlashToolException(FlashErrorCode.NotADiskImage, $"'{entry.Name}' is not a recognized disk image.", null, entry.Name);
         }
 
-        using var device = await Task.Run(openTarget, cancellationToken).ConfigureAwait(false);
-        if (entry.Length > device.Length)
-        {
-            throw new FlashToolException(FlashErrorCode.ImageTooLarge, "The image is larger than the device.", null, entry.Length, device.Length);
-        }
-
-        var chunk = AlignChunk(options.ChunkSize, device.SectorSize);
-        var hashes = new BlockHashList(chunk);
-        var source = new PrefixedStream(head, reader.Data);
-
-        // Blank the first chunk so the OS never sees a half-written partition
-        // table; the real first chunk is written last.
-        var firstChunk = new AlignedBuffer(chunk);
+        var device = await Task.Run(openTarget, cancellationToken).ConfigureAwait(false);
         long written;
+        PartitionFixupResult? fixups = null;
         try
         {
-            var firstLength = 0;
-            var zeroLength = (int)Math.Min(chunk, StreamExtensions.AlignDown(device.Length, device.SectorSize));
-            device.Write(0, firstChunk.Span[..zeroLength]);
+            if (entry.Length > device.Length)
+            {
+                throw new FlashToolException(FlashErrorCode.ImageTooLarge, "The image is larger than the device.", null, entry.Length, device.Length);
+            }
 
-            var writeProgress = new ProgressReporter(
-                progress,
-                OperationPhase.Writing,
-                entry.Length,
-                reader.CompressedLength is > 0 ? () => (double)reader.CompressedPosition / reader.CompressedLength.Value : null);
+            var chunk = AlignChunk(options.ChunkSize, device.SectorSize);
+            var hashes = new BlockHashList(chunk);
+            var source = new PrefixedStream(head, reader.Data);
 
-            written = await TransferPipeline.RunAsync(
-                chunk,
-                options.PipelineDepth,
-                buffer => source.ReadUpTo(buffer.Span),
-                (buffer, count, offset) =>
+            // Blank the first chunk so the OS never sees a half-written partition
+            // table; the real first chunk is written last.
+            var firstChunk = new AlignedBuffer(chunk);
+            try
+            {
+                var firstLength = 0;
+                var zeroLength = (int)Math.Min(chunk, StreamExtensions.AlignDown(device.Length, device.SectorSize));
+                device.Write(0, firstChunk.Span[..zeroLength]);
+
+                var writeProgress = new ProgressReporter(
+                    progress,
+                    OperationPhase.Writing,
+                    entry.Length,
+                    reader.CompressedLength is > 0 ? () => (double)reader.CompressedPosition / reader.CompressedLength.Value : null);
+
+                written = await TransferPipeline.RunAsync(
+                    chunk,
+                    options.PipelineDepth,
+                    buffer => source.ReadUpTo(buffer.Span),
+                    (buffer, count, offset) =>
+                    {
+                        if (offset + count > device.Length)
+                        {
+                            throw new FlashToolException(FlashErrorCode.ImageTooLarge, "The image is larger than the device.", null, offset + count, device.Length);
+                        }
+
+                        var data = buffer.Span[..count];
+                        hashes.Append(data);
+                        var aligned = PadToSector(buffer.Span, count, device.SectorSize);
+                        if (offset == 0)
+                        {
+                            buffer.Span[..aligned].CopyTo(firstChunk.Span);
+                            firstLength = aligned;
+                        }
+                        else
+                        {
+                            device.Write(offset, buffer.Span[..aligned]);
+                        }
+
+                        writeProgress.Report(offset + count);
+                    },
+                    cancellationToken).ConfigureAwait(false);
+
+                if (written == 0)
                 {
-                    if (offset + count > device.Length)
-                    {
-                        throw new FlashToolException(FlashErrorCode.ImageTooLarge, "The image is larger than the device.", null, offset + count, device.Length);
-                    }
+                    throw new FlashToolException(FlashErrorCode.UnexpectedEndOfImage, "The image is empty.");
+                }
 
-                    var data = buffer.Span[..count];
-                    hashes.Append(data);
-                    var aligned = PadToSector(buffer.Span, count, device.SectorSize);
-                    if (offset == 0)
-                    {
-                        buffer.Span[..aligned].CopyTo(firstChunk.Span);
-                        firstLength = aligned;
-                    }
-                    else
-                    {
-                        device.Write(offset, buffer.Span[..aligned]);
-                    }
+                if (entry.Length.HasValue && written != entry.Length.Value)
+                {
+                    throw new FlashToolException(FlashErrorCode.UnexpectedEndOfImage, "The image ended before its declared size.", null, written, entry.Length.Value);
+                }
 
-                    writeProgress.Report(offset + count);
-                },
-                cancellationToken).ConfigureAwait(false);
-
-            if (written == 0)
+                device.Write(0, firstChunk.Span[..firstLength]);
+                device.Flush();
+                writeProgress.Report(written, force: true);
+            }
+            finally
             {
-                throw new FlashToolException(FlashErrorCode.UnexpectedEndOfImage, "The image is empty.");
+                firstChunk.Free();
             }
 
-            if (entry.Length.HasValue && written != entry.Length.Value)
+            if (options.Verify)
             {
-                throw new FlashToolException(FlashErrorCode.UnexpectedEndOfImage, "The image ended before its declared size.", null, written, entry.Length.Value);
+                await VerifyDeviceAsync(device, hashes, chunk, options.PipelineDepth, progress, cancellationToken).ConfigureAwait(false);
             }
 
-            device.Write(0, firstChunk.Span[..firstLength]);
-            device.Flush();
-            writeProgress.Report(written, force: true);
+            // Partition table changes come after verification so they don't count as mismatches.
+            progress?.Report(new OperationProgress(OperationPhase.Finalizing, 0, null, 0, 0, null));
+            if (written < device.Length)
+            {
+                fixups = await Task.Run(
+                    () => PartitionTableEditor.Apply(device, image, options.ExpandLastPartition, options.FileSystemResizers, cancellationToken),
+                    cancellationToken).ConfigureAwait(false);
+            }
         }
         finally
         {
-            firstChunk.Free();
+            // Releasing the device lets the OS re-read the partition table and mount the volumes.
+            device.Dispose();
         }
 
-        if (options.Verify)
+        if (fixups is { PartitionExtended: true, FileSystemResized: false, FileSystemResizeError: null, Partition: { } grown })
         {
-            await VerifyDeviceAsync(device, hashes, chunk, options.PipelineDepth, progress, cancellationToken).ConfigureAwait(false);
-        }
-
-        // Partition table changes come after verification so they don't count as mismatches.
-        progress?.Report(new OperationProgress(OperationPhase.Finalizing, 0, null, 0, 0, null));
-        PartitionFixupResult? fixups = null;
-        if (written < device.Length)
-        {
-            fixups = await Task.Run(
-                () => PartitionTableEditor.Apply(device, image, options.ExpandLastPartition, options.FileSystemResizers, cancellationToken),
-                cancellationToken).ConfigureAwait(false);
+            fixups = await Task.Run(() => ResizeOnline(fixups, grown, options.FileSystemResizers, cancellationToken), cancellationToken).ConfigureAwait(false);
         }
 
         progress?.Report(new OperationProgress(OperationPhase.Completed, written, written, 1, 0, TimeSpan.Zero));
         return new WriteImageResult(written, options.Verify, image, fixups, clock.Elapsed);
+    }
+
+    /// <summary>Runs resizers that need the OS to have mounted the volume (NTFS).</summary>
+    private static PartitionFixupResult ResizeOnline(
+        PartitionFixupResult fixups,
+        PartitionInfo partition,
+        IReadOnlyList<IFileSystemResizer> resizers,
+        CancellationToken cancellationToken)
+    {
+        var resizer = resizers.FirstOrDefault(r => !r.RequiresOfflineDevice && r.CanResize(partition.FileSystem));
+        if (resizer == null)
+        {
+            return fixups;
+        }
+
+        try
+        {
+            return fixups with { FileSystemResized = resizer.Resize(null, partition, cancellationToken) };
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            return fixups with { FileSystemResizeError = ex.Message };
+        }
     }
 
     /// <summary>Reads the device back and compares it with the recorded block hashes.</summary>
