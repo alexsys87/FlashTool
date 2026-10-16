@@ -69,6 +69,7 @@ $programFiles = Add-Element $package 'StandardDirectory' @{ Id = 'ProgramFiles64
 $install = Add-Element $programFiles 'Directory' @{ Id = 'INSTALLFOLDER'; Name = "FlashTool-net$DotNetMajor" }
 $menu = Add-Element $package 'StandardDirectory' @{ Id = 'ProgramMenuFolder' }
 $appMenu = Add-Element $menu 'Directory' @{ Id = 'ApplicationProgramsFolder'; Name = "FlashTool (.NET $DotNetMajor)" }
+$desktop = Add-Element $package 'StandardDirectory' @{ Id = 'DesktopFolder' }
 $feature = Add-Element $package 'Feature' @{ Id = 'MainFeature'; Title = 'FlashTool'; Level = '1' }
 $directories = @{ '' = $install }
 function Get-DirectoryNode([string]$RelativePath) {
@@ -107,6 +108,17 @@ $menuComponent = Add-Element $appMenu 'Component' @{ Id = 'MenuCleanup'; Guid = 
     Type = 'integer'; Value = '1'; KeyPath = 'yes'
 })
 [void](Add-Element $feature 'ComponentRef' @{ Id = 'MenuCleanup' })
+$desktopComponent = Add-Element $desktop 'Component' @{ Id = 'DesktopShortcutComponent'; Guid = '*'; Bitness = 'always64' }
+[void](Add-Element $desktopComponent 'Shortcut' @{
+    Id = 'DesktopShortcut'; Name = "FlashTool (.NET $DotNetMajor)"
+    Target = '[INSTALLFOLDER]FlashTool.exe'; WorkingDirectory = 'INSTALLFOLDER'
+    Icon = 'FlashTool.exe'; IconIndex = '0'; Advertise = 'no'
+})
+[void](Add-Element $desktopComponent 'RegistryValue' @{
+    Root = 'HKCU'; Key = "Software\FlashTool\Installer\net$DotNetMajor"; Name = 'DesktopShortcutInstalled'
+    Type = 'integer'; Value = '1'; KeyPath = 'yes'
+})
+[void](Add-Element $feature 'ComponentRef' @{ Id = 'DesktopShortcutComponent' })
 $doc.Save($wxsPath)
 & $WixPath build $wxsPath -arch x64 -ext WixToolset.UI.wixext -culture en-US -o $output
 if ($LASTEXITCODE -ne 0) { throw "WiX build failed with exit code $LASTEXITCODE." }

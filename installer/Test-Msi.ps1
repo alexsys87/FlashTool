@@ -54,6 +54,12 @@ try {
     if ((Get-MsiValue 'SELECT `IconIndex` FROM `Shortcut` WHERE `Shortcut` = ''StartMenuShortcut''') -ne '0') {
         throw 'The shortcut icon index must be zero.'
     }
+    if ((Get-MsiValue 'SELECT `Icon_` FROM `Shortcut` WHERE `Shortcut` = ''DesktopShortcut''') -ne 'FlashTool.exe') {
+        throw 'The desktop shortcut must reference the embedded icon with an exe extension.'
+    }
+    if ((Get-MsiValue 'SELECT `IconIndex` FROM `Shortcut` WHERE `Shortcut` = ''DesktopShortcut''') -ne '0') {
+        throw 'The desktop shortcut icon index must be zero.'
+    }
     if (-not (Get-MsiValue 'SELECT `Name` FROM `Icon` WHERE `Name` = ''FlashTool.exe''')) {
         throw 'The MSI does not contain the shortcut icon.'
     }
@@ -68,6 +74,7 @@ function Invoke-Msi([string[]]$Arguments) {
     if ($process.ExitCode -notin @(0, 3010)) { throw "msiexec failed with exit code $($process.ExitCode). See $logs." }
 }
 $shortcutPath = $null
+$desktopShortcutPath = $null
 try {
     Invoke-Msi @('/i', "`"$msi`"", '/qn', '/norestart', "INSTALLFOLDER=`"$install`"", '/L*v', "`"$logs/install.log`"")
     $sourceFiles = @(Get-ChildItem -LiteralPath $publish -File -Recurse)
@@ -87,21 +94,34 @@ try {
         if (Test-Path -LiteralPath $candidate -PathType Leaf) { $shortcutPath = $candidate; break }
     }
     if (-not $shortcutPath) { throw 'The installed Start menu shortcut is missing.' }
+    foreach ($folder in @([Environment]::GetFolderPath('CommonDesktopDirectory'), [Environment]::GetFolderPath('Desktop'))) {
+        $candidate = Join-Path $folder "$productName.lnk"
+        if (Test-Path -LiteralPath $candidate -PathType Leaf) { $desktopShortcutPath = $candidate; break }
+    }
+    if (-not $desktopShortcutPath) { throw 'The installed Desktop shortcut is missing.' }
     $shell = New-Object -ComObject WScript.Shell
-    $shortcut = $shell.CreateShortcut($shortcutPath)
     try {
-        if ($shortcut.TargetPath -ne (Join-Path $install 'FlashTool.exe')) { throw 'Incorrect shortcut target.' }
-        if ($shortcut.WorkingDirectory.TrimEnd('\') -ne $install.TrimEnd('\')) { throw 'Incorrect shortcut working directory.' }
-        if ($shortcut.IconLocation -notmatch '^(.*),\s*0$') { throw 'The shortcut does not use an explicit icon at index zero.' }
-        $iconPath = $Matches[1].Trim('"')
-        if (-not (Test-Path -LiteralPath $iconPath -PathType Leaf)) { throw "Shortcut icon file missing: $iconPath" }
-        $iconBytes = [IO.File]::ReadAllBytes($iconPath)
-        if ($iconBytes.Length -lt 6 -or [BitConverter]::ToUInt16($iconBytes, 0) -ne 0 -or [BitConverter]::ToUInt16($iconBytes, 2) -ne 1 -or [BitConverter]::ToUInt16($iconBytes, 4) -eq 0) {
-            throw 'The Windows Installer icon cache does not contain valid ICO data.'
+        foreach ($sInfo in @(
+            @{ Path = $shortcutPath; Name = 'Start menu shortcut' },
+            @{ Path = $desktopShortcutPath; Name = 'Desktop shortcut' }
+        )) {
+            $shortcut = $shell.CreateShortcut($sInfo.Path)
+            try {
+                if ($shortcut.TargetPath -ne (Join-Path $install 'FlashTool.exe')) { throw "Incorrect $($sInfo.Name) target." }
+                if ($shortcut.WorkingDirectory.TrimEnd('\') -ne $install.TrimEnd('\')) { throw "Incorrect $($sInfo.Name) working directory." }
+                if ($shortcut.IconLocation -notmatch '^(.*),\s*0$') { throw "The $($sInfo.Name) does not use an explicit icon at index zero." }
+                $iconPath = $Matches[1].Trim('"')
+                if (-not (Test-Path -LiteralPath $iconPath -PathType Leaf)) { throw "$($sInfo.Name) icon file missing: $iconPath" }
+                $iconBytes = [IO.File]::ReadAllBytes($iconPath)
+                if ($iconBytes.Length -lt 6 -or [BitConverter]::ToUInt16($iconBytes, 0) -ne 0 -or [BitConverter]::ToUInt16($iconBytes, 2) -ne 1 -or [BitConverter]::ToUInt16($iconBytes, 4) -eq 0) {
+                    throw "The Windows Installer icon cache does not contain valid ICO data for $($sInfo.Name)."
+                }
+                Write-Host "$($sInfo.Name) verified: target, working directory and valid cached ICO ($($shortcut.IconLocation))."
+            } finally {
+                [void][Runtime.InteropServices.Marshal]::FinalReleaseComObject($shortcut)
+            }
         }
-        Write-Host "Start menu shortcut verified: target, working directory and valid cached ICO ($($shortcut.IconLocation))."
     } finally {
-        [void][Runtime.InteropServices.Marshal]::FinalReleaseComObject($shortcut)
         [void][Runtime.InteropServices.Marshal]::FinalReleaseComObject($shell)
     }
 } finally {
@@ -109,4 +129,5 @@ try {
 }
 if (Test-Path -LiteralPath $install) { throw 'Installation directory remains after uninstall.' }
 if ($shortcutPath -and (Test-Path -LiteralPath $shortcutPath)) { throw 'Start menu shortcut remains after uninstall.' }
-Write-Host 'MSI uninstallation verified: application directory and shortcut removed.'
+if ($desktopShortcutPath -and (Test-Path -LiteralPath $desktopShortcutPath)) { throw 'Desktop shortcut remains after uninstall.' }
+Write-Host 'MSI uninstallation verified: application directory and shortcuts removed.'
