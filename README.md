@@ -56,7 +56,7 @@ FlashTool работает с носителем **посекторно**, а н
 | `FlashTool-net8-win-x64-msi` / `FlashTool-net10-win-x64-msi` | MSI-установщик с автономным приложением | Распаковать ZIP и запустить `.msi`; установка .NET не нужна |
 
 MSI устанавливает приложение для всех пользователей в `Program Files\FlashTool-net8` или
-`Program Files\FlashTool-net10`, создаёт ярлык в меню «Пуск» и запись в списке установленных
+`Program Files\FlashTool-net10`, создаёт ярлыки на рабочем столе и в меню «Пуск», а также запись в списке установленных
 приложений Windows. Стандартный мастер позволяет выбрать папку установки кнопкой
 **Change…** на странице **Destination Folder** (интерфейс установщика — английский).
 Установка требует прав администратора; удаление выполняется через
@@ -258,13 +258,13 @@ dotnet publish src/FlashTool.App -c Release -f net10.0-windows -r win-x64 --self
 MSI собирается [WiX Toolset](https://wixtoolset.org/) версии 5.0.2 из автономной публикации:
 
 ```powershell
-dotnet tool install wix --version 5.0.2 --tool-path .tools
-./.tools/wix.exe extension add --global WixToolset.UI.wixext/5.0.2
+dotnet tool install --global wix --version 5.0.2
+wix extension add --global WixToolset.UI.wixext/5.0.2
 dotnet publish src/FlashTool.App -f net8.0-windows -p:PublishProfile=win-x64-standalone -o publish/net8-standalone
-./installer/Build-Msi.ps1 -PublishDirectory publish/net8-standalone -DotNetMajor 8 -WixPath .tools/wix.exe -OutputPath artifacts/FlashTool-net8-win-x64.msi
+./installer/Build-Msi.ps1 -PublishDirectory publish/net8-standalone -DotNetMajor 8 -OutputPath artifacts/FlashTool-net8-win-x64.msi
 
 dotnet publish src/FlashTool.App -f net10.0-windows -p:PublishProfile=win-x64-standalone -o publish/net10-standalone
-./installer/Build-Msi.ps1 -PublishDirectory publish/net10-standalone -DotNetMajor 10 -WixPath .tools/wix.exe -OutputPath artifacts/FlashTool-net10-win-x64.msi
+./installer/Build-Msi.ps1 -PublishDirectory publish/net10-standalone -DotNetMajor 10 -OutputPath artifacts/FlashTool-net10-win-x64.msi
 ```
 
 По умолчанию версия MSI — `0.1.0`; её можно задать параметром `-ProductVersion 0.1.1`.

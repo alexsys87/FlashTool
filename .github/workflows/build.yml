@@ -64,12 +64,12 @@ jobs:
 
       - name: Install WiX and standard installer UI
         run: |
-          dotnet tool install wix --version 5.0.2 --tool-path .tools
-          ./.tools/wix.exe extension add --global WixToolset.UI.wixext/5.0.2
+          dotnet tool install --global wix --version 5.0.2
+          wix extension add --global WixToolset.UI.wixext/5.0.2
 
       - name: Build MSI from standalone application
         run: |
-          ./installer/Build-Msi.ps1 -PublishDirectory publish/standalone -DotNetMajor ${{ matrix.dotnet }} -ProductVersion "0.1.${{ github.run_number }}" -WixPath .tools/wix.exe -OutputPath "artifacts/FlashTool-net${{ matrix.dotnet }}-win-x64.msi"
+          ./installer/Build-Msi.ps1 -PublishDirectory publish/standalone -DotNetMajor ${{ matrix.dotnet }} -ProductVersion "0.1.${{ github.run_number }}" -WixPath wix -OutputPath "artifacts/FlashTool-net${{ matrix.dotnet }}-win-x64.msi"
 
       - name: Test MSI installation and removal
         run: |
