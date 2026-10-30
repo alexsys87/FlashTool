@@ -26,6 +26,12 @@ public enum FlashErrorCode
     PartitionTableUpdateFailed,
     FileSystemResizeFailed,
     DeviceEjectFailed,
+
+    /// <summary>The device is too large for an MBR partition table (args: device size).</summary>
+    DeviceTooLargeForMbr,
+
+    /// <summary>The file system cannot cover a volume of this size (args: file system, volume size).</summary>
+    FileSystemSizeNotSupported,
 }
 
 /// <summary>

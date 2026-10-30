@@ -1,4 +1,5 @@
 using FlashTool.Core.Containers;
+using FlashTool.Core.Operations;
 
 namespace FlashTool.App.Services;
 
@@ -62,6 +63,23 @@ public sealed class AppSettings
     public string? ReadDeviceKey { get; set; }
 
     public string? ReadDestination { get; set; }
+
+    /// <summary>Shows the "Erase" page. Off by default; turning it on asks for confirmation.</summary>
+    public bool EraseEnabled { get; set; }
+
+    public EraseMode EraseMode { get; set; } = EraseMode.Quick;
+
+    public ErasePattern ErasePattern { get; set; } = ErasePattern.Random;
+
+    public bool EraseVerify { get; set; } = true;
+
+    public EraseFileSystem EraseFileSystem { get; set; } = EraseFileSystem.Auto;
+
+    public ErasePartitionScheme ErasePartitionScheme { get; set; } = ErasePartitionScheme.Mbr;
+
+    public string EraseLabel { get; set; } = string.Empty;
+
+    public string? EraseDeviceKey { get; set; }
 }
 
 /// <summary>Main window bounds (in the "normal" state) and whether it was maximized.</summary>

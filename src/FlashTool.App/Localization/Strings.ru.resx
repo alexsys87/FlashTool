@@ -9,6 +9,7 @@
   <data name="Nav_Read" xml:space="preserve"><value>Создание образа</value></data>
   <data name="Nav_Settings" xml:space="preserve"><value>Настройки</value></data>
   <data name="Nav_Verify" xml:space="preserve"><value>Проверка</value></data>
+  <data name="Nav_Erase" xml:space="preserve"><value>Очистка</value></data>
   <data name="Verify_Header" xml:space="preserve"><value>Сравнение образа с носителем</value></data>
   <data name="Verify_DeviceTitle" xml:space="preserve"><value>Проверяемый носитель</value></data>
   <data name="Verify_MethodTitle" xml:space="preserve"><value>Побайтовое сравнение</value></data>
@@ -71,6 +72,52 @@
   <data name="Write_FsResizeFailed" xml:space="preserve"><value>Не удалось расширить файловую систему {0}: {1}</value></data>
   <data name="Write_GptRelocated" xml:space="preserve"><value>Резервная GPT перенесена в конец носителя.</value></data>
   <data name="Write_Failed" xml:space="preserve"><value>Ошибка записи</value></data>
+  <data name="Erase_Header" xml:space="preserve"><value>Очистка носителя</value></data>
+  <data name="Erase_Warning" xml:space="preserve"><value>Очистка уничтожает все разделы и данные на выбранном носителе. Отменить её нельзя.</value></data>
+  <data name="Erase_DeviceTitle" xml:space="preserve"><value>Носитель для очистки</value></data>
+  <data name="Erase_MethodTitle" xml:space="preserve"><value>Способ очистки</value></data>
+  <data name="Erase_Quick" xml:space="preserve"><value>Быстрая очистка</value></data>
+  <data name="Erase_QuickDescription" xml:space="preserve"><value>Стирает таблицы разделов и сигнатуры файловых систем, затем создаёт новую файловую систему. Занимает секунды. Старые данные физически остаются на носителе и могут быть восстановлены специальными программами.</value></data>
+  <data name="Erase_Full" xml:space="preserve"><value>Полное форматирование</value></data>
+  <data name="Erase_FullDescription" xml:space="preserve"><value>Один раз записывает нули на весь носитель, затем создаёт новую файловую систему, как полное форматирование в Windows. Программно восстановить старые данные уже нельзя.</value></data>
+  <data name="Erase_Secure" xml:space="preserve"><value>Разрушительное форматирование с проверкой</value></data>
+  <data name="Erase_SecureDescription" xml:space="preserve"><value>Перезаписывает каждый сектор шаблоном, затем читает весь носитель обратно. Уничтожает данные и одновременно проверяет носитель: находит сбойные сектора и поддельные карты с завышенной ёмкостью. Носитель целиком записывается и читается, поэтому это самый долгий способ.</value></data>
+  <data name="Erase_Pattern" xml:space="preserve"><value>Шаблон</value></data>
+  <data name="Erase_PatternDescription" xml:space="preserve"><value>Случайные данные различны в каждом секторе, поэтому проверка доказывает, что каждый сектор хранит именно свои данные. Нули не выявят карту, которая «заворачивает» адреса.</value></data>
+  <data name="Pattern_Random" xml:space="preserve"><value>Случайные данные (рекомендуется)</value></data>
+  <data name="Pattern_Zeros" xml:space="preserve"><value>Нули (0x00)</value></data>
+  <data name="Pattern_Ones" xml:space="preserve"><value>Единицы (0xFF)</value></data>
+  <data name="Erase_Verify" xml:space="preserve"><value>Проверить чтением</value></data>
+  <data name="Erase_VerifyDescription" xml:space="preserve"><value>После записи прочитать весь носитель и сравнить с шаблоном</value></data>
+  <data name="Erase_FormatTitle" xml:space="preserve"><value>Новая файловая система</value></data>
+  <data name="Erase_FileSystem" xml:space="preserve"><value>Файловая система</value></data>
+  <data name="Erase_Scheme" xml:space="preserve"><value>Таблица разделов</value></data>
+  <data name="Erase_Label" xml:space="preserve"><value>Метка тома</value></data>
+  <data name="Erase_LabelHint" xml:space="preserve"><value>До 11 символов</value></data>
+  <data name="Erase_LabelAs" xml:space="preserve"><value>Будет записана как «{0}» (в метке FAT32 допустимы только заглавные латинские буквы, цифры и некоторые символы)</value></data>
+  <data name="FileSystem_Auto" xml:space="preserve"><value>Автоматически (FAT32 до 32 ГБ, exFAT больше)</value></data>
+  <data name="FileSystem_Fat32" xml:space="preserve"><value>FAT32</value></data>
+  <data name="FileSystem_ExFat" xml:space="preserve"><value>exFAT</value></data>
+  <data name="FileSystem_None" xml:space="preserve"><value>Нет (оставить носитель пустым)</value></data>
+  <data name="Scheme_Mbr" xml:space="preserve"><value>MBR (максимальная совместимость)</value></data>
+  <data name="Scheme_Gpt" xml:space="preserve"><value>GPT</value></data>
+  <data name="Erase_Plan" xml:space="preserve"><value>Будет создан раздел {0} размером {1} ({2}, кластер {3}).</value></data>
+  <data name="Erase_PlanEmpty" xml:space="preserve"><value>Носитель останется без разделов; Windows предложит его инициализировать.</value></data>
+  <data name="Erase_WillWrite" xml:space="preserve"><value>Будет записано: {0}.</value></data>
+  <data name="Erase_WillWriteAndRead" xml:space="preserve"><value>Будет записано {0}, затем прочитано {0}.</value></data>
+  <data name="Erase_Start" xml:space="preserve"><value>Стереть</value></data>
+  <data name="Erase_ConfirmTitle" xml:space="preserve"><value>Стереть носитель?</value></data>
+  <data name="Erase_ConfirmMessage" xml:space="preserve"><value>Все данные на «{0}» ({1}) будут уничтожены.
+Способ: {2}.
+
+Продолжить?</value></data>
+  <data name="Erase_ConfirmButton" xml:space="preserve"><value>Стереть</value></data>
+  <data name="Erase_Success" xml:space="preserve"><value>Носитель очищен</value></data>
+  <data name="Erase_SuccessDetails" xml:space="preserve"><value>Выполнено за {0}.</value></data>
+  <data name="Erase_Overwritten" xml:space="preserve"><value>Перезаписано {0}.</value></data>
+  <data name="Erase_Verified" xml:space="preserve"><value>Проверка пройдена: все сектора читаются правильно.</value></data>
+  <data name="Erase_Formatted" xml:space="preserve"><value>Создан раздел {0} размером {1}.</value></data>
+  <data name="Erase_Failed" xml:space="preserve"><value>Ошибка очистки</value></data>
   <data name="Image_Size" xml:space="preserve"><value>Размер</value></data>
   <data name="Image_SizeUnknown" xml:space="preserve"><value>станет известен после распаковки</value></data>
   <data name="Image_Format" xml:space="preserve"><value>Формат</value></data>
@@ -137,6 +184,8 @@
   <data name="Phase_Verifying" xml:space="preserve"><value>Проверка</value></data>
   <data name="Phase_Finalizing" xml:space="preserve"><value>Завершение…</value></data>
   <data name="Phase_Ejecting" xml:space="preserve"><value>Извлечение носителя…</value></data>
+  <data name="Phase_Erasing" xml:space="preserve"><value>Стирание</value></data>
+  <data name="Phase_Formatting" xml:space="preserve"><value>Создание файловой системы…</value></data>
   <data name="Phase_Completed" xml:space="preserve"><value>Готово</value></data>
   <data name="Progress_Details" xml:space="preserve"><value>{0} из {1} · {2}/с · осталось {3}</value></data>
   <data name="Progress_DetailsNoTotal" xml:space="preserve"><value>{0} · {1}/с</value></data>
@@ -163,6 +212,14 @@
   <data name="Language_Russian" xml:space="preserve"><value>Русский</value></data>
   <data name="Settings_Devices" xml:space="preserve"><value>Устройства</value></data>
   <data name="Settings_ShowAllDescription" xml:space="preserve"><value>Внутренние HDD/SSD скрыты, чтобы их нельзя было стереть по ошибке. Запись на системный диск запрещена всегда.</value></data>
+  <data name="Settings_Erase" xml:space="preserve"><value>Очистка носителей</value></data>
+  <data name="Settings_EraseEnable" xml:space="preserve"><value>Показывать страницу «Очистка»</value></data>
+  <data name="Settings_EraseDescription" xml:space="preserve"><value>Быстрая очистка, полное и разрушительное форматирование носителя. По умолчанию скрыта, чтобы носитель нельзя было стереть по ошибке.</value></data>
+  <data name="Settings_EraseConfirmTitle" xml:space="preserve"><value>Включить очистку?</value></data>
+  <data name="Settings_EraseConfirmMessage" xml:space="preserve"><value>Страница «Очистка» полностью стирает выбранный носитель: все разделы и файлы уничтожаются. Пользуйтесь ей, только если уверены в выборе устройства.
+
+Показать страницу?</value></data>
+  <data name="Settings_EraseConfirmButton" xml:space="preserve"><value>Включить</value></data>
   <data name="Settings_Defaults" xml:space="preserve"><value>Параметры по умолчанию</value></data>
   <data name="Settings_About" xml:space="preserve"><value>О программе</value></data>
   <data name="Settings_Version" xml:space="preserve"><value>Версия {0} · .NET {1}</value></data>
@@ -194,6 +251,8 @@
   <data name="Eject_Refused" xml:space="preserve"><value>Windows отказала ({0})</value></data>
   <data name="Error_FileSystemResizeFailed" xml:space="preserve"><value>Не удалось расширить файловую систему.</value></data>
   <data name="Error_PartitionTableUpdateFailed" xml:space="preserve"><value>Образ записан, но изменить таблицу разделов не удалось.</value></data>
+  <data name="Error_DeviceTooLargeForMbr" xml:space="preserve"><value>Носитель ({0}) больше 2 ТБ, MBR такой размер не поддерживает. Выберите GPT.</value></data>
+  <data name="Error_FileSystemSizeNotSupported" xml:space="preserve"><value>{0} нельзя создать на томе размером {1}. Выберите другую файловую систему.</value></data>
   <data name="Error_InvalidSource" xml:space="preserve"><value>Укажите путь к файлу образа или ссылку http(s).</value></data>
   <data name="Error_FileNotFound" xml:space="preserve"><value>Файл не найден: {0}</value></data>
   <data name="Error_IoError" xml:space="preserve"><value>Ошибка ввода-вывода: {0}</value></data>

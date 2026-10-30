@@ -1,0 +1,148 @@
+<Page
+    x:Class="FlashTool.App.Views.Pages.ErasePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="clr-namespace:FlashTool.App.Views.Controls"
+    xmlns:loc="clr-namespace:FlashTool.App.Localization"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+    ScrollViewer.CanContentScroll="False">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="32,16,32,32" MaxWidth="900">
+            <TextBlock Margin="0,0,0,20" FontSize="26" FontWeight="SemiBold" Text="{loc:Tr Erase_Header}" />
+            <ui:InfoBar
+                Margin="0,0,0,20"
+                IsClosable="False"
+                IsOpen="True"
+                Message="{loc:Tr Erase_Warning}"
+                Severity="Warning" />
+
+            <!-- Target device -->
+            <controls:DeviceListPanel Margin="0,0,0,20" RequireWritable="True" Title="{loc:Tr Erase_DeviceTitle}" />
+
+            <!-- Method -->
+            <TextBlock Style="{StaticResource SectionTitle}" Text="{loc:Tr Erase_MethodTitle}" />
+            <ui:Card Margin="0,0,0,4">
+                <StackPanel>
+                    <RadioButton GroupName="EraseMode" IsChecked="{Binding IsQuick}">
+                        <StackPanel>
+                            <TextBlock FontWeight="SemiBold" Text="{loc:Tr Erase_Quick}" />
+                            <TextBlock Style="{StaticResource SecondaryText}" Text="{loc:Tr Erase_QuickDescription}" />
+                        </StackPanel>
+                    </RadioButton>
+                    <RadioButton Margin="0,12,0,0" GroupName="EraseMode" IsChecked="{Binding IsFull}">
+                        <StackPanel>
+                            <TextBlock FontWeight="SemiBold" Text="{loc:Tr Erase_Full}" />
+                            <TextBlock Style="{StaticResource SecondaryText}" Text="{loc:Tr Erase_FullDescription}" />
+                        </StackPanel>
+                    </RadioButton>
+                    <RadioButton Margin="0,12,0,0" GroupName="EraseMode" IsChecked="{Binding IsSecure}">
+                        <StackPanel>
+                            <TextBlock FontWeight="SemiBold" Text="{loc:Tr Erase_Secure}" />
+                            <TextBlock Style="{StaticResource SecondaryText}" Text="{loc:Tr Erase_SecureDescription}" />
+                        </StackPanel>
+                    </RadioButton>
+                </StackPanel>
+            </ui:Card>
+
+            <!-- Destructive format options -->
+            <StackPanel Visibility="{Binding IsSecure, Converter={StaticResource BoolToVisibility}}">
+                <ui:CardControl Margin="0,0,0,4" Icon="{ui:SymbolIcon Shapes24}">
+                    <ui:CardControl.Header>
+                        <StackPanel>
+                            <TextBlock Text="{loc:Tr Erase_Pattern}" />
+                            <TextBlock Style="{StaticResource SecondaryText}" Text="{loc:Tr Erase_PatternDescription}" />
+                        </StackPanel>
+                    </ui:CardControl.Header>
+                    <ComboBox MinWidth="220" DisplayMemberPath="Text" ItemsSource="{Binding Patterns}" SelectedItem="{Binding SelectedPattern}" />
+                </ui:CardControl>
+                <ui:CardControl Margin="0,0,0,4" Icon="{ui:SymbolIcon ShieldCheckmark24}">
+                    <ui:CardControl.Header>
+                        <StackPanel>
+                            <TextBlock Text="{loc:Tr Erase_Verify}" />
+                            <TextBlock Style="{StaticResource SecondaryText}" Text="{loc:Tr Erase_VerifyDescription}" />
+                        </StackPanel>
+                    </ui:CardControl.Header>
+                    <ui:ToggleSwitch IsChecked="{Binding Verify}" />
+                </ui:CardControl>
+            </StackPanel>
+            <TextBlock
+                Margin="4,4,0,0"
+                Style="{StaticResource SecondaryText}"
+                Text="{Binding WorkText}"
+                Visibility="{Binding WorkText, Converter={StaticResource NullToVisibility}}" />
+
+            <!-- New file system -->
+            <TextBlock Margin="0,20,0,8" Style="{StaticResource SectionTitle}" Text="{loc:Tr Erase_FormatTitle}" />
+            <ui:Card Margin="0,0,0,8">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="16" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Margin="0,0,0,4" Style="{StaticResource SecondaryText}" Text="{loc:Tr Erase_FileSystem}" />
+                            <ComboBox DisplayMemberPath="Text" ItemsSource="{Binding FileSystems}" SelectedItem="{Binding SelectedFileSystem}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" IsEnabled="{Binding CreatesFileSystem}">
+                            <TextBlock Margin="0,0,0,4" Style="{StaticResource SecondaryText}" Text="{loc:Tr Erase_Scheme}" />
+                            <ComboBox DisplayMemberPath="Text" ItemsSource="{Binding Schemes}" SelectedItem="{Binding SelectedScheme}" />
+                        </StackPanel>
+                    </Grid>
+                    <StackPanel Margin="0,12,0,0" IsEnabled="{Binding CreatesFileSystem}">
+                        <TextBlock Margin="0,0,0,4" Style="{StaticResource SecondaryText}" Text="{loc:Tr Erase_Label}" />
+                        <ui:TextBox
+                            Icon="{ui:SymbolIcon Tag24}"
+                            MaxLength="11"
+                            PlaceholderText="{loc:Tr Erase_LabelHint}"
+                            Text="{Binding Label, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBlock
+                            Margin="0,4,0,0"
+                            Style="{StaticResource SecondaryText}"
+                            Text="{Binding LabelNote}"
+                            Visibility="{Binding LabelNote, Converter={StaticResource NullToVisibility}}" />
+                    </StackPanel>
+                </StackPanel>
+            </ui:Card>
+            <TextBlock
+                Margin="4,0,0,12"
+                Style="{StaticResource SecondaryText}"
+                Text="{Binding PlanText}"
+                Visibility="{Binding PlanText, Converter={StaticResource NullToVisibility}}" />
+            <ui:InfoBar
+                Margin="0,0,0,12"
+                IsClosable="False"
+                IsOpen="True"
+                Message="{Binding PlanError}"
+                Severity="Error"
+                Visibility="{Binding PlanError, Converter={StaticResource NullToVisibility}}" />
+
+            <!-- Action -->
+            <controls:OperationPanel Margin="0,8,0,12" DataContext="{Binding Progress}" />
+            <ui:InfoBar
+                Margin="0,0,0,12"
+                IsClosable="True"
+                IsOpen="{Binding Result.IsOpen, Mode=TwoWay}"
+                Message="{Binding Result.Message}"
+                Severity="{Binding Result.Severity}"
+                Title="{Binding Result.Title}" />
+            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                <ui:Button
+                    Margin="0,0,8,0"
+                    Command="{Binding CancelCommand}"
+                    Content="{loc:Tr Cancel}"
+                    Icon="{ui:SymbolIcon Dismiss24}"
+                    Visibility="{Binding Operation.IsBusy, Converter={StaticResource BoolToVisibility}}" />
+                <ui:Button
+                    MinWidth="160"
+                    Appearance="Danger"
+                    Command="{Binding StartCommand}"
+                    Content="{loc:Tr Erase_Start}"
+                    Icon="{ui:SymbolIcon Eraser24}" />
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+</Page>
