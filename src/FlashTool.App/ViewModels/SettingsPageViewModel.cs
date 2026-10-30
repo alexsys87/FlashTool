@@ -1,7 +1,9 @@
+using System.ComponentModel;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using FlashTool.App.Localization;
 using FlashTool.App.Services;
 using FlashTool.Core.Containers;
@@ -13,6 +15,9 @@ public sealed partial class SettingsPageViewModel : LocalizedViewModel
     private readonly SettingsService _settings;
     private readonly AppearanceService _appearance;
     private readonly ContainerRegistry _registry;
+    private readonly EraseFeature _erase;
+    private readonly DialogService _dialogs;
+    private readonly OperationState _operation;
 
     [ObservableProperty]
     private LocalizedOption<ThemeMode> _selectedTheme;
@@ -20,12 +25,23 @@ public sealed partial class SettingsPageViewModel : LocalizedViewModel
     [ObservableProperty]
     private LocalizedOption<LanguageMode> _selectedLanguage;
 
-    public SettingsPageViewModel(SettingsService settings, AppearanceService appearance, ContainerRegistry registry, DeviceListService devices)
+    public SettingsPageViewModel(
+        SettingsService settings,
+        AppearanceService appearance,
+        ContainerRegistry registry,
+        DeviceListService devices,
+        EraseFeature erase,
+        DialogService dialogs,
+        OperationState operation)
     {
         _settings = settings;
         _appearance = appearance;
         _registry = registry;
+        _erase = erase;
+        _dialogs = dialogs;
+        _operation = operation;
         Devices = devices;
+        operation.PropertyChanged += OnOperationChanged;
 
         Themes = Enum.GetValues<ThemeMode>().Select(t => new LocalizedOption<ThemeMode>(t, $"Theme_{t}")).ToList();
         Languages =
@@ -44,6 +60,9 @@ public sealed partial class SettingsPageViewModel : LocalizedViewModel
     public IReadOnlyList<LocalizedOption<ThemeMode>> Themes { get; }
 
     public IReadOnlyList<LocalizedOption<LanguageMode>> Languages { get; }
+
+    /// <summary>State of the switch; it is changed only through <see cref="ToggleEraseCommand"/>.</summary>
+    public bool EraseEnabled => _erase.IsEnabled;
 
     public string VersionText => Loc.Format(
         "Settings_Version",
@@ -64,6 +83,27 @@ public sealed partial class SettingsPageViewModel : LocalizedViewModel
     public string FormatsText => Loc.Format(
         "Settings_Formats",
         string.Join(", ", _registry.Handlers.Where(h => h.IsAvailable).Select(h => h.Format == ContainerFormat.Raw ? "img/iso" : h.Extensions[0].TrimStart('.'))));
+
+    private bool CanToggleErase() => !_operation.IsBusy;
+
+    /// <summary>Turning the "Erase" page on needs a confirmation; turning it off does not.</summary>
+    [RelayCommand(CanExecute = nameof(CanToggleErase))]
+    private async Task ToggleEraseAsync()
+    {
+        _erase.IsEnabled = !_erase.IsEnabled
+            && await _dialogs.ConfirmAsync(Loc.Get("Settings_EraseConfirmTitle"), Loc.Get("Settings_EraseConfirmMessage"), Loc.Get("Settings_EraseConfirmButton"));
+
+        // The switch has already flipped itself; bring it back in line when the dialog was cancelled.
+        OnPropertyChanged(nameof(EraseEnabled));
+    }
+
+    private void OnOperationChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(OperationState.IsBusy))
+        {
+            ToggleEraseCommand.NotifyCanExecuteChanged();
+        }
+    }
 
     partial void OnSelectedThemeChanged(LocalizedOption<ThemeMode> value)
     {

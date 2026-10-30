@@ -102,16 +102,19 @@ public partial class App : Application
         services.AddSingleton<IContentDialogService, ContentDialogService>();
         services.AddSingleton<DialogService>();
         services.AddSingleton<IoErrorPrompt>();
+        services.AddSingleton<EraseFeature>();
 
         // Every page that picks an image gets its own picker state.
         services.AddTransient<ImageSourceViewModel>();
         services.AddSingleton<WritePageViewModel>();
         services.AddSingleton<VerifyPageViewModel>();
         services.AddSingleton<ReadPageViewModel>();
+        services.AddSingleton<ErasePageViewModel>();
         services.AddSingleton<SettingsPageViewModel>();
         services.AddSingleton<WritePage>();
         services.AddSingleton<ReadPage>();
         services.AddSingleton<VerifyPage>();
+        services.AddSingleton<ErasePage>();
         services.AddSingleton<SettingsPage>();
         services.AddSingleton<MainWindow>();
 

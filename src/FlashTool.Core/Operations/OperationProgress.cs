@@ -10,6 +10,12 @@ public enum OperationPhase
     Verifying,
     Finalizing,
 
+    /// <summary>Overwriting the device when it is erased.</summary>
+    Erasing,
+
+    /// <summary>Creating the partition table and file system after erasing.</summary>
+    Formatting,
+
     /// <summary>Safely removing the device after writing (done by the UI).</summary>
     Ejecting,
     Completed,

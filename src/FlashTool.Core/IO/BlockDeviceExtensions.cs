@@ -31,4 +31,19 @@ public static class BlockDeviceExtensions
         data.CopyTo(buffer.Span[(int)(offset - start)..]);
         device.Write(start, buffer.Span);
     }
+
+    /// <summary>Fills a sector-aligned range with zeros.</summary>
+    public static void Zero(this IBlockDevice device, long offset, long length, CancellationToken cancellationToken = default)
+    {
+        const int chunk = 1024 * 1024;
+        using var zeros = new AlignedBuffer((int)Math.Min(chunk, Math.Max(length, device.SectorSize)));
+        var end = offset + length;
+        while (offset < end)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            var count = (int)Math.Min(zeros.Size, end - offset);
+            device.Write(offset, zeros.Span[..count]);
+            offset += count;
+        }
+    }
 }

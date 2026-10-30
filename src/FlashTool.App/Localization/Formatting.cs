@@ -5,6 +5,7 @@ using FlashTool.Core.Containers;
 using FlashTool.Core.Devices;
 using FlashTool.Core.Imaging;
 using FlashTool.Core.Operations;
+using FlashTool.Core.Partitioning;
 
 namespace FlashTool.App.Localization;
 
@@ -52,6 +53,9 @@ public static class Formatting
 
     public static string Compression(CompressionPreset preset) => Loc.Get($"Compression_{preset}");
 
+    /// <summary>File system name as Windows writes it ("FAT32", "exFAT", "NTFS").</summary>
+    public static string FileSystem(FileSystemType fileSystem) => fileSystem == FileSystemType.ExFat ? "exFAT" : fileSystem.ToString().ToUpperInvariant();
+
     public static string Progress(OperationProgress p)
     {
         var speed = Size((long)p.BytesPerSecond);
@@ -70,6 +74,12 @@ public static class Formatting
 
             case FlashToolException { Code: FlashErrorCode.DeviceEjectFailed, Arguments: [EjectFailure reason, var detail, ..] }:
                 return Loc.Format("Error_DeviceEjectFailed", Loc.Format($"Eject_{reason}", detail));
+
+            case FlashToolException { Code: FlashErrorCode.DeviceTooLargeForMbr, Arguments: [long size, ..] }:
+                return Loc.Format("Error_DeviceTooLargeForMbr", Size(size));
+
+            case FlashToolException { Code: FlashErrorCode.FileSystemSizeNotSupported, Arguments: [FileSystemType fileSystem, long size, ..] }:
+                return Loc.Format("Error_FileSystemSizeNotSupported", FileSystem(fileSystem), Size(size));
 
             case FlashToolException f:
                 var key = $"Error_{f.Code}";

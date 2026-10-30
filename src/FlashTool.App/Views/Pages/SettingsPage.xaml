@@ -42,6 +42,18 @@
                 <ui:ToggleSwitch IsChecked="{Binding Devices.ShowAllDisks}" />
             </ui:CardControl>
 
+            <TextBlock Style="{StaticResource SectionTitle}" Text="{loc:Tr Settings_Erase}" />
+            <ui:CardControl Margin="0,0,0,20" Icon="{ui:SymbolIcon Eraser24}">
+                <ui:CardControl.Header>
+                    <StackPanel>
+                        <TextBlock Text="{loc:Tr Settings_EraseEnable}" />
+                        <TextBlock Style="{StaticResource SecondaryText}" Text="{loc:Tr Settings_EraseDescription}" />
+                    </StackPanel>
+                </ui:CardControl.Header>
+                <!-- One-way: the command asks for confirmation before the setting changes. -->
+                <ui:ToggleSwitch Command="{Binding ToggleEraseCommand}" IsChecked="{Binding EraseEnabled, Mode=OneWay}" />
+            </ui:CardControl>
+
             <TextBlock Style="{StaticResource SectionTitle}" Text="{loc:Tr Settings_About}" />
             <ui:Card>
                 <StackPanel Orientation="Horizontal">

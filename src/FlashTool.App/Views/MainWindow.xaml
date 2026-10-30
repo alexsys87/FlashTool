@@ -56,6 +56,16 @@
                         <ui:SymbolIcon Symbol="ShieldTask24" />
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
+                <!-- Shown only when enabled in the settings (see EraseFeature). -->
+                <ui:NavigationViewItem
+                    x:Name="EraseNavigationItem"
+                    Content="{loc:Tr Nav_Erase}"
+                    TargetPageType="{x:Type pages:ErasePage}"
+                    Visibility="Collapsed">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="Eraser24" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
             </ui:NavigationView.MenuItems>
             <ui:NavigationView.FooterMenuItems>
                 <ui:NavigationViewItem Content="{loc:Tr Nav_Settings}" TargetPageType="{x:Type pages:SettingsPage}">

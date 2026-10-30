@@ -14,23 +14,34 @@ namespace FlashTool.App.Views;
 
 public partial class MainWindow : FluentWindow
 {
-    private static readonly Type[] Pages = [typeof(WritePage), typeof(ReadPage), typeof(VerifyPage), typeof(SettingsPage)];
+    private static readonly Type[] Pages = [typeof(WritePage), typeof(ReadPage), typeof(VerifyPage), typeof(ErasePage), typeof(SettingsPage)];
 
     private readonly IServiceProvider _services;
     private readonly OperationState _operation;
     private readonly DialogService _dialogs;
     private readonly SettingsService _settings;
+    private readonly EraseFeature _erase;
     private bool _closeConfirmed;
     private Type? _currentPage;
 
-    public MainWindow(IServiceProvider services, OperationState operation, IContentDialogService contentDialogs, DialogService dialogs, SettingsService settings)
+    public MainWindow(
+        IServiceProvider services,
+        OperationState operation,
+        IContentDialogService contentDialogs,
+        DialogService dialogs,
+        SettingsService settings,
+        EraseFeature erase)
     {
         _services = services;
         _operation = operation;
         _dialogs = dialogs;
         _settings = settings;
+        _erase = erase;
         DataContext = operation;
         InitializeComponent();
+
+        UpdateEraseNavigation();
+        erase.PropertyChanged += (_, _) => UpdateEraseNavigation();
 
         contentDialogs.SetDialogHost(RootContentDialogHost);
         RootNavigation.SetServiceProvider(services);
@@ -47,7 +58,8 @@ public partial class MainWindow : FluentWindow
                 _settings.Settings.LastPage = _currentPage.Name;
                 _settings.Save();
             };
-            RootNavigation.Navigate(Pages.FirstOrDefault(p => p.Name == _settings.Settings.LastPage) ?? typeof(WritePage));
+            var lastPage = Pages.FirstOrDefault(p => p.Name == _settings.Settings.LastPage && (p != typeof(ErasePage) || _erase.IsEnabled));
+            RootNavigation.Navigate(lastPage ?? typeof(WritePage));
             RootNavigation.PaneOpened += (_, _) => SavePaneState(true);
             RootNavigation.PaneClosed += (_, _) => SavePaneState(false);
         };
@@ -123,6 +135,9 @@ public partial class MainWindow : FluentWindow
             Close();
         }
     }
+
+    private void UpdateEraseNavigation()
+        => EraseNavigationItem.Visibility = _erase.IsEnabled ? Visibility.Visible : Visibility.Collapsed;
 
     private void SavePaneState(bool open)
     {
