@@ -1,15 +1,18 @@
 using System.Windows.Shell;
 using CommunityToolkit.Mvvm.ComponentModel;
+using FlashTool.Platform.Windows;
 
 namespace FlashTool.App.Services;
 
 /// <summary>
-/// Global "one disk operation at a time" state. Also drives the taskbar progress.
+/// Global "one disk operation at a time" state. Also drives the taskbar progress and keeps
+/// Windows from going to sleep while an operation runs.
 /// </summary>
 public sealed partial class OperationState : ObservableObject
 {
     private CancellationTokenSource? _cts;
     private TaskCompletionSource? _finished;
+    private SleepInhibitor? _sleepInhibitor;
 
     [ObservableProperty]
     private bool _isBusy;
@@ -29,6 +32,7 @@ public sealed partial class OperationState : ObservableObject
 
         _cts = new CancellationTokenSource();
         _finished = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        _sleepInhibitor = SleepInhibitor.Acquire();
         IsBusy = true;
         TaskbarProgress = 0;
         TaskbarState = TaskbarItemProgressState.Indeterminate;
@@ -47,6 +51,10 @@ public sealed partial class OperationState : ObservableObject
 
     public void End(bool failed)
     {
+        // First, so that a failing property notification below cannot leave the system held awake.
+        _sleepInhibitor?.Dispose();
+        _sleepInhibitor = null;
+
         IsBusy = false;
         TaskbarState = failed ? TaskbarItemProgressState.Error : TaskbarItemProgressState.None;
         TaskbarProgress = failed ? 1 : 0;

@@ -75,6 +75,14 @@ internal static unsafe partial class NativeMethods
     [return: MarshalAs(UnmanagedType.Bool)]
     public static partial bool GetVolumePathNamesForVolumeName(string volumeName, char* volumePathNames, uint bufferLength, out uint returnLength);
 
+    // Power management: keep the system awake while a long operation runs.
+    public const uint EsContinuous = 0x80000000;
+    public const uint EsSystemRequired = 0x00000001;
+
+    /// <summary>Returns the previous execution state of the calling thread, or 0 on failure.</summary>
+    [LibraryImport("kernel32.dll")]
+    public static partial uint SetThreadExecutionState(uint executionState);
+
     // SetupAPI / Configuration Manager: map a disk number to its PnP device node and eject it.
     public static readonly Guid GuidDevInterfaceDisk = new("53F56307-B6BF-11D0-94F2-00A0C91EFB8B");
     public const uint DigcfPresent = 0x2;
