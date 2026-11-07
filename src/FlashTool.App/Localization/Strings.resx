@@ -47,6 +47,16 @@
   <data name="Write_OptionsTitle" xml:space="preserve"><value>Options</value></data>
   <data name="Write_Verify" xml:space="preserve"><value>Verify after writing</value></data>
   <data name="Write_VerifyDescription" xml:space="preserve"><value>Read the device back and compare it with the image</value></data>
+  <data name="Write_Checksum" xml:space="preserve"><value>Checksum (SHA-256)</value></data>
+  <data name="Write_ChecksumDescription" xml:space="preserve"><value>Optional. SHA-256 of the image file itself, as published (.img.xz, .zip, …). A damaged file is caught.</value></data>
+  <data name="Write_ChecksumPlaceholder" xml:space="preserve"><value>SHA-256: 64 hex digits</value></data>
+  <data name="Write_ChecksumInvalid" xml:space="preserve"><value>That is not a SHA-256: expected 64 hexadecimal characters.</value></data>
+  <data name="Write_ChecksumBeforeWriting" xml:space="preserve"><value>The file is checked before writing starts.</value></data>
+  <data name="Write_ChecksumWhileDownloading" xml:space="preserve"><value>Checked while the file downloads; the partition table is written only if it matches.</value></data>
+  <data name="Write_ChecksumFound" xml:space="preserve"><value>Found in {0}. {1}</value></data>
+  <data name="Write_ChecksumSearching" xml:space="preserve"><value>Searching for a checksum file next to the image…</value></data>
+  <data name="Write_ChecksumNotFound" xml:space="preserve"><value>No checksum file found next to the image.</value></data>
+  <data name="Write_ChecksumUnverifiableFormat" xml:space="preserve"><value>A zip or 7z read by URL is accessed at random, so its checksum cannot be checked. Download the file and open the local copy.</value></data>
   <data name="Write_Expand" xml:space="preserve"><value>Expand the last partition to the whole device</value></data>
   <data name="Write_ExpandDescription" xml:space="preserve"><value>When the image is smaller than the device; ext2/3/4 and NTFS file systems are expanded too</value></data>
   <data name="Write_Eject" xml:space="preserve"><value>Eject the device after writing</value></data>
@@ -66,6 +76,8 @@ Write anyway?</value></data>
   <data name="Write_Success" xml:space="preserve"><value>The image was written successfully</value></data>
   <data name="Write_SuccessDetails" xml:space="preserve"><value>{0} written in {1}.</value></data>
   <data name="Write_Verified" xml:space="preserve"><value>Verification passed.</value></data>
+  <data name="Write_ChecksumVerified" xml:space="preserve"><value>The file's checksum matched.</value></data>
+  <data name="Write_ChecksumNotVerified" xml:space="preserve"><value>The file's checksum was not checked: the source could not be read through in one go.</value></data>
   <data name="Write_PartitionExtended" xml:space="preserve"><value>Partition {0} ({1}) was extended from {2} to {3}.</value></data>
   <data name="Write_FsNotResized" xml:space="preserve"><value>The {0} file system inside it was not resized.</value></data>
   <data name="Write_FsResized" xml:space="preserve"><value>The {0} file system was expanded to the whole partition.</value></data>
@@ -179,6 +191,7 @@ Continue?</value></data>
   <data name="Devices_NoMedia" xml:space="preserve"><value>No media</value></data>
   <data name="Devices_DiskNumber" xml:space="preserve"><value>Disk {0}</value></data>
   <data name="Phase_Preparing" xml:space="preserve"><value>Preparing…</value></data>
+  <data name="Phase_CheckingSource" xml:space="preserve"><value>Checking the file's checksum</value></data>
   <data name="Phase_Writing" xml:space="preserve"><value>Writing</value></data>
   <data name="Phase_Reading" xml:space="preserve"><value>Reading</value></data>
   <data name="Phase_Verifying" xml:space="preserve"><value>Verifying</value></data>
@@ -245,6 +258,8 @@ Show the page?</value></data>
   <data name="Error_DeviceIoError" xml:space="preserve"><value>Device I/O error: {0}</value></data>
   <data name="Error_TargetIsSystemDisk" xml:space="preserve"><value>Writing to the system disk is not allowed.</value></data>
   <data name="Error_VerificationFailed" xml:space="preserve"><value>Verification failed: data differs at offset {0}. The device may be faulty or counterfeit.</value></data>
+  <data name="Error_SourceChecksumMismatch" xml:space="preserve"><value>The file's checksum does not match: expected {0}, got {1}. Nothing was written. The file is damaged or is a different file; if the checksum was found automatically and is out of date, clear the Checksum field.</value></data>
+  <data name="Error_SourceChecksumMismatchAfterWrite" xml:space="preserve"><value>The checksum of the downloaded file does not match: expected {0}, got {1}. The data was written but the partition table was not, so the medium will not boot or mount. Download the file again and repeat; if the checksum was found automatically and is out of date, clear the Checksum field.</value></data>
   <data name="Error_DeviceEjectFailed" xml:space="preserve"><value>The device could not be ejected: {0}. Remove it with "Safely Remove Hardware" in the taskbar.</value></data>
   <data name="Eject_InUse" xml:space="preserve"><value>it is used by another program ({0})</value></data>
   <data name="Eject_NotSupported" xml:space="preserve"><value>the device does not support ejecting ({0})</value></data>

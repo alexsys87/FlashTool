@@ -47,6 +47,16 @@
   <data name="Write_OptionsTitle" xml:space="preserve"><value>Параметры</value></data>
   <data name="Write_Verify" xml:space="preserve"><value>Проверять после записи</value></data>
   <data name="Write_VerifyDescription" xml:space="preserve"><value>Прочитать носитель и сравнить с образом</value></data>
+  <data name="Write_Checksum" xml:space="preserve"><value>Контрольная сумма (SHA-256)</value></data>
+  <data name="Write_ChecksumDescription" xml:space="preserve"><value>Необязательно. SHA-256 самого файла образа в том виде, как его публикуют (.img.xz, .zip и т. д.). Повреждённый файл будет обнаружен.</value></data>
+  <data name="Write_ChecksumPlaceholder" xml:space="preserve"><value>SHA-256: 64 шестнадцатеричных символа</value></data>
+  <data name="Write_ChecksumInvalid" xml:space="preserve"><value>Это не SHA-256: нужно 64 шестнадцатеричных символа.</value></data>
+  <data name="Write_ChecksumBeforeWriting" xml:space="preserve"><value>Файл будет проверен до начала записи.</value></data>
+  <data name="Write_ChecksumWhileDownloading" xml:space="preserve"><value>Проверка идёт во время загрузки; таблица разделов записывается, только если сумма совпала.</value></data>
+  <data name="Write_ChecksumFound" xml:space="preserve"><value>Найдена: {0}. {1}</value></data>
+  <data name="Write_ChecksumSearching" xml:space="preserve"><value>Ищу файл контрольной суммы рядом с образом…</value></data>
+  <data name="Write_ChecksumNotFound" xml:space="preserve"><value>Рядом с образом файл контрольной суммы не найден.</value></data>
+  <data name="Write_ChecksumUnverifiableFormat" xml:space="preserve"><value>Архив zip или 7z по ссылке читается выборочно, поэтому его сумму проверить нельзя. Скачайте файл и откройте локальную копию.</value></data>
   <data name="Write_Expand" xml:space="preserve"><value>Расширить последний раздел на весь носитель</value></data>
   <data name="Write_ExpandDescription" xml:space="preserve"><value>Если образ меньше носителя; файловые системы ext2/3/4 и NTFS тоже расширяются</value></data>
   <data name="Write_Eject" xml:space="preserve"><value>Извлечь носитель после записи</value></data>
@@ -66,6 +76,8 @@
   <data name="Write_Success" xml:space="preserve"><value>Образ успешно записан</value></data>
   <data name="Write_SuccessDetails" xml:space="preserve"><value>Записано {0} за {1}.</value></data>
   <data name="Write_Verified" xml:space="preserve"><value>Проверка пройдена.</value></data>
+  <data name="Write_ChecksumVerified" xml:space="preserve"><value>Контрольная сумма файла совпала.</value></data>
+  <data name="Write_ChecksumNotVerified" xml:space="preserve"><value>Контрольная сумма файла не проверена: источник не удалось прочитать целиком подряд.</value></data>
   <data name="Write_PartitionExtended" xml:space="preserve"><value>Раздел {0} ({1}) расширен с {2} до {3}.</value></data>
   <data name="Write_FsNotResized" xml:space="preserve"><value>Файловая система {0} внутри раздела не изменялась.</value></data>
   <data name="Write_FsResized" xml:space="preserve"><value>Файловая система {0} расширена на весь раздел.</value></data>
@@ -179,6 +191,7 @@
   <data name="Devices_NoMedia" xml:space="preserve"><value>Нет носителя</value></data>
   <data name="Devices_DiskNumber" xml:space="preserve"><value>Диск {0}</value></data>
   <data name="Phase_Preparing" xml:space="preserve"><value>Подготовка…</value></data>
+  <data name="Phase_CheckingSource" xml:space="preserve"><value>Проверка контрольной суммы файла</value></data>
   <data name="Phase_Writing" xml:space="preserve"><value>Запись</value></data>
   <data name="Phase_Reading" xml:space="preserve"><value>Чтение</value></data>
   <data name="Phase_Verifying" xml:space="preserve"><value>Проверка</value></data>
@@ -245,6 +258,8 @@
   <data name="Error_DeviceIoError" xml:space="preserve"><value>Ошибка ввода-вывода: {0}</value></data>
   <data name="Error_TargetIsSystemDisk" xml:space="preserve"><value>Запись на системный диск запрещена.</value></data>
   <data name="Error_VerificationFailed" xml:space="preserve"><value>Проверка не пройдена: данные отличаются по смещению {0}. Носитель может быть неисправен или поддельным.</value></data>
+  <data name="Error_SourceChecksumMismatch" xml:space="preserve"><value>Контрольная сумма файла не совпала: ожидалась {0}, получена {1}. Запись не начата. Файл повреждён или это другой файл; если сумма найдена автоматически и устарела, очистите поле «Контрольная сумма».</value></data>
+  <data name="Error_SourceChecksumMismatchAfterWrite" xml:space="preserve"><value>Контрольная сумма скачанного файла не совпала: ожидалась {0}, получена {1}. Данные записаны, а таблица разделов нет, поэтому носитель не загрузится и не смонтируется. Скачайте файл заново и повторите запись; если сумма найдена автоматически и устарела, очистите поле «Контрольная сумма».</value></data>
   <data name="Error_DeviceEjectFailed" xml:space="preserve"><value>Не удалось извлечь носитель: {0}. Извлеките его через «Безопасное извлечение устройств» на панели задач.</value></data>
   <data name="Eject_InUse" xml:space="preserve"><value>он используется другой программой ({0})</value></data>
   <data name="Eject_NotSupported" xml:space="preserve"><value>носитель не поддерживает извлечение ({0})</value></data>

@@ -5,6 +5,9 @@ namespace FlashTool.Core.Operations;
 public enum OperationPhase
 {
     Preparing,
+
+    /// <summary>Hashing a local source file to compare it with its expected checksum, before anything is written.</summary>
+    CheckingSource,
     Writing,
     Reading,
     Verifying,

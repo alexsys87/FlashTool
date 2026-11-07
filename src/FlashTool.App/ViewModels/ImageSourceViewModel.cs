@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.Input;
 using FlashTool.App.Localization;
 using FlashTool.App.Services;
 using FlashTool.Core;
+using FlashTool.Core.Checksums;
 using FlashTool.Core.Containers;
 using FlashTool.Core.Imaging;
 using FlashTool.Core.IO;
@@ -116,7 +117,8 @@ public sealed partial class ImageSourceViewModel : LocalizedViewModel
             IStreamSource source;
             if (Uri.TryCreate(input, UriKind.Absolute, out var uri) && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps))
             {
-                source = await HttpStreamSource.CreateAsync(_http, uri, cts.Token);
+                // Hashes the download as it streams, so a checksum can be verified without fetching the file twice.
+                source = new HashingStreamSource(await HttpStreamSource.CreateAsync(_http, uri, cts.Token));
             }
             else if (File.Exists(input))
             {

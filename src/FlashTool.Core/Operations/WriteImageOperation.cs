@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using FlashTool.Core.Checksums;
 using FlashTool.Core.Containers;
 using FlashTool.Core.Imaging;
 using FlashTool.Core.IO;
@@ -25,6 +26,14 @@ public sealed record WriteImageOptions
     public IoRetryPolicy IoRetry { get; init; } = IoRetryPolicy.Default;
 
     public IReadOnlyList<IFileSystemResizer> FileSystemResizers { get; init; } = [];
+
+    /// <summary>
+    /// SHA-256 of the source file itself, as published: the .xz/.gz/.zip/.7z archive, or the plain image.
+    /// A local file is checked before the device is opened. A download is hashed while it streams (the source
+    /// must be a <see cref="HashingStreamSource"/>) and judged before the first chunk, which holds the partition
+    /// table, is committed. Null skips the check.
+    /// </summary>
+    public byte[]? ExpectedSourceSha256 { get; init; }
 }
 
 public sealed record WriteImageResult(
@@ -32,7 +41,11 @@ public sealed record WriteImageResult(
     bool Verified,
     ImageInfo Image,
     PartitionFixupResult? Fixups,
-    TimeSpan Elapsed);
+    TimeSpan Elapsed)
+{
+    /// <summary>Outcome of the check against <see cref="WriteImageOptions.ExpectedSourceSha256"/>.</summary>
+    public SourceChecksumStatus SourceChecksum { get; init; }
+}
 
 /// <summary>
 /// Writes one image entry (decompressed on the fly) to a block device.
@@ -51,6 +64,13 @@ public static class WriteImageOperation
         ArgumentNullException.ThrowIfNull(openTarget);
         var clock = Stopwatch.StartNew();
         progress?.Report(new OperationProgress(OperationPhase.Preparing, 0, entry.Length, 0, 0, null));
+
+        // A local file is hashed up front, so a damaged one never reaches the device.
+        var checksum = options.ExpectedSourceSha256 is { } expected ? new SourceChecksumCheck(container.Source, expected) : null;
+        if (checksum != null)
+        {
+            await checksum.VerifyUpFrontAsync(progress, cancellationToken).ConfigureAwait(false);
+        }
 
         // Open the source and validate it before touching the device.
         using var reader = await Task.Run(() => container.OpenEntry(entry, cancellationToken), cancellationToken).ConfigureAwait(false);
@@ -134,6 +154,10 @@ public static class WriteImageOperation
                     throw new FlashToolException(FlashErrorCode.UnexpectedEndOfImage, "The image ended before its declared size.", null, written, entry.Length.Value);
                 }
 
+                // A streamed source has been read to its end by now. Judging it here, before the real first chunk
+                // goes out, leaves the device with a blank partition table if the download turns out to be damaged.
+                checksum?.VerifyStreamed();
+
                 device.Write(0, firstChunk.Span[..firstLength]);
                 device.Flush();
                 writeProgress.Report(written, force: true);
@@ -169,7 +193,10 @@ public static class WriteImageOperation
         }
 
         progress?.Report(new OperationProgress(OperationPhase.Completed, written, written, 1, 0, TimeSpan.Zero));
-        return new WriteImageResult(written, options.Verify, image, fixups, clock.Elapsed);
+        return new WriteImageResult(written, options.Verify, image, fixups, clock.Elapsed)
+        {
+            SourceChecksum = checksum?.Status ?? SourceChecksumStatus.NotChecked,
+        };
     }
 
     /// <summary>Runs resizers that need the OS to have mounted the volume (NTFS).</summary>

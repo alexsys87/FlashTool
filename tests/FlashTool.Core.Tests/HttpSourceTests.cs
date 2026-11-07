@@ -93,7 +93,7 @@ public sealed class HttpSourceTests : IDisposable
     }
 
     /// <summary>Minimal HTTP server with optional range support and a forced connection drop.</summary>
-    private sealed class TestHttpServer : IDisposable
+    internal sealed class TestHttpServer : IDisposable
     {
         private readonly HttpListener _listener = new();
         private readonly byte[] _content;
