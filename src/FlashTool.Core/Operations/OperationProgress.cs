@@ -11,6 +11,9 @@ public enum OperationPhase
     Writing,
     Reading,
     Verifying,
+
+    /// <summary>Calculating the SHA-256 of a created image file for its checksum file.</summary>
+    Hashing,
     Finalizing,
 
     /// <summary>Overwriting the device when it is erased.</summary>

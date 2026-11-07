@@ -58,7 +58,7 @@
                 </ui:CardControl.Header>
                 <ui:ToggleSwitch IsChecked="{Binding OnlyAllocatedPartitions}" />
             </ui:CardControl>
-            <ui:CardControl Margin="0,0,0,20" Icon="{ui:SymbolIcon ShieldCheckmark24}">
+            <ui:CardControl Margin="0,0,0,4" Icon="{ui:SymbolIcon ShieldCheckmark24}">
                 <ui:CardControl.Header>
                     <StackPanel>
                         <TextBlock Text="{loc:Tr Read_Verify}" />
@@ -66,6 +66,15 @@
                     </StackPanel>
                 </ui:CardControl.Header>
                 <ui:ToggleSwitch IsChecked="{Binding Verify}" />
+            </ui:CardControl>
+            <ui:CardControl Margin="0,0,0,20" Icon="{ui:SymbolIcon DocumentCheckmark24}">
+                <ui:CardControl.Header>
+                    <StackPanel>
+                        <TextBlock Text="{loc:Tr Read_ChecksumFile}" />
+                        <TextBlock Style="{StaticResource SecondaryText}" Text="{loc:Tr Read_ChecksumFileDescription}" />
+                    </StackPanel>
+                </ui:CardControl.Header>
+                <ui:ToggleSwitch IsChecked="{Binding CreateChecksumFile}" />
             </ui:CardControl>
 
             <!-- Action -->

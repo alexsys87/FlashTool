@@ -1,4 +1,3 @@
-using System.Security.Cryptography;
 using FlashTool.Core.Operations;
 using FlashTool.Core.Sources;
 
@@ -27,8 +26,6 @@ public enum SourceChecksumStatus
 /// </summary>
 internal sealed class SourceChecksumCheck
 {
-    private const int BufferSize = 1024 * 1024;
-
     private readonly IStreamSource _source;
     private readonly byte[] _expected;
 
@@ -82,21 +79,7 @@ internal sealed class SourceChecksumCheck
     private byte[] Hash(IProgress<OperationProgress>? progress, CancellationToken cancellationToken)
     {
         using var stream = _source.Open(cancellationToken);
-        using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
-        var reporter = new ProgressReporter(progress, OperationPhase.CheckingSource, _source.Length);
-        var buffer = new byte[BufferSize];
-        long done = 0;
-        int read;
-        while ((read = stream.Read(buffer, 0, buffer.Length)) > 0)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            hash.AppendData(buffer, 0, read);
-            done += read;
-            reporter.Report(done);
-        }
-
-        reporter.Report(done, force: true);
-        return hash.GetHashAndReset();
+        return StreamHasher.Sha256(stream, new ProgressReporter(progress, OperationPhase.CheckingSource, _source.Length), cancellationToken);
     }
 
     private FlashToolException Mismatch(byte[] actual, FlashErrorCode code) =>

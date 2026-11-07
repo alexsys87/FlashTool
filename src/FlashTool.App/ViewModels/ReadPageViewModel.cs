@@ -121,6 +121,17 @@ public sealed partial class ReadPageViewModel : LocalizedViewModel
         }
     }
 
+    public bool CreateChecksumFile
+    {
+        get => _settings.Settings.CreateChecksumFile;
+        set
+        {
+            _settings.Settings.CreateChecksumFile = value;
+            _settings.Save();
+            OnPropertyChanged();
+        }
+    }
+
     public string LayoutText
     {
         get
@@ -283,6 +294,7 @@ public sealed partial class ReadPageViewModel : LocalizedViewModel
         var options = new ReadImageOptions
         {
             Verify = Verify,
+            WriteChecksumFile = CreateChecksumFile,
             OnlyAllocatedPartitions = OnlyAllocatedPartitions,
             Format = SelectedFormat.Value,
             Compression = new CompressionSettings(SelectedCompression.Value),
@@ -315,7 +327,19 @@ public sealed partial class ReadPageViewModel : LocalizedViewModel
                 details += Environment.NewLine + Loc.Get("Write_Verified");
             }
 
-            Result.Show(InfoBarSeverity.Success, Loc.Get("Read_Success"), details + Environment.NewLine + result.Path);
+            var severity = InfoBarSeverity.Success;
+            if (result.ChecksumFilePath is { } checksumFile)
+            {
+                details += Environment.NewLine + Loc.Format("Read_ChecksumFileSaved", Path.GetFileName(checksumFile));
+            }
+            else if (result.ChecksumFileError is { } checksumError)
+            {
+                // The image itself is fine, so this is a warning rather than a failure.
+                details += Environment.NewLine + Loc.Format("Read_ChecksumFileFailed", checksumError);
+                severity = InfoBarSeverity.Warning;
+            }
+
+            Result.Show(severity, Loc.Get("Read_Success"), details + Environment.NewLine + result.Path);
         }
         catch (OperationCanceledException)
         {

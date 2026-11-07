@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using FlashTool.Core.Checksums;
 using FlashTool.Core.Containers;
 using FlashTool.Core.Imaging;
 using FlashTool.Core.IO;
@@ -25,6 +26,14 @@ public sealed record ReadImageOptions
 
     /// <summary>Retries of failed device reads/writes (bad sectors, timeouts).</summary>
     public IoRetryPolicy IoRetry { get; init; } = IoRetryPolicy.Default;
+
+    /// <summary>
+    /// Save the SHA-256 of the created file next to it as <c>&lt;image&gt;.sha256</c> in <c>sha256sum</c> format, so the
+    /// image can be checked later (writing it back picks that file up by itself). Whatever the setting, a checksum
+    /// file left over from an earlier image with the same name is removed first: it no longer describes the file
+    /// that is being replaced.
+    /// </summary>
+    public bool WriteChecksumFile { get; init; }
 }
 
 public sealed record ReadImageResult(
@@ -34,7 +43,17 @@ public sealed record ReadImageResult(
     long FileSize,
     bool Verified,
     ImageInfo Image,
-    TimeSpan Elapsed);
+    TimeSpan Elapsed)
+{
+    /// <summary>SHA-256 of the created file; set when a checksum file was asked for.</summary>
+    public byte[]? Sha256 { get; init; }
+
+    /// <summary>The checksum file that was written, if any.</summary>
+    public string? ChecksumFilePath { get; init; }
+
+    /// <summary>Why the checksum file could not be saved. The image itself was created all the same.</summary>
+    public string? ChecksumFileError { get; init; }
+}
 
 /// <summary>
 /// Creates an image file from a device, compressing it on the fly straight
@@ -79,10 +98,12 @@ public static class ReadImageOperation
         var hashes = new BlockHashList(chunk);
         var entryName = ContainerNaming.GetInnerName(destinationPath);
         var completed = false;
+        byte[]? sha256 = null;
 
         try
         {
             var reporter = new ProgressReporter(progress, OperationPhase.Reading, length);
+            TryDelete(ChecksumFile.SidecarPath(destinationPath));
             var output = new FileStream(destinationPath, FileMode.Create, FileAccess.ReadWrite, FileShare.None, 1024 * 1024);
             Stream sink;
             try
@@ -137,6 +158,11 @@ public static class ReadImageOperation
                 await VerifyFileAsync(destinationPath, registry, hashes, chunk, options.PipelineDepth, progress, cancellationToken).ConfigureAwait(false);
             }
 
+            if (options.WriteChecksumFile)
+            {
+                sha256 = await Task.Run(() => HashFile(destinationPath, progress, cancellationToken), cancellationToken).ConfigureAwait(false);
+            }
+
             completed = true;
         }
         finally
@@ -147,9 +173,35 @@ public static class ReadImageOperation
             }
         }
 
+        string? checksumPath = null;
+        string? checksumError = null;
+        if (sha256 != null)
+        {
+            try
+            {
+                checksumPath = ChecksumFile.WriteSidecar(destinationPath, sha256);
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                checksumError = ex.Message;
+            }
+        }
+
         var fileSize = new FileInfo(destinationPath).Length;
         progress?.Report(new OperationProgress(OperationPhase.Completed, length, length, 1, 0, TimeSpan.Zero));
-        return new ReadImageResult(destinationPath, handler.Format, length, fileSize, options.Verify, image, clock.Elapsed);
+        return new ReadImageResult(destinationPath, handler.Format, length, fileSize, options.Verify, image, clock.Elapsed)
+        {
+            Sha256 = sha256,
+            ChecksumFilePath = checksumPath,
+            ChecksumFileError = checksumError,
+        };
+    }
+
+    /// <summary>SHA-256 of the finished image file, as it lies on disk (the archive, not the data inside).</summary>
+    private static byte[] HashFile(string path, IProgress<OperationProgress>? progress, CancellationToken cancellationToken)
+    {
+        using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, 1024 * 1024, FileOptions.SequentialScan);
+        return StreamHasher.Sha256(stream, new ProgressReporter(progress, OperationPhase.Hashing, stream.Length), cancellationToken);
     }
 
     /// <summary>Re-opens the created file (decompressing it) and compares with the recorded hashes.</summary>
