@@ -32,6 +32,15 @@ public enum FlashErrorCode
 
     /// <summary>The file system cannot cover a volume of this size (args: file system, volume size).</summary>
     FileSystemSizeNotSupported,
+
+    /// <summary>A local source file does not match the expected SHA-256; nothing was written (args: expected, actual).</summary>
+    SourceChecksumMismatch,
+
+    /// <summary>
+    /// A downloaded source does not match the expected SHA-256. The data was written, but the partition table
+    /// was left blank (args: expected, actual).
+    /// </summary>
+    SourceChecksumMismatchAfterWrite,
 }
 
 /// <summary>
