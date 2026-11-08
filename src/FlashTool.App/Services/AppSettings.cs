@@ -39,6 +39,9 @@ public sealed class AppSettings
 
     public bool VerifyAfterRead { get; set; } = true;
 
+    /// <summary>Save <c>&lt;image&gt;.sha256</c> next to every created image.</summary>
+    public bool CreateChecksumFile { get; set; } = true;
+
     public bool OnlyAllocatedPartitions { get; set; } = true;
 
     public ContainerFormat ReadFormat { get; set; } = ContainerFormat.Xz;

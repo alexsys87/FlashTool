@@ -15,11 +15,11 @@ public sealed partial class ProgressViewModel : LocalizedViewModel
 
     public string PhaseText => _last is { } p ? Formatting.Phase(p.Phase) : Formatting.Phase(OperationPhase.Preparing);
 
-    public string Details => _last is { Phase: OperationPhase.CheckingSource or OperationPhase.Writing or OperationPhase.Reading or OperationPhase.Verifying or OperationPhase.Erasing } p ? Formatting.Progress(p) : string.Empty;
+    public string Details => _last is { Phase: OperationPhase.CheckingSource or OperationPhase.Writing or OperationPhase.Reading or OperationPhase.Verifying or OperationPhase.Hashing or OperationPhase.Erasing } p ? Formatting.Progress(p) : string.Empty;
 
     public double Percent => (_last?.Fraction ?? 0) * 100;
 
-    public string PercentText => _last is { Phase: OperationPhase.CheckingSource or OperationPhase.Writing or OperationPhase.Reading or OperationPhase.Verifying or OperationPhase.Erasing } p
+    public string PercentText => _last is { Phase: OperationPhase.CheckingSource or OperationPhase.Writing or OperationPhase.Reading or OperationPhase.Verifying or OperationPhase.Hashing or OperationPhase.Erasing } p
         ? $"{p.Fraction * 100:0}%"
         : string.Empty;
 

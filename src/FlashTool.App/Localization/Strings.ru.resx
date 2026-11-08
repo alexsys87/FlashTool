@@ -157,6 +157,10 @@
   <data name="Read_OnlyAllocatedDescription" xml:space="preserve"><value>Читать до конца последнего раздела, чтобы сэкономить место</value></data>
   <data name="Read_Verify" xml:space="preserve"><value>Проверять образ после создания</value></data>
   <data name="Read_VerifyDescription" xml:space="preserve"><value>Распаковать созданный файл и сравнить с данными носителя</value></data>
+  <data name="Read_ChecksumFile" xml:space="preserve"><value>Сохранить файл контрольной суммы</value></data>
+  <data name="Read_ChecksumFileDescription" xml:space="preserve"><value>Рядом с образом создаётся файл .sha256 (SHA-256, формат sha256sum). При записи образа обратно он подхватывается автоматически.</value></data>
+  <data name="Read_ChecksumFileSaved" xml:space="preserve"><value>Контрольная сумма сохранена: {0}</value></data>
+  <data name="Read_ChecksumFileFailed" xml:space="preserve"><value>Не удалось сохранить файл контрольной суммы: {0}</value></data>
   <data name="Read_Start" xml:space="preserve"><value>Создать образ</value></data>
   <data name="Read_OverwriteTitle" xml:space="preserve"><value>Заменить файл?</value></data>
   <data name="Read_OverwriteMessage" xml:space="preserve"><value>Файл «{0}» уже существует. Заменить его?</value></data>
@@ -195,6 +199,7 @@
   <data name="Phase_Writing" xml:space="preserve"><value>Запись</value></data>
   <data name="Phase_Reading" xml:space="preserve"><value>Чтение</value></data>
   <data name="Phase_Verifying" xml:space="preserve"><value>Проверка</value></data>
+  <data name="Phase_Hashing" xml:space="preserve"><value>Расчёт контрольной суммы</value></data>
   <data name="Phase_Finalizing" xml:space="preserve"><value>Завершение…</value></data>
   <data name="Phase_Ejecting" xml:space="preserve"><value>Извлечение носителя…</value></data>
   <data name="Phase_Erasing" xml:space="preserve"><value>Стирание</value></data>

@@ -157,6 +157,10 @@ Continue?</value></data>
   <data name="Read_OnlyAllocatedDescription" xml:space="preserve"><value>Stop at the end of the last partition to save space</value></data>
   <data name="Read_Verify" xml:space="preserve"><value>Verify the image after creation</value></data>
   <data name="Read_VerifyDescription" xml:space="preserve"><value>Unpack the created file and compare it with the device data</value></data>
+  <data name="Read_ChecksumFile" xml:space="preserve"><value>Save a checksum file</value></data>
+  <data name="Read_ChecksumFileDescription" xml:space="preserve"><value>Writes a .sha256 file next to the image (SHA-256, sha256sum format). Writing the image back picks it up automatically.</value></data>
+  <data name="Read_ChecksumFileSaved" xml:space="preserve"><value>Checksum saved: {0}</value></data>
+  <data name="Read_ChecksumFileFailed" xml:space="preserve"><value>The checksum file could not be saved: {0}</value></data>
   <data name="Read_Start" xml:space="preserve"><value>Create image</value></data>
   <data name="Read_OverwriteTitle" xml:space="preserve"><value>Replace the file?</value></data>
   <data name="Read_OverwriteMessage" xml:space="preserve"><value>"{0}" already exists. Replace it?</value></data>
@@ -195,6 +199,7 @@ Continue?</value></data>
   <data name="Phase_Writing" xml:space="preserve"><value>Writing</value></data>
   <data name="Phase_Reading" xml:space="preserve"><value>Reading</value></data>
   <data name="Phase_Verifying" xml:space="preserve"><value>Verifying</value></data>
+  <data name="Phase_Hashing" xml:space="preserve"><value>Calculating the checksum</value></data>
   <data name="Phase_Finalizing" xml:space="preserve"><value>Finishing…</value></data>
   <data name="Phase_Ejecting" xml:space="preserve"><value>Ejecting the device…</value></data>
   <data name="Phase_Erasing" xml:space="preserve"><value>Erasing</value></data>

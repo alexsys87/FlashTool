@@ -1,12 +1,31 @@
+using System.Text;
+
 namespace FlashTool.Core.Checksums;
 
 /// <summary>
 /// Reads SHA-256 values out of the checksum files that projects publish next to
 /// their images: <c>sha256sum</c> output (<c>SHA256SUMS</c>), BSD style lines and
-/// files that hold nothing but the hash.
+/// files that hold nothing but the hash. Also writes the one-line file that goes
+/// next to an image FlashTool has created.
 /// </summary>
 public static class ChecksumFile
 {
+    /// <summary>Where the checksum file of an image lives: the image's own name plus <c>.sha256</c>.</summary>
+    public static string SidecarPath(string imagePath) => imagePath + ".sha256";
+
+    /// <summary>
+    /// The line <c>sha256sum</c> prints, which <c>sha256sum -c</c> accepts when it is run in the directory of the image.
+    /// </summary>
+    public static string Format(ReadOnlySpan<byte> sha256, string fileName) => $"{Sha256Hex.Format(sha256)}  {fileName}\n";
+
+    /// <summary>Writes the checksum file next to <paramref name="imagePath"/> and returns its path.</summary>
+    public static string WriteSidecar(string imagePath, ReadOnlySpan<byte> sha256)
+    {
+        var path = SidecarPath(imagePath);
+        File.WriteAllText(path, Format(sha256, Path.GetFileName(imagePath)), new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+        return path;
+    }
+
     /// <summary>
     /// Finds the value listed for <paramref name="fileName"/>. Names are compared
     /// without their directory part and ignoring case.
