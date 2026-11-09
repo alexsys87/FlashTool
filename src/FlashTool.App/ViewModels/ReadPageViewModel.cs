@@ -23,6 +23,7 @@ public sealed partial class ReadPageViewModel : LocalizedViewModel
     private readonly SettingsService _settings;
     private readonly DialogService _dialogs;
     private readonly FreeBlockSkipping _freeBlocks;
+    private readonly BmapFeature _bmap;
     private ImageInfo? _deviceLayout;
     private string? _layoutError;
     private int _layoutRequest;
@@ -49,7 +50,8 @@ public sealed partial class ReadPageViewModel : LocalizedViewModel
         DeviceListService devices,
         OperationState operation,
         IoErrorPrompt ioErrors,
-        FreeBlockSkipping freeBlocks)
+        FreeBlockSkipping freeBlocks,
+        BmapFeature bmap)
     {
         _registry = registry;
         _diskManager = diskManager;
@@ -58,6 +60,8 @@ public sealed partial class ReadPageViewModel : LocalizedViewModel
         _dialogs = dialogs;
         _freeBlocks = freeBlocks;
         _freeBlocks.PropertyChanged += (_, _) => OnPropertyChanged(nameof(SkipFreeBlocks));
+        _bmap = bmap;
+        _bmap.PropertyChanged += (_, _) => OnPropertyChanged(nameof(CreateBmap));
         Devices = devices;
         Operation = operation;
         Operation.PropertyChanged += OnOperationChanged;
@@ -116,6 +120,9 @@ public sealed partial class ReadPageViewModel : LocalizedViewModel
 
     /// <summary>Turned on in the settings; shown on the page so the user knows the image will not be an exact copy.</summary>
     public bool SkipFreeBlocks => _freeBlocks.IsEnabled;
+
+    /// <summary>A .bmap is saved next to the image (turned on in the settings).</summary>
+    public bool CreateBmap => _bmap.CreateBmap;
 
     public bool Verify
     {
@@ -322,6 +329,7 @@ public sealed partial class ReadPageViewModel : LocalizedViewModel
             WriteChecksumFile = CreateChecksumFile,
             OnlyAllocatedPartitions = OnlyAllocatedPartitions,
             SkipFreeBlocks = SkipFreeBlocks,
+            CreateBmapFile = CreateBmap,
             Format = SelectedFormat.Value,
             Compression = new CompressionSettings(SelectedCompression.Value),
             IoRetry = _ioErrors.Policy,
@@ -364,6 +372,16 @@ public sealed partial class ReadPageViewModel : LocalizedViewModel
             {
                 // The image itself is fine, so this is a warning rather than a failure.
                 details += Environment.NewLine + Loc.Format("Read_ChecksumFileFailed", checksumError);
+                severity = InfoBarSeverity.Warning;
+            }
+
+            if (result.BmapFilePath is { } bmapFile)
+            {
+                details += Environment.NewLine + Loc.Format("Read_BmapSaved", Path.GetFileName(bmapFile));
+            }
+            else if (result.BmapFileError is { } bmapError)
+            {
+                details += Environment.NewLine + Loc.Format("Read_BmapFailed", bmapError);
                 severity = InfoBarSeverity.Warning;
             }
 

@@ -59,9 +59,11 @@ public sealed partial class WritePageViewModel : LocalizedViewModel
         DeviceListService devices,
         OperationState operation,
         IoErrorPrompt ioErrors,
-        HttpClient http)
+        HttpClient http,
+        BmapFeature bmap)
     {
         Image = image;
+        Bmap = new BmapSelectionViewModel(image, bmap, http);
         _diskManager = diskManager;
         Preview = new DevicePreviewViewModel(diskManager);
         _ioErrors = ioErrors;
@@ -109,6 +111,9 @@ public sealed partial class WritePageViewModel : LocalizedViewModel
 
     /// <summary>The image to write.</summary>
     public ImageSourceViewModel Image { get; }
+
+    /// <summary>The .bmap found next to the image, when that is turned on in the settings.</summary>
+    public BmapSelectionViewModel Bmap { get; }
 
     public DeviceListService Devices { get; }
 
@@ -203,6 +208,7 @@ public sealed partial class WritePageViewModel : LocalizedViewModel
         var options = new WriteImageOptions
         {
             ExpectedSourceSha256 = Sha256Hex.TryParse(ExpectedChecksum, out var expectedChecksum) ? expectedChecksum : null,
+            Bmap = Bmap.Effective,
             Verify = Verify,
             ExpandLastPartition = ExpandLastPartition,
             RequireRecognizedImage = requireImage,
@@ -279,6 +285,11 @@ public sealed partial class WritePageViewModel : LocalizedViewModel
     private static string DescribeResult(WriteImageResult result)
     {
         var lines = new List<string> { Loc.Format("Write_SuccessDetails", Formatting.Size(result.BytesWritten), Formatting.Duration(result.Elapsed)) };
+        if (result.DeviceBytesWritten is { } deviceBytes)
+        {
+            lines.Add(Loc.Format("Write_BmapWritten", Formatting.Size(deviceBytes), Formatting.Size(result.BytesWritten)));
+        }
+
         if (result.Verified)
         {
             lines.Add(Loc.Get("Write_Verified"));

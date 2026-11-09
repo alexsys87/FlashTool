@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Globalization;
+using System.Net.Http;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FlashTool.App.Localization;
@@ -38,9 +39,12 @@ public sealed partial class VerifyPageViewModel : LocalizedViewModel
         DeviceListService devices,
         OperationState operation,
         IoErrorPrompt ioErrors,
-        SettingsService settings)
+        SettingsService settings,
+        BmapFeature bmap,
+        HttpClient http)
     {
         Image = image;
+        Bmap = new BmapSelectionViewModel(image, bmap, http);
         _diskManager = diskManager;
         _ioErrors = ioErrors;
         Devices = devices;
@@ -75,6 +79,9 @@ public sealed partial class VerifyPageViewModel : LocalizedViewModel
 
     /// <summary>The reference image.</summary>
     public ImageSourceViewModel Image { get; }
+
+    /// <summary>The .bmap found next to the image, when that is turned on in the settings.</summary>
+    public BmapSelectionViewModel Bmap { get; }
 
     public DeviceListService Devices { get; }
 
@@ -166,6 +173,7 @@ public sealed partial class VerifyPageViewModel : LocalizedViewModel
                 {
                     IoRetry = _ioErrors.Policy,
                     DifferencesFound = new Progress<VerifyDifferences>(OnDifferencesFound),
+                    Bmap = Bmap.Effective,
                 },
                 progress,
                 token);
@@ -176,7 +184,7 @@ public sealed partial class VerifyPageViewModel : LocalizedViewModel
                 Result.Show(
                     InfoBarSeverity.Success,
                     Loc.Get("Verify_Identical"),
-                    Loc.Format("Verify_IdenticalDetails", Formatting.Size(report.BytesCompared), Formatting.Duration(report.Elapsed)));
+                    Loc.Format("Verify_IdenticalDetails", Formatting.Size(report.BytesCompared), Formatting.Duration(report.Elapsed)) + BmapNote(report));
             }
             else
             {
@@ -186,7 +194,7 @@ public sealed partial class VerifyPageViewModel : LocalizedViewModel
                     Formatting.Size(report.DifferentBytes),
                     Formatting.Size(report.BytesCompared),
                     report.DifferenceRangeCount.ToString("N0", CultureInfo.CurrentCulture));
-                Result.Show(InfoBarSeverity.Error, Loc.Get("Verify_Different"), details + Environment.NewLine + Loc.Get("Verify_ExpandNote"));
+                Result.Show(InfoBarSeverity.Error, Loc.Get("Verify_Different"), details + BmapNote(report) + Environment.NewLine + Loc.Get("Verify_ExpandNote"));
             }
         }
         catch (OperationCanceledException)
@@ -284,4 +292,6 @@ public sealed partial class VerifyPageViewModel : LocalizedViewModel
             VerifyCommand.NotifyCanExecuteChanged();
         }
     }
+
+    private static string BmapNote(VerifyImageResult report) => report.UsedBmap ? Environment.NewLine + Loc.Get("Verify_BmapUsed") : string.Empty;
 }

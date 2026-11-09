@@ -17,6 +17,7 @@ public sealed partial class SettingsPageViewModel : LocalizedViewModel
     private readonly ContainerRegistry _registry;
     private readonly EraseFeature _erase;
     private readonly FreeBlockSkipping _freeBlocks;
+    private readonly BmapFeature _bmap;
     private readonly DialogService _dialogs;
     private readonly OperationState _operation;
 
@@ -33,6 +34,7 @@ public sealed partial class SettingsPageViewModel : LocalizedViewModel
         DeviceListService devices,
         EraseFeature erase,
         FreeBlockSkipping freeBlocks,
+        BmapFeature bmap,
         DialogService dialogs,
         OperationState operation)
     {
@@ -41,6 +43,7 @@ public sealed partial class SettingsPageViewModel : LocalizedViewModel
         _registry = registry;
         _erase = erase;
         _freeBlocks = freeBlocks;
+        _bmap = bmap;
         _dialogs = dialogs;
         _operation = operation;
         Devices = devices;
@@ -70,6 +73,26 @@ public sealed partial class SettingsPageViewModel : LocalizedViewModel
         set
         {
             _freeBlocks.IsEnabled = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public bool UseBmap
+    {
+        get => _bmap.UseBmap;
+        set
+        {
+            _bmap.UseBmap = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public bool CreateBmap
+    {
+        get => _bmap.CreateBmap;
+        set
+        {
+            _bmap.CreateBmap = value;
             OnPropertyChanged();
         }
     }

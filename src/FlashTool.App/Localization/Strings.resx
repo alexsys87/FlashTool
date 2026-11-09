@@ -254,6 +254,33 @@ Continue?</value></data>
   <data name="Settings_Imaging" xml:space="preserve"><value>Creating images</value></data>
   <data name="Settings_SkipFreeBlocks" xml:space="preserve"><value>Skip free space in ext2/3/4</value></data>
   <data name="Settings_SkipFreeBlocksDescription" xml:space="preserve"><value>Free blocks of ext2/3/4 file systems are not read but stored as zeros: the image is created faster, and xz, gz and zst compress the zeros to almost nothing. The image is then not a byte-for-byte copy of the device: whatever lay in free space (deleted files, for example) is not kept, and comparing the image with the device shows differences there. Other file systems and everything outside partitions are copied in full, and so is an ext file system that was not cleanly unmounted.</value></data>
+  <data name="Settings_Bmap" xml:space="preserve"><value>Block maps (.bmap)</value></data>
+  <data name="Settings_UseBmap" xml:space="preserve"><value>Use .bmap when writing and verifying</value></data>
+  <data name="Settings_UseBmapDescription" xml:space="preserve"><value>When an image has a .bmap next to it (Yocto's wic and bmaptool make one), only the blocks that hold data are written and compared, which is several times faster. The image is checked against the .bmap while it is written; if they do not match, writing stops before the partition table is written. Unlike bmaptool, everything outside partitions and the first and last mebibyte of each partition are always written, so an old boot loader environment or an old file system in an empty partition does not survive. The pages show which .bmap was found and let you turn it off for one image.</value></data>
+  <data name="Settings_CreateBmap" xml:space="preserve"><value>Save a .bmap next to created images</value></data>
+  <data name="Settings_CreateBmapDescription" xml:space="preserve"><value>The .bmap (bmaptool format 2.0) holds the SHA-256 of the data, so the uncompressed image can be checked later. Together with skipping free ext2/3/4 space it also marks the free blocks as holes, and FlashTool or bmaptool then write the image many times faster.</value></data>
+  <data name="Write_Bmap" xml:space="preserve"><value>Write by .bmap</value></data>
+  <data name="Write_BmapDescription" xml:space="preserve"><value>Only blocks with data are written, plus everything outside partitions and the edges of each partition.</value></data>
+  <data name="Write_BmapWritten" xml:space="preserve"><value>By the .bmap, {0} of {1} went to the device.</value></data>
+  <data name="Verify_Bmap" xml:space="preserve"><value>Compare by .bmap</value></data>
+  <data name="Verify_BmapDescription" xml:space="preserve"><value>Only blocks with data are compared, as bmaptool writes only those.</value></data>
+  <data name="Verify_BmapUsed" xml:space="preserve"><value>Only the data blocks listed in the .bmap were compared.</value></data>
+  <data name="Bmap_Searching" xml:space="preserve"><value>Looking for a .bmap next to the image…</value></data>
+  <data name="Bmap_NotFound" xml:space="preserve"><value>No .bmap next to the image: the whole image is used.</value></data>
+  <data name="Bmap_Unusable" xml:space="preserve"><value>Found {0}, but it cannot be used: {1}. The whole image is used.</value></data>
+  <data name="Bmap_SizeDiffers" xml:space="preserve"><value>{0} is for an image of {1}, but this image is {2}. The whole image is used.</value></data>
+  <data name="Bmap_Found" xml:space="preserve"><value>Found {0}: data takes {1} of {2}.</value></data>
+  <data name="BmapProblem_Malformed" xml:space="preserve"><value>it is not a valid block map</value></data>
+  <data name="BmapProblem_UnsupportedVersion" xml:space="preserve"><value>its format version is newer than 2.x</value></data>
+  <data name="BmapProblem_UnsupportedChecksum" xml:space="preserve"><value>it uses a checksum other than SHA-1 or SHA-256</value></data>
+  <data name="BmapProblem_FileChecksumMismatch" xml:space="preserve"><value>its own checksum does not match (the file was edited or damaged)</value></data>
+  <data name="BmapProblem_Inconsistent" xml:space="preserve"><value>its sizes and ranges contradict each other</value></data>
+  <data name="BmapProblem_TooLarge" xml:space="preserve"><value>it is too large for a block map</value></data>
+  <data name="Read_CreateBmapOn" xml:space="preserve"><value>A .bmap will be saved next to the image (turned on in Settings).</value></data>
+  <data name="Read_BmapSaved" xml:space="preserve"><value>Block map saved: {0}</value></data>
+  <data name="Read_BmapFailed" xml:space="preserve"><value>The .bmap file could not be saved: {0}</value></data>
+  <data name="Error_BmapSizeMismatch" xml:space="preserve"><value>The .bmap file is for an image of {0:N0} bytes, but the image has {1:N0} bytes.</value></data>
+  <data name="Error_BmapDataMismatch" xml:space="preserve"><value>The image does not match its .bmap file (at byte {0:N0}): the .bmap is probably from another build of the image. If this happened while writing, the device was left without a partition table.</value></data>
   <data name="Settings_Erase" xml:space="preserve"><value>Erasing devices</value></data>
   <data name="Settings_EraseEnable" xml:space="preserve"><value>Show the "Erase" page</value></data>
   <data name="Settings_EraseDescription" xml:space="preserve"><value>Quick erase, full and destructive format of a device. Hidden by default so that a device is not wiped by mistake.</value></data>

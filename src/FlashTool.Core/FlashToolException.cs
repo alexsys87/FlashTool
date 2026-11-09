@@ -41,6 +41,15 @@ public enum FlashErrorCode
     /// was left blank (args: expected, actual).
     /// </summary>
     SourceChecksumMismatchAfterWrite,
+
+    /// <summary>The .bmap file is for an image of another size; nothing was written (args: size in the .bmap, image size).</summary>
+    BmapSizeMismatch,
+
+    /// <summary>
+    /// The image contradicts its .bmap file (a range checksum, or data where the map has a hole). Writing stops
+    /// before the partition table is committed (args: byte offset).
+    /// </summary>
+    BmapDataMismatch,
 }
 
 /// <summary>

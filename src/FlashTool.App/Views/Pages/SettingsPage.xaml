@@ -53,6 +53,26 @@
                 <ui:ToggleSwitch IsChecked="{Binding SkipFreeBlocks}" />
             </ui:CardControl>
 
+            <TextBlock Style="{StaticResource SectionTitle}" Text="{loc:Tr Settings_Bmap}" />
+            <ui:CardControl Margin="0,0,0,4" Icon="{ui:SymbolIcon Map24}">
+                <ui:CardControl.Header>
+                    <StackPanel>
+                        <TextBlock Text="{loc:Tr Settings_UseBmap}" />
+                        <TextBlock Style="{StaticResource SecondaryText}" Text="{loc:Tr Settings_UseBmapDescription}" TextWrapping="Wrap" />
+                    </StackPanel>
+                </ui:CardControl.Header>
+                <ui:ToggleSwitch IsChecked="{Binding UseBmap}" />
+            </ui:CardControl>
+            <ui:CardControl Margin="0,0,0,20" Icon="{ui:SymbolIcon DocumentData24}">
+                <ui:CardControl.Header>
+                    <StackPanel>
+                        <TextBlock Text="{loc:Tr Settings_CreateBmap}" />
+                        <TextBlock Style="{StaticResource SecondaryText}" Text="{loc:Tr Settings_CreateBmapDescription}" TextWrapping="Wrap" />
+                    </StackPanel>
+                </ui:CardControl.Header>
+                <ui:ToggleSwitch IsChecked="{Binding CreateBmap}" />
+            </ui:CardControl>
+
             <TextBlock Style="{StaticResource SectionTitle}" Text="{loc:Tr Settings_Erase}" />
             <ui:CardControl Margin="0,0,0,20" Icon="{ui:SymbolIcon Eraser24}">
                 <ui:CardControl.Header>

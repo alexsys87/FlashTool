@@ -34,5 +34,19 @@ public static class ContainerNaming
         return name;
     }
 
+    /// <summary>"core-image.wic.zst" -> "core-image.wic"; a name without a compression extension is returned as is.</summary>
+    public static string RemoveCompressionExtension(string fileName)
+    {
+        foreach (var ext in CompressionExtensions)
+        {
+            if (fileName.EndsWith(ext, StringComparison.OrdinalIgnoreCase) && fileName.Length > ext.Length)
+            {
+                return fileName[..^ext.Length];
+            }
+        }
+
+        return fileName;
+    }
+
     public static bool HasImageExtension(string name) => ImageExtensions.Contains(Path.GetExtension(name));
 }

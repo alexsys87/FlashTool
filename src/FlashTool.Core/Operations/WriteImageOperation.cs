@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using FlashTool.Core.Bmap;
 using FlashTool.Core.Checksums;
 using FlashTool.Core.Containers;
 using FlashTool.Core.Imaging;
@@ -34,6 +35,14 @@ public sealed record WriteImageOptions
     /// table, is committed. Null skips the check.
     /// </summary>
     public byte[]? ExpectedSourceSha256 { get; init; }
+
+    /// <summary>
+    /// Block map of the image. Only its mapped blocks are written, plus everything outside partitions and
+    /// the first and last mebibyte of each partition (see <see cref="BmapWritePlan"/>); verification reads
+    /// back just what was written. The image is checked against the map while it streams: a range whose
+    /// checksum differs, or data in a hole, stops the write before the partition table is committed.
+    /// </summary>
+    public BmapFile? Bmap { get; init; }
 }
 
 public sealed record WriteImageResult(
@@ -45,6 +54,9 @@ public sealed record WriteImageResult(
 {
     /// <summary>Outcome of the check against <see cref="WriteImageOptions.ExpectedSourceSha256"/>.</summary>
     public SourceChecksumStatus SourceChecksum { get; init; }
+
+    /// <summary>With a .bmap: bytes that actually went to the device (the rest of the image are holes).</summary>
+    public long? DeviceBytesWritten { get; init; }
 }
 
 /// <summary>
@@ -84,21 +96,33 @@ public static class WriteImageOperation
             throw new FlashToolException(FlashErrorCode.NotADiskImage, $"'{entry.Name}' is not a recognized disk image.", null, entry.Name);
         }
 
+        var bmap = options.Bmap;
+        if (bmap != null && entry.Length is { } knownLength && knownLength != bmap.ImageSize)
+        {
+            throw new FlashToolException(FlashErrorCode.BmapSizeMismatch, "The .bmap file is for an image of another size.", null, bmap.ImageSize, knownLength);
+        }
+
+        // A .bmap also tells the size of a gzip or bzip2 image, which the stream itself does not.
+        var expectedLength = entry.Length ?? bmap?.ImageSize;
+
         var device = new ResilientBlockDevice(
             await Task.Run(openTarget, cancellationToken).ConfigureAwait(false),
             options.IoRetry,
             cancellationToken);
         long written;
+        long? deviceBytesWritten = null;
         PartitionFixupResult? fixups = null;
         try
         {
-            if (entry.Length > device.Length)
+            if (expectedLength > device.Length)
             {
-                throw new FlashToolException(FlashErrorCode.ImageTooLarge, "The image is larger than the device.", null, entry.Length, device.Length);
+                throw new FlashToolException(FlashErrorCode.ImageTooLarge, "The image is larger than the device.", null, expectedLength, device.Length);
             }
 
             var chunk = AlignChunk(options.ChunkSize, device.SectorSize);
             var hashes = new BlockHashList(chunk);
+            var planned = bmap != null ? new PlannedWriter(BmapWritePlan.Build(bmap, image, device.SectorSize)) : null;
+            using var bmapCheck = bmap != null ? new BmapImageCheck(bmap) : null;
             var source = new PrefixedStream(head, reader.Data);
 
             // Blank the first chunk so the OS never sees a half-written partition
@@ -113,7 +137,7 @@ public static class WriteImageOperation
                 var writeProgress = new ProgressReporter(
                     progress,
                     OperationPhase.Writing,
-                    entry.Length,
+                    expectedLength,
                     reader.CompressedLength is > 0 ? () => (double)reader.CompressedPosition / reader.CompressedLength.Value : null);
 
                 written = await TransferPipeline.RunAsync(
@@ -128,12 +152,22 @@ public static class WriteImageOperation
                         }
 
                         var data = buffer.Span[..count];
-                        hashes.Append(data);
+                        bmapCheck?.Process(data);
                         var aligned = PadToSector(buffer.Span, count, device.SectorSize);
+                        if (planned == null)
+                        {
+                            hashes.Append(data);
+                        }
+
                         if (offset == 0)
                         {
                             buffer.Span[..aligned].CopyTo(firstChunk.Span);
                             firstLength = aligned;
+                            planned?.Record(0, data, aligned);
+                        }
+                        else if (planned != null)
+                        {
+                            planned.Write(device, offset, buffer.Span[..aligned], count);
                         }
                         else
                         {
@@ -154,6 +188,11 @@ public static class WriteImageOperation
                     throw new FlashToolException(FlashErrorCode.UnexpectedEndOfImage, "The image ended before its declared size.", null, written, entry.Length.Value);
                 }
 
+                if (bmap != null && written != bmap.ImageSize)
+                {
+                    throw new FlashToolException(FlashErrorCode.BmapSizeMismatch, "The .bmap file is for an image of another size.", null, bmap.ImageSize, written);
+                }
+
                 // A streamed source has been read to its end by now. Judging it here, before the real first chunk
                 // goes out, leaves the device with a blank partition table if the download turns out to be damaged.
                 checksum?.VerifyStreamed();
@@ -167,10 +206,16 @@ public static class WriteImageOperation
                 firstChunk.Free();
             }
 
-            if (options.Verify)
+            if (options.Verify && planned != null)
+            {
+                await planned.VerifyAsync(device, chunk, options.PipelineDepth, progress, cancellationToken).ConfigureAwait(false);
+            }
+            else if (options.Verify)
             {
                 await VerifyDeviceAsync(device, hashes, chunk, options.PipelineDepth, progress, cancellationToken).ConfigureAwait(false);
             }
+
+            deviceBytesWritten = planned?.BytesWritten;
 
             // Partition table changes come after verification so they don't count as mismatches.
             progress?.Report(new OperationProgress(OperationPhase.Finalizing, 0, null, 0, 0, null));
@@ -196,6 +241,7 @@ public static class WriteImageOperation
         return new WriteImageResult(written, options.Verify, image, fixups, clock.Elapsed)
         {
             SourceChecksum = checksum?.Status ?? SourceChecksumStatus.NotChecked,
+            DeviceBytesWritten = deviceBytesWritten,
         };
     }
 
