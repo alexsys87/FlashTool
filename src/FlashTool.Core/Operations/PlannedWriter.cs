@@ -30,7 +30,8 @@ internal sealed class PlannedWriter
     /// Writes the planned parts of a chunk. <paramref name="aligned"/> is the chunk padded to whole
     /// sectors; only its first <paramref name="count"/> bytes are image data.
     /// </summary>
-    public void Write(IBlockDevice device, long offset, ReadOnlySpan<byte> aligned, int count)
+    /// <param name="differential">When set, each planned piece is compared with the device and only what differs is written.</param>
+    public void Write(IBlockDevice device, long offset, ReadOnlySpan<byte> aligned, int count, DifferentialWriter? differential = null)
     {
         var end = offset + aligned.Length;
         while (_index < _plan.Count && _plan[_index].End <= offset)
@@ -42,14 +43,23 @@ internal sealed class PlannedWriter
         {
             var start = Math.Max(_plan[i].Start, offset);
             var stop = Math.Min(_plan[i].End, end);
-            device.Write(start, aligned[(int)(start - offset)..(int)(stop - offset)]);
+            var piece = aligned[(int)(start - offset)..(int)(stop - offset)];
+            if (differential != null)
+            {
+                differential.Write(start, piece);
+            }
+            else
+            {
+                device.Write(start, piece);
+            }
+
             BytesWritten += stop - start;
 
             var dataStop = Math.Min(stop, offset + count);
             if (dataStop > start)
             {
-                var piece = aligned[(int)(start - offset)..(int)(dataStop - offset)];
-                _pieces.Add((start, piece.Length, XxHash3.HashToUInt64(piece)));
+                var data = aligned[(int)(start - offset)..(int)(dataStop - offset)];
+                _pieces.Add((start, data.Length, XxHash3.HashToUInt64(data)));
             }
         }
     }
