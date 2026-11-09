@@ -1,0 +1,177 @@
+<Page
+    x:Class="FlashTool.App.Views.Pages.DeviceTestPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="clr-namespace:FlashTool.App.Views.Controls"
+    xmlns:loc="clr-namespace:FlashTool.App.Localization"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+    ScrollViewer.CanContentScroll="False">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="32,16,32,32" MaxWidth="900">
+            <TextBlock Margin="0,0,0,20" FontSize="26" FontWeight="SemiBold" Text="{loc:Tr Test_Header}" />
+            <ui:InfoBar
+                Margin="0,0,0,20"
+                IsClosable="False"
+                IsOpen="True"
+                Message="{loc:Tr Test_Warning}"
+                Severity="Warning"
+                Visibility="{Binding IsDestructive, Converter={StaticResource BoolToVisibility}}" />
+
+            <!-- Device -->
+            <controls:DeviceListPanel Margin="0,0,0,20" RequireWritable="{Binding IsDestructive}" Title="{loc:Tr Test_DeviceTitle}" />
+
+            <!-- Method -->
+            <TextBlock Style="{StaticResource SectionTitle}" Text="{loc:Tr Test_MethodTitle}" />
+            <ui:Card Margin="0,0,0,4">
+                <StackPanel>
+                    <RadioButton GroupName="DeviceTestMode" IsChecked="{Binding IsRead}">
+                        <StackPanel>
+                            <TextBlock FontWeight="SemiBold" Text="{loc:Tr Test_Mode_Read}" />
+                            <TextBlock Style="{StaticResource SecondaryText}" Text="{loc:Tr Test_Mode_ReadDescription}" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </RadioButton>
+                    <RadioButton Margin="0,12,0,0" GroupName="DeviceTestMode" IsChecked="{Binding IsWriteVerify}">
+                        <StackPanel>
+                            <TextBlock FontWeight="SemiBold" Text="{loc:Tr Test_Mode_WriteVerify}" />
+                            <TextBlock Style="{StaticResource SecondaryText}" Text="{loc:Tr Test_Mode_WriteVerifyDescription}" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </RadioButton>
+                    <RadioButton Margin="0,12,0,0" GroupName="DeviceTestMode" IsChecked="{Binding IsQuickProbe}">
+                        <StackPanel>
+                            <TextBlock FontWeight="SemiBold" Text="{loc:Tr Test_Mode_QuickProbe}" />
+                            <TextBlock Style="{StaticResource SecondaryText}" Text="{loc:Tr Test_Mode_QuickProbeDescription}" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </RadioButton>
+                    <RadioButton Margin="0,12,0,0" GroupName="DeviceTestMode" IsChecked="{Binding IsRandomAccess}">
+                        <StackPanel>
+                            <TextBlock FontWeight="SemiBold" Text="{loc:Tr Test_Mode_RandomAccess}" />
+                            <TextBlock Style="{StaticResource SecondaryText}" Text="{loc:Tr Test_Mode_RandomAccessDescription}" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </RadioButton>
+                </StackPanel>
+            </ui:Card>
+            <TextBlock
+                Margin="4,4,0,12"
+                Style="{StaticResource SecondaryText}"
+                Text="{Binding WorkText}"
+                Visibility="{Binding WorkText, Converter={StaticResource NullToVisibility}}" />
+
+            <!-- Action -->
+            <controls:OperationPanel Margin="0,8,0,12" DataContext="{Binding Progress}" />
+            <ui:InfoBar
+                Margin="0,0,0,12"
+                IsClosable="True"
+                IsOpen="{Binding Result.IsOpen, Mode=TwoWay}"
+                Message="{Binding Result.Message}"
+                Severity="{Binding Result.Severity}"
+                Title="{Binding Result.Title}" />
+            <StackPanel Margin="0,0,0,20" HorizontalAlignment="Right" Orientation="Horizontal">
+                <ui:Button
+                    Margin="0,0,8,0"
+                    Command="{Binding CancelCommand}"
+                    Content="{loc:Tr Cancel}"
+                    Icon="{ui:SymbolIcon Dismiss24}"
+                    Visibility="{Binding Operation.IsBusy, Converter={StaticResource BoolToVisibility}}" />
+                <ui:Button
+                    MinWidth="160"
+                    Appearance="Primary"
+                    Command="{Binding StartCommand}"
+                    Content="{loc:Tr Test_Start}"
+                    Icon="{ui:SymbolIcon TopSpeed24}" />
+            </StackPanel>
+
+            <!-- Chart, live while the test runs -->
+            <StackPanel Visibility="{Binding HasChart, Converter={StaticResource BoolToVisibility}}">
+                <TextBlock Style="{StaticResource SectionTitle}" Text="{loc:Tr Test_ChartTitle}" />
+                <ui:Card Margin="0,0,0,4">
+                    <StackPanel>
+                        <controls:SpeedChart
+                            x:Name="Chart"
+                            Height="260"
+                            BadAreas="{Binding BadAreas}"
+                            DeviceLength="{Binding ChartLength}"
+                            ExportBackground="{DynamicResource ApplicationBackgroundBrush}"
+                            Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                            GridBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+                            ReadBrush="{DynamicResource SystemFillColorSuccessBrush}"
+                            RealCapacity="{Binding RealCapacity}"
+                            Samples="{Binding Samples}"
+                            SlowAreas="{Binding SlowAreas}"
+                            WriteBrush="{DynamicResource AccentTextFillColorPrimaryBrush}" />
+                        <TextBlock Margin="0,8,0,0" Style="{StaticResource SecondaryText}" Text="{loc:Tr Test_ChartLegend}" TextWrapping="Wrap" />
+                    </StackPanel>
+                </ui:Card>
+            </StackPanel>
+
+            <!-- Report -->
+            <StackPanel Visibility="{Binding HasReport, Converter={StaticResource BoolToVisibility}}">
+                <StackPanel Margin="0,4,0,12" HorizontalAlignment="Right" Orientation="Horizontal">
+                    <ui:Button
+                        Margin="0,0,8,0"
+                        Command="{Binding ExportCsvCommand}"
+                        Content="{loc:Tr Test_ExportCsv}"
+                        Icon="{ui:SymbolIcon DocumentArrowDown24}" />
+                    <ui:Button
+                        Command="{Binding ExportPngCommand}"
+                        Content="{loc:Tr Test_ExportPng}"
+                        Icon="{ui:SymbolIcon Image24}"
+                        IsEnabled="{Binding HasChart}" />
+                </StackPanel>
+
+                <StackPanel Visibility="{Binding HasBadAreas, Converter={StaticResource BoolToVisibility}}">
+                    <TextBlock Style="{StaticResource SectionTitle}" Text="{loc:Tr Test_BadAreasTitle}" />
+                    <ui:Card Margin="0,0,0,12">
+                        <StackPanel>
+                            <DataGrid
+                                MaxHeight="320"
+                                AutoGenerateColumns="False"
+                                CanUserAddRows="False"
+                                HeadersVisibility="Column"
+                                IsReadOnly="True"
+                                ItemsSource="{Binding BadAreaRows}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Width="*" Binding="{Binding Offset}" Header="{loc:Tr Verify_Offset}" />
+                                    <DataGridTextColumn Binding="{Binding Length}" Header="{loc:Tr Verify_Length}" />
+                                    <DataGridTextColumn Binding="{Binding Kind}" Header="{loc:Tr Test_BadKind}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                            <TextBlock
+                                Margin="0,8,0,0"
+                                Style="{StaticResource SecondaryText}"
+                                Text="{Binding BadAreasMoreText}"
+                                Visibility="{Binding BadAreasMoreText, Converter={StaticResource NullToVisibility}}" />
+                        </StackPanel>
+                    </ui:Card>
+                </StackPanel>
+
+                <!-- After a destructive test -->
+                <ui:InfoBar
+                    Margin="0,0,0,12"
+                    IsClosable="False"
+                    IsOpen="True"
+                    Message="{loc:Tr Test_NoFormatFake}"
+                    Severity="Error"
+                    Visibility="{Binding IsCounterfeitReport, Converter={StaticResource BoolToVisibility}}" />
+                <ui:CardControl Icon="{ui:SymbolIcon Storage24}" Visibility="{Binding CanOfferFormat, Converter={StaticResource BoolToVisibility}}">
+                    <ui:CardControl.Header>
+                        <StackPanel>
+                            <TextBlock Text="{loc:Tr Test_FormatTitle}" />
+                            <TextBlock Style="{StaticResource SecondaryText}" Text="{loc:Tr Test_FormatDescription}" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </ui:CardControl.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <ComboBox
+                            MinWidth="200"
+                            Margin="0,0,8,0"
+                            DisplayMemberPath="Text"
+                            ItemsSource="{Binding FileSystems}"
+                            SelectedItem="{Binding SelectedFileSystem}" />
+                        <ui:Button Command="{Binding FormatCommand}" Content="{loc:Tr Test_FormatButton}" Icon="{ui:SymbolIcon Storage24}" />
+                    </StackPanel>
+                </ui:CardControl>
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

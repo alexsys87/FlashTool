@@ -14,13 +14,14 @@ namespace FlashTool.App.Views;
 
 public partial class MainWindow : FluentWindow
 {
-    private static readonly Type[] Pages = [typeof(WritePage), typeof(ReadPage), typeof(VerifyPage), typeof(ErasePage), typeof(SettingsPage)];
+    private static readonly Type[] Pages = [typeof(WritePage), typeof(ReadPage), typeof(VerifyPage), typeof(ErasePage), typeof(DeviceTestPage), typeof(SettingsPage)];
 
     private readonly IServiceProvider _services;
     private readonly OperationState _operation;
     private readonly DialogService _dialogs;
     private readonly SettingsService _settings;
     private readonly EraseFeature _erase;
+    private readonly DeviceTestFeature _deviceTest;
     private bool _closeConfirmed;
     private Type? _currentPage;
 
@@ -30,18 +31,21 @@ public partial class MainWindow : FluentWindow
         IContentDialogService contentDialogs,
         DialogService dialogs,
         SettingsService settings,
-        EraseFeature erase)
+        EraseFeature erase,
+        DeviceTestFeature deviceTest)
     {
         _services = services;
         _operation = operation;
         _dialogs = dialogs;
         _settings = settings;
         _erase = erase;
+        _deviceTest = deviceTest;
         DataContext = operation;
         InitializeComponent();
 
         UpdateEraseNavigation();
         erase.PropertyChanged += (_, _) => UpdateEraseNavigation();
+        deviceTest.PropertyChanged += (_, _) => UpdateEraseNavigation();
 
         contentDialogs.SetDialogHost(RootContentDialogHost);
         RootNavigation.SetServiceProvider(services);
@@ -58,7 +62,7 @@ public partial class MainWindow : FluentWindow
                 _settings.Settings.LastPage = _currentPage.Name;
                 _settings.Save();
             };
-            var lastPage = Pages.FirstOrDefault(p => p.Name == _settings.Settings.LastPage && (p != typeof(ErasePage) || _erase.IsEnabled));
+            var lastPage = Pages.FirstOrDefault(p => p.Name == _settings.Settings.LastPage && (p != typeof(ErasePage) || _erase.IsEnabled) && (p != typeof(DeviceTestPage) || _deviceTest.IsEnabled));
             RootNavigation.Navigate(lastPage ?? typeof(WritePage));
             RootNavigation.PaneOpened += (_, _) => SavePaneState(true);
             RootNavigation.PaneClosed += (_, _) => SavePaneState(false);
@@ -137,7 +141,10 @@ public partial class MainWindow : FluentWindow
     }
 
     private void UpdateEraseNavigation()
-        => EraseNavigationItem.Visibility = _erase.IsEnabled ? Visibility.Visible : Visibility.Collapsed;
+    {
+        EraseNavigationItem.Visibility = _erase.IsEnabled ? Visibility.Visible : Visibility.Collapsed;
+        DeviceTestNavigationItem.Visibility = _deviceTest.IsEnabled ? Visibility.Visible : Visibility.Collapsed;
+    }
 
     private void SavePaneState(bool open)
     {

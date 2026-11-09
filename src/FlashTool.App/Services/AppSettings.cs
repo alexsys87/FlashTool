@@ -92,6 +92,15 @@ public sealed class AppSettings
     public string EraseLabel { get; set; } = string.Empty;
 
     public string? EraseDeviceKey { get; set; }
+
+    /// <summary>Shows the "Device test" page. Off by default.</summary>
+    public bool DeviceTestEnabled { get; set; }
+
+    public DeviceTestMode DeviceTestMode { get; set; } = DeviceTestMode.Read;
+
+    public EraseFileSystem DeviceTestFileSystem { get; set; } = EraseFileSystem.Auto;
+
+    public string? DeviceTestDeviceKey { get; set; }
 }
 
 /// <summary>Main window bounds (in the "normal" state) and whether it was maximized.</summary>

@@ -281,6 +281,70 @@ Continue?</value></data>
   <data name="Read_BmapFailed" xml:space="preserve"><value>The .bmap file could not be saved: {0}</value></data>
   <data name="Error_BmapSizeMismatch" xml:space="preserve"><value>The .bmap file is for an image of {0:N0} bytes, but the image has {1:N0} bytes.</value></data>
   <data name="Error_BmapDataMismatch" xml:space="preserve"><value>The image does not match its .bmap file (at byte {0:N0}): the .bmap is probably from another build of the image. If this happened while writing, the device was left without a partition table.</value></data>
+  <data name="Nav_DeviceTest" xml:space="preserve"><value>Device test</value></data>
+  <data name="Settings_DeviceTest" xml:space="preserve"><value>Testing devices</value></data>
+  <data name="Settings_DeviceTestEnable" xml:space="preserve"><value>Show the "Device test" page</value></data>
+  <data name="Settings_DeviceTestDescription" xml:space="preserve"><value>Measures speed and finds unreadable areas and counterfeit capacity. Every test except reading destroys all data on the device, so the page is hidden unless turned on here.</value></data>
+  <data name="Test_Header" xml:space="preserve"><value>Test a device</value></data>
+  <data name="Test_Warning" xml:space="preserve"><value>The chosen test overwrites the device: everything on it will be lost.</value></data>
+  <data name="Test_DeviceTitle" xml:space="preserve"><value>Device to test</value></data>
+  <data name="Test_MethodTitle" xml:space="preserve"><value>Test</value></data>
+  <data name="Test_Mode_Read" xml:space="preserve"><value>Read (keeps the data)</value></data>
+  <data name="Test_Mode_ReadDescription" xml:space="preserve"><value>Reads the whole device, bypassing the Windows cache: speed along the device, the time of every request and the areas that cannot be read. Nothing is written.</value></data>
+  <data name="Test_Mode_WriteVerify" xml:space="preserve"><value>Write and check (destroys data)</value></data>
+  <data name="Test_Mode_WriteVerifyDescription" xml:space="preserve"><value>Fills every sector with data unique to its position, then reads the whole device back. Finds counterfeit devices and their real capacity, bad areas and slow regions, and charts the speed of both directions. Takes as long as writing and reading the whole device.</value></data>
+  <data name="Test_Mode_QuickProbe" xml:space="preserve"><value>Quick counterfeit check (destroys data)</value></data>
+  <data name="Test_Mode_QuickProbeDescription" xml:space="preserve"><value>Writes small probes across the device and reads them back, then narrows down where data stops being kept. Takes minutes and catches the usual counterfeits; only the full test catches every kind.</value></data>
+  <data name="Test_Mode_RandomAccess" xml:space="preserve"><value>Random 4K access (destroys data)</value></data>
+  <data name="Test_Mode_RandomAccessDescription" xml:space="preserve"><value>10 seconds of random 4 KiB reads, then 10 seconds of random 4 KiB writes, one request at a time: what matters for a system running from the card (SD class A1/A2). The figures also depend on the card reader.</value></data>
+  <data name="Test_WillRead" xml:space="preserve"><value>{0} will be read.</value></data>
+  <data name="Test_WillWriteAndRead" xml:space="preserve"><value>{0} will be written and then read.</value></data>
+  <data name="Test_WillProbe" xml:space="preserve"><value>About 100 MB will be written across the device.</value></data>
+  <data name="Test_WillRandom" xml:space="preserve"><value>Random places of the device will be overwritten.</value></data>
+  <data name="Test_Start" xml:space="preserve"><value>Start test</value></data>
+  <data name="Test_ConfirmTitle" xml:space="preserve"><value>Overwrite the device?</value></data>
+  <data name="Test_ConfirmMessage" xml:space="preserve"><value>{0} ({1}) will be tested with "{2}". Everything on it will be lost.</value></data>
+  <data name="Test_ConfirmButton" xml:space="preserve"><value>Test and overwrite</value></data>
+  <data name="Test_CancelledRead" xml:space="preserve"><value>The test was stopped; the device was not changed.</value></data>
+  <data name="Test_CancelledDestructive" xml:space="preserve"><value>The test was stopped; the device is partly overwritten and has no file system.</value></data>
+  <data name="Test_Failed" xml:space="preserve"><value>The test could not be completed</value></data>
+  <data name="Test_Verdict_Healthy" xml:space="preserve"><value>No problems found</value></data>
+  <data name="Test_Verdict_ProbeOk" xml:space="preserve"><value>No signs of a counterfeit</value></data>
+  <data name="Test_Verdict_Bad" xml:space="preserve"><value>The device has bad areas</value></data>
+  <data name="Test_Verdict_Fake" xml:space="preserve"><value>The device is counterfeit</value></data>
+  <data name="Test_FakeWraps" xml:space="preserve"><value>It really keeps about {0} of the {1} it reports: data written further on overwrites the start.</value></data>
+  <data name="Test_FakeDrops" xml:space="preserve"><value>It really keeps about {0} of the {1} it reports: whatever is written past that is lost.</value></data>
+  <data name="Test_FakeUnknownSize" xml:space="preserve"><value>It does not keep what is written to it, but its real capacity could not be worked out.</value></data>
+  <data name="Test_FakeAdvice" xml:space="preserve"><value>Do not keep data on it; images written to it will be damaged.</value></data>
+  <data name="Test_BadSummary" xml:space="preserve"><value>{0} bad areas, {1} in total.</value></data>
+  <data name="Test_PassWrite" xml:space="preserve"><value>Writing: {0} on average, from {1} to {2}.</value></data>
+  <data name="Test_PassRead" xml:space="preserve"><value>Reading: {0} on average, from {1} to {2}.</value></data>
+  <data name="Test_Latency" xml:space="preserve"><value>Time per request: {0} ms median, {1} ms longest.</value></data>
+  <data name="Test_SlowAreas" xml:space="preserve"><value>Slow regions (under half the usual speed): {0}, {1} in total.</value></data>
+  <data name="Test_RandomRead" xml:space="preserve"><value>Random 4K reads: {0} IOPS ({1}), {2} ms on average, 99% within {3} ms.</value></data>
+  <data name="Test_RandomWrite" xml:space="preserve"><value>Random 4K writes: {0} IOPS ({1}), {2} ms on average, 99% within {3} ms.</value></data>
+  <data name="Test_Elapsed" xml:space="preserve"><value>Took {0}.</value></data>
+  <data name="Test_FormatHint" xml:space="preserve"><value>The device now holds only test data; you can create a file system on it below.</value></data>
+  <data name="Test_PerSecond" xml:space="preserve"><value>/s</value></data>
+  <data name="Test_SpeedValue" xml:space="preserve"><value>{0} MB/s</value></data>
+  <data name="Test_ChartTitle" xml:space="preserve"><value>Speed along the device</value></data>
+  <data name="Test_ChartLegend" xml:space="preserve"><value>Shaded in amber: slow regions. Red marks at the bottom: bad areas. Red background: past the real capacity of a counterfeit device.</value></data>
+  <data name="Test_LegendWrite" xml:space="preserve"><value>Writing</value></data>
+  <data name="Test_LegendRead" xml:space="preserve"><value>Reading</value></data>
+  <data name="Test_ExportCsv" xml:space="preserve"><value>Save CSV</value></data>
+  <data name="Test_ExportPng" xml:space="preserve"><value>Save chart (PNG)</value></data>
+  <data name="Test_ExportFailed" xml:space="preserve"><value>The file could not be saved</value></data>
+  <data name="Test_BadAreasTitle" xml:space="preserve"><value>Bad areas</value></data>
+  <data name="Test_BadKind" xml:space="preserve"><value>Problem</value></data>
+  <data name="Test_Bad_ReadError" xml:space="preserve"><value>Cannot be read</value></data>
+  <data name="Test_Bad_WriteError" xml:space="preserve"><value>Cannot be written</value></data>
+  <data name="Test_Bad_WrongData" xml:space="preserve"><value>Wrong data</value></data>
+  <data name="Test_BadAreasMore" xml:space="preserve"><value>The first {0} of {1} areas are shown; the CSV file lists them all.</value></data>
+  <data name="Test_NoFormatFake" xml:space="preserve"><value>A file system over the claimed capacity of a counterfeit device would lose data, so none is offered.</value></data>
+  <data name="Test_FormatTitle" xml:space="preserve"><value>Create a file system</value></data>
+  <data name="Test_FormatDescription" xml:space="preserve"><value>One partition over the whole device, as on the "Erase" page: FAT32 up to 32 GB, exFAT above in automatic mode.</value></data>
+  <data name="Test_FormatButton" xml:space="preserve"><value>Create</value></data>
+  <data name="Test_Formatted" xml:space="preserve"><value>File system created</value></data>
   <data name="Settings_Erase" xml:space="preserve"><value>Erasing devices</value></data>
   <data name="Settings_EraseEnable" xml:space="preserve"><value>Show the "Erase" page</value></data>
   <data name="Settings_EraseDescription" xml:space="preserve"><value>Quick erase, full and destructive format of a device. Hidden by default so that a device is not wiped by mistake.</value></data>
