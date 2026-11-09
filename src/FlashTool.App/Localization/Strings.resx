@@ -91,6 +91,23 @@ Write anyway?</value></data>
   <data name="Write_FsNotResized" xml:space="preserve"><value>The {0} file system inside it was not resized.</value></data>
   <data name="Write_FsResized" xml:space="preserve"><value>The {0} file system was expanded to the whole partition.</value></data>
   <data name="Write_FsResizeFailed" xml:space="preserve"><value>The {0} file system could not be expanded: {1}</value></data>
+  <data name="Write_JournalReplayed" xml:space="preserve"><value>The {0} journal was replayed first: the image was taken from a running system (or one not shut down properly).</value></data>
+  <data name="Write_FsNotResizedBecause" xml:space="preserve"><value>The {0} file system inside the partition was not grown: {1}.</value></data>
+  <data name="Write_PartitionNotExtended" xml:space="preserve"><value>The last partition was not extended: {0}.</value></data>
+  <data name="FsSkip_AlreadyFillsPartition" xml:space="preserve"><value>it already fills the partition</value></data>
+  <data name="FsSkip_NotCleanlyUnmounted" xml:space="preserve"><value>it was not cleanly unmounted and has no journal to replay; check it with e2fsck, then run resize2fs on the device</value></data>
+  <data name="FsSkip_HasErrors" xml:space="preserve"><value>it has recorded errors; check it with e2fsck, then run resize2fs on the device</value></data>
+  <data name="FsSkip_JournalNotReplayed" xml:space="preserve"><value>its journal needs recovery and could not be replayed here; mount it once (or run e2fsck), then run resize2fs on the device</value></data>
+  <data name="FsSkip_OrphansPending" xml:space="preserve"><value>deletions of open files are still pending; mount it once, then run resize2fs on the device</value></data>
+  <data name="FsSkip_UnsupportedFeature" xml:space="preserve"><value>its layout (meta_bg, bigalloc or similar) cannot be grown offline; run resize2fs on the device</value></data>
+  <data name="FsSkip_NoRoomForDescriptors" xml:space="preserve"><value>it has no room left for more block groups (no reserved descriptor blocks); run resize2fs on the device</value></data>
+  <data name="FsSkip_InconsistentMetadata" xml:space="preserve"><value>its metadata does not check out; check it with e2fsck</value></data>
+  <data name="PartSkip_NoPartitionTable" xml:space="preserve"><value>the image has no partition table</value></data>
+  <data name="PartSkip_IsoImage" xml:space="preserve"><value>ISO images are never changed</value></data>
+  <data name="PartSkip_LastPartitionIsLogical" xml:space="preserve"><value>the last partition is a logical one inside an extended partition, which is not supported yet</value></data>
+  <data name="PartSkip_AlreadyFillsDisk" xml:space="preserve"><value>it already reaches the end of the device</value></data>
+  <data name="PartSkip_UnsupportedSectorSize" xml:space="preserve"><value>the device's sector size is not supported for this</value></data>
+  <data name="PartSkip_NoFreeSpace" xml:space="preserve"><value>there is no free space after it</value></data>
   <data name="Write_GptRelocated" xml:space="preserve"><value>The backup GPT was moved to the end of the device.</value></data>
   <data name="Write_Failed" xml:space="preserve"><value>Writing failed</value></data>
   <data name="Erase_Header" xml:space="preserve"><value>Erase a device</value></data>
