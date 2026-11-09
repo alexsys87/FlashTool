@@ -170,6 +170,16 @@ Continue?</value></data>
   <data name="Read_ChecksumFileDescription" xml:space="preserve"><value>Writes a .sha256 file next to the image (SHA-256, sha256sum format). Writing the image back picks it up automatically.</value></data>
   <data name="Read_ChecksumFileSaved" xml:space="preserve"><value>Checksum saved: {0}</value></data>
   <data name="Read_ChecksumFileFailed" xml:space="preserve"><value>The checksum file could not be saved: {0}</value></data>
+  <data name="Read_SkipFreeBlocksOn" xml:space="preserve"><value>Free ext2/3/4 blocks will be stored as zeros without being read (turned on in Settings).</value></data>
+  <data name="Read_FreeBlocksSkipped" xml:space="preserve"><value>Free ext2/3/4 blocks stored as zeros without reading: {0}</value></data>
+  <data name="Read_FreeBlocksNotSkipped" xml:space="preserve"><value>{0}: free blocks were copied in full because {1}.</value></data>
+  <data name="Read_FreeBlocksPartition" xml:space="preserve"><value>Partition {0}</value></data>
+  <data name="Read_FreeBlocksWholeDevice" xml:space="preserve"><value>File system</value></data>
+  <data name="FreeSpace_NotCleanlyUnmounted" xml:space="preserve"><value>the file system was not cleanly unmounted or has errors</value></data>
+  <data name="FreeSpace_JournalNeedsRecovery" xml:space="preserve"><value>its journal has not been replayed yet</value></data>
+  <data name="FreeSpace_UnsupportedFeature" xml:space="preserve"><value>it uses features this mode does not handle</value></data>
+  <data name="FreeSpace_InconsistentMetadata" xml:space="preserve"><value>its metadata checksums do not match</value></data>
+  <data name="FreeSpace_OverlapsOtherPartition" xml:space="preserve"><value>the partition overlaps another one</value></data>
   <data name="Read_Start" xml:space="preserve"><value>Create image</value></data>
   <data name="Read_OverwriteTitle" xml:space="preserve"><value>Replace the file?</value></data>
   <data name="Read_OverwriteMessage" xml:space="preserve"><value>"{0}" already exists. Replace it?</value></data>
@@ -241,6 +251,9 @@ Continue?</value></data>
   <data name="Language_Russian" xml:space="preserve"><value>Русский</value></data>
   <data name="Settings_Devices" xml:space="preserve"><value>Devices</value></data>
   <data name="Settings_ShowAllDescription" xml:space="preserve"><value>Internal HDD/SSD are hidden to protect them from accidental erasing. The system disk can never be written.</value></data>
+  <data name="Settings_Imaging" xml:space="preserve"><value>Creating images</value></data>
+  <data name="Settings_SkipFreeBlocks" xml:space="preserve"><value>Skip free space in ext2/3/4</value></data>
+  <data name="Settings_SkipFreeBlocksDescription" xml:space="preserve"><value>Free blocks of ext2/3/4 file systems are not read but stored as zeros: the image is created faster, and xz, gz and zst compress the zeros to almost nothing. The image is then not a byte-for-byte copy of the device: whatever lay in free space (deleted files, for example) is not kept, and comparing the image with the device shows differences there. Other file systems and everything outside partitions are copied in full, and so is an ext file system that was not cleanly unmounted.</value></data>
   <data name="Settings_Erase" xml:space="preserve"><value>Erasing devices</value></data>
   <data name="Settings_EraseEnable" xml:space="preserve"><value>Show the "Erase" page</value></data>
   <data name="Settings_EraseDescription" xml:space="preserve"><value>Quick erase, full and destructive format of a device. Hidden by default so that a device is not wiped by mistake.</value></data>

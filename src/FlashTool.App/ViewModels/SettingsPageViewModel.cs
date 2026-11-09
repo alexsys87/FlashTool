@@ -16,6 +16,7 @@ public sealed partial class SettingsPageViewModel : LocalizedViewModel
     private readonly AppearanceService _appearance;
     private readonly ContainerRegistry _registry;
     private readonly EraseFeature _erase;
+    private readonly FreeBlockSkipping _freeBlocks;
     private readonly DialogService _dialogs;
     private readonly OperationState _operation;
 
@@ -31,6 +32,7 @@ public sealed partial class SettingsPageViewModel : LocalizedViewModel
         ContainerRegistry registry,
         DeviceListService devices,
         EraseFeature erase,
+        FreeBlockSkipping freeBlocks,
         DialogService dialogs,
         OperationState operation)
     {
@@ -38,6 +40,7 @@ public sealed partial class SettingsPageViewModel : LocalizedViewModel
         _appearance = appearance;
         _registry = registry;
         _erase = erase;
+        _freeBlocks = freeBlocks;
         _dialogs = dialogs;
         _operation = operation;
         Devices = devices;
@@ -60,6 +63,16 @@ public sealed partial class SettingsPageViewModel : LocalizedViewModel
     public IReadOnlyList<LocalizedOption<ThemeMode>> Themes { get; }
 
     public IReadOnlyList<LocalizedOption<LanguageMode>> Languages { get; }
+
+    public bool SkipFreeBlocks
+    {
+        get => _freeBlocks.IsEnabled;
+        set
+        {
+            _freeBlocks.IsEnabled = value;
+            OnPropertyChanged();
+        }
+    }
 
     /// <summary>State of the switch; it is changed only through <see cref="ToggleEraseCommand"/>.</summary>
     public bool EraseEnabled => _erase.IsEnabled;

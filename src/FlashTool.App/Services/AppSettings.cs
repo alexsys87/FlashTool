@@ -44,6 +44,9 @@ public sealed class AppSettings
 
     public bool OnlyAllocatedPartitions { get; set; } = true;
 
+    /// <summary>Store free ext2/3/4 blocks as zeros when creating an image. Off by default: the image is then not an exact copy.</summary>
+    public bool SkipFreeBlocks { get; set; }
+
     public ContainerFormat ReadFormat { get; set; } = ContainerFormat.Xz;
 
     public CompressionPreset ReadCompression { get; set; } = CompressionPreset.Normal;

@@ -54,6 +54,11 @@
                         <TextBlock Text="{loc:Tr Read_OnlyAllocated}" />
                         <TextBlock Style="{StaticResource SecondaryText}" Text="{loc:Tr Read_OnlyAllocatedDescription}" />
                         <TextBlock Style="{StaticResource SecondaryText}" Text="{Binding WillReadText}" />
+                        <TextBlock
+                            Style="{StaticResource SecondaryText}"
+                            Text="{loc:Tr Read_SkipFreeBlocksOn}"
+                            TextWrapping="Wrap"
+                            Visibility="{Binding SkipFreeBlocks, Converter={StaticResource BoolToVisibility}}" />
                     </StackPanel>
                 </ui:CardControl.Header>
                 <ui:ToggleSwitch IsChecked="{Binding OnlyAllocatedPartitions}" />

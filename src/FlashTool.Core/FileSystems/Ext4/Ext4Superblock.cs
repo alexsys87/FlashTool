@@ -135,6 +135,39 @@ internal sealed class Ext4Superblock
         ? U32(0x270)
         : Ext4Checksums.Crc32C(0xFFFFFFFF, Uuid);
 
+    /// <summary>s_first_meta_bg: descriptor blocks before it stay in the classic table (meta_bg only).</summary>
+    public uint FirstMetaBg => U32(0x104);
+
+    public bool HasMetaBg => (FeatureIncompat & IncompatMetaBg) != 0;
+
+    /// <summary>The superblock checksum matches (always true without metadata_csum).</summary>
+    public bool IsChecksumValid => !HasMetadataCsum || U32(0x3FC) == Ext4Checksums.Crc32C(0xFFFFFFFF, _raw.AsSpan(0, 0x3FC));
+
+    /// <summary>
+    /// Whether a group carries a superblock and descriptor backup: every group
+    /// without sparse_super; 0, 1 and powers of 3, 5 and 7 with it; only 0 and
+    /// the two groups named in the superblock with sparse_super2.
+    /// </summary>
+    public bool HasBackupInGroup(long group)
+    {
+        if (group == 0)
+        {
+            return true;
+        }
+
+        if ((FeatureCompat & CompatSparseSuper2) != 0)
+        {
+            return group == U32(0x24C) || group == U32(0x250);
+        }
+
+        if (group == 1 || !HasSparseSuper)
+        {
+            return true;
+        }
+
+        return IsPowerOf(group, 3) || IsPowerOf(group, 5) || IsPowerOf(group, 7);
+    }
+
     public Ext4Superblock Clone() => new((byte[])_raw.Clone());
 
     /// <summary>Returns the raw bytes with an up-to-date checksum.</summary>
@@ -146,6 +179,16 @@ internal sealed class Ext4Superblock
         }
 
         return (byte[])_raw.Clone();
+    }
+
+    private static bool IsPowerOf(long value, long b)
+    {
+        while (value % b == 0)
+        {
+            value /= b;
+        }
+
+        return value == 1;
     }
 
     private ushort U16(int offset) => BinaryPrimitives.ReadUInt16LittleEndian(_raw.AsSpan(offset));

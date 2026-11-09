@@ -22,6 +22,7 @@ public sealed partial class ReadPageViewModel : LocalizedViewModel
     private readonly RememberedDevice? _rememberedDevice;
     private readonly SettingsService _settings;
     private readonly DialogService _dialogs;
+    private readonly FreeBlockSkipping _freeBlocks;
     private ImageInfo? _deviceLayout;
     private string? _layoutError;
     private int _layoutRequest;
@@ -47,13 +48,16 @@ public sealed partial class ReadPageViewModel : LocalizedViewModel
         DialogService dialogs,
         DeviceListService devices,
         OperationState operation,
-        IoErrorPrompt ioErrors)
+        IoErrorPrompt ioErrors,
+        FreeBlockSkipping freeBlocks)
     {
         _registry = registry;
         _diskManager = diskManager;
         _ioErrors = ioErrors;
         _settings = settings;
         _dialogs = dialogs;
+        _freeBlocks = freeBlocks;
+        _freeBlocks.PropertyChanged += (_, _) => OnPropertyChanged(nameof(SkipFreeBlocks));
         Devices = devices;
         Operation = operation;
         Operation.PropertyChanged += OnOperationChanged;
@@ -109,6 +113,9 @@ public sealed partial class ReadPageViewModel : LocalizedViewModel
             OnPropertyChanged(nameof(WillReadText));
         }
     }
+
+    /// <summary>Turned on in the settings; shown on the page so the user knows the image will not be an exact copy.</summary>
+    public bool SkipFreeBlocks => _freeBlocks.IsEnabled;
 
     public bool Verify
     {
@@ -267,6 +274,24 @@ public sealed partial class ReadPageViewModel : LocalizedViewModel
         }
     }
 
+    /// <summary>How much free space was skipped, and which file systems were copied in full and why.</summary>
+    private static string FreeSpaceSummary(ReadImageResult result)
+    {
+        var text = string.Empty;
+        if (result.SkippedBytes > 0)
+        {
+            text += Environment.NewLine + Loc.Format("Read_FreeBlocksSkipped", Formatting.Size(result.SkippedBytes));
+        }
+
+        foreach (var fs in result.FreeSpace.Where(f => f.Status != FreeSpaceStatus.Skipped))
+        {
+            var where = fs.PartitionNumber > 0 ? Loc.Format("Read_FreeBlocksPartition", fs.PartitionNumber) : Loc.Get("Read_FreeBlocksWholeDevice");
+            text += Environment.NewLine + Loc.Format("Read_FreeBlocksNotSkipped", where, Loc.Get($"FreeSpace_{fs.Status}"));
+        }
+
+        return text;
+    }
+
     private bool CanStart()
         => SelectedDevice is { CanBeRead: true }
            && !string.IsNullOrWhiteSpace(DestinationPath)
@@ -296,6 +321,7 @@ public sealed partial class ReadPageViewModel : LocalizedViewModel
             Verify = Verify,
             WriteChecksumFile = CreateChecksumFile,
             OnlyAllocatedPartitions = OnlyAllocatedPartitions,
+            SkipFreeBlocks = SkipFreeBlocks,
             Format = SelectedFormat.Value,
             Compression = new CompressionSettings(SelectedCompression.Value),
             IoRetry = _ioErrors.Policy,
@@ -326,6 +352,8 @@ public sealed partial class ReadPageViewModel : LocalizedViewModel
             {
                 details += Environment.NewLine + Loc.Get("Write_Verified");
             }
+
+            details += FreeSpaceSummary(result);
 
             var severity = InfoBarSeverity.Success;
             if (result.ChecksumFilePath is { } checksumFile)

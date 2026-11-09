@@ -103,6 +103,7 @@ public partial class App : Application
         services.AddSingleton<DialogService>();
         services.AddSingleton<IoErrorPrompt>();
         services.AddSingleton<EraseFeature>();
+        services.AddSingleton<FreeBlockSkipping>();
 
         // Every page that picks an image gets its own picker state.
         services.AddTransient<ImageSourceViewModel>();

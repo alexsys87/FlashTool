@@ -170,6 +170,16 @@
   <data name="Read_ChecksumFileDescription" xml:space="preserve"><value>Рядом с образом создаётся файл .sha256 (SHA-256, формат sha256sum). При записи образа обратно он подхватывается автоматически.</value></data>
   <data name="Read_ChecksumFileSaved" xml:space="preserve"><value>Контрольная сумма сохранена: {0}</value></data>
   <data name="Read_ChecksumFileFailed" xml:space="preserve"><value>Не удалось сохранить файл контрольной суммы: {0}</value></data>
+  <data name="Read_SkipFreeBlocksOn" xml:space="preserve"><value>Свободные блоки ext2/3/4 будут записаны нулями без чтения (включено в настройках).</value></data>
+  <data name="Read_FreeBlocksSkipped" xml:space="preserve"><value>Свободные блоки ext2/3/4 записаны нулями без чтения: {0}</value></data>
+  <data name="Read_FreeBlocksNotSkipped" xml:space="preserve"><value>{0}: свободные блоки скопированы полностью, потому что {1}.</value></data>
+  <data name="Read_FreeBlocksPartition" xml:space="preserve"><value>Раздел {0}</value></data>
+  <data name="Read_FreeBlocksWholeDevice" xml:space="preserve"><value>Файловая система</value></data>
+  <data name="FreeSpace_NotCleanlyUnmounted" xml:space="preserve"><value>файловая система не была корректно отключена или содержит ошибки</value></data>
+  <data name="FreeSpace_JournalNeedsRecovery" xml:space="preserve"><value>её журнал ещё не воспроизведён</value></data>
+  <data name="FreeSpace_UnsupportedFeature" xml:space="preserve"><value>в ней используются возможности, которые этот режим не поддерживает</value></data>
+  <data name="FreeSpace_InconsistentMetadata" xml:space="preserve"><value>контрольные суммы её метаданных не совпадают</value></data>
+  <data name="FreeSpace_OverlapsOtherPartition" xml:space="preserve"><value>раздел перекрывается с другим</value></data>
   <data name="Read_Start" xml:space="preserve"><value>Создать образ</value></data>
   <data name="Read_OverwriteTitle" xml:space="preserve"><value>Заменить файл?</value></data>
   <data name="Read_OverwriteMessage" xml:space="preserve"><value>Файл «{0}» уже существует. Заменить его?</value></data>
@@ -241,6 +251,9 @@
   <data name="Language_Russian" xml:space="preserve"><value>Русский</value></data>
   <data name="Settings_Devices" xml:space="preserve"><value>Устройства</value></data>
   <data name="Settings_ShowAllDescription" xml:space="preserve"><value>Внутренние HDD/SSD скрыты, чтобы их нельзя было стереть по ошибке. Запись на системный диск запрещена всегда.</value></data>
+  <data name="Settings_Imaging" xml:space="preserve"><value>Создание образа</value></data>
+  <data name="Settings_SkipFreeBlocks" xml:space="preserve"><value>Пропускать свободное место ext2/3/4</value></data>
+  <data name="Settings_SkipFreeBlocksDescription" xml:space="preserve"><value>Свободные блоки файловых систем ext2/3/4 не читаются, а записываются в образ нулями: образ создаётся быстрее, а xz, gz и zst сжимают нули почти до нуля. Такой образ уже не побайтовая копия носителя: содержимое свободного места (например, удалённые файлы) в него не попадает, и при сравнении образа с носителем там будут отличия. Другие файловые системы и всё, что вне разделов, копируются полностью, как и ext, которая не была корректно отключена.</value></data>
   <data name="Settings_Erase" xml:space="preserve"><value>Очистка носителей</value></data>
   <data name="Settings_EraseEnable" xml:space="preserve"><value>Показывать страницу «Очистка»</value></data>
   <data name="Settings_EraseDescription" xml:space="preserve"><value>Быстрая очистка, полное и разрушительное форматирование носителя. По умолчанию скрыта, чтобы носитель нельзя было стереть по ошибке.</value></data>
