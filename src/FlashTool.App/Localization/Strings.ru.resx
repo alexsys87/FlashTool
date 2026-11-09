@@ -281,6 +281,70 @@
   <data name="Read_BmapFailed" xml:space="preserve"><value>Не удалось сохранить файл .bmap: {0}</value></data>
   <data name="Error_BmapSizeMismatch" xml:space="preserve"><value>Файл .bmap описывает образ размером {0:N0} байт, а в образе {1:N0} байт.</value></data>
   <data name="Error_BmapDataMismatch" xml:space="preserve"><value>Образ не соответствует своему файлу .bmap (байт {0:N0}): вероятно, .bmap от другой сборки образа. Если это произошло при записи, носитель оставлен без таблицы разделов.</value></data>
+  <data name="Nav_DeviceTest" xml:space="preserve"><value>Тест носителя</value></data>
+  <data name="Settings_DeviceTest" xml:space="preserve"><value>Тест носителей</value></data>
+  <data name="Settings_DeviceTestEnable" xml:space="preserve"><value>Показывать страницу «Тест носителя»</value></data>
+  <data name="Settings_DeviceTestDescription" xml:space="preserve"><value>Измеряет скорость и находит нечитаемые участки и поддельный объём. Все тесты, кроме чтения, уничтожают данные на носителе, поэтому страница скрыта, пока не включена здесь.</value></data>
+  <data name="Test_Header" xml:space="preserve"><value>Тест носителя</value></data>
+  <data name="Test_Warning" xml:space="preserve"><value>Выбранный тест перезаписывает носитель: всё, что на нём есть, будет потеряно.</value></data>
+  <data name="Test_DeviceTitle" xml:space="preserve"><value>Проверяемый носитель</value></data>
+  <data name="Test_MethodTitle" xml:space="preserve"><value>Тест</value></data>
+  <data name="Test_Mode_Read" xml:space="preserve"><value>Чтение (данные сохраняются)</value></data>
+  <data name="Test_Mode_ReadDescription" xml:space="preserve"><value>Читает весь носитель в обход кеша Windows: скорость по всему объёму, время каждого запроса и участки, которые не читаются. Ничего не записывается.</value></data>
+  <data name="Test_Mode_WriteVerify" xml:space="preserve"><value>Запись и проверка (уничтожает данные)</value></data>
+  <data name="Test_Mode_WriteVerifyDescription" xml:space="preserve"><value>Заполняет каждый сектор данными, уникальными для его места, затем читает весь носитель обратно. Находит поддельные носители и их реальный объём, сбойные и медленные участки, строит график скорости записи и чтения. Длится столько, сколько запись и чтение всего носителя.</value></data>
+  <data name="Test_Mode_QuickProbe" xml:space="preserve"><value>Быстрая проверка на подделку (уничтожает данные)</value></data>
+  <data name="Test_Mode_QuickProbeDescription" xml:space="preserve"><value>Записывает небольшие пробы по всему объёму и читает их обратно, затем уточняет, где данные перестают сохраняться. Занимает минуты и ловит типичные подделки; все виды находит только полная проверка.</value></data>
+  <data name="Test_Mode_RandomAccess" xml:space="preserve"><value>Случайный доступ 4K (уничтожает данные)</value></data>
+  <data name="Test_Mode_RandomAccessDescription" xml:space="preserve"><value>10 секунд случайного чтения блоков по 4 КиБ, затем 10 секунд случайной записи, по одному запросу: то, что важно для системы, работающей с карты (класс SD A1/A2). Результат зависит и от кардридера.</value></data>
+  <data name="Test_WillRead" xml:space="preserve"><value>Будет прочитано {0}.</value></data>
+  <data name="Test_WillWriteAndRead" xml:space="preserve"><value>Будет записано, а затем прочитано {0}.</value></data>
+  <data name="Test_WillProbe" xml:space="preserve"><value>По всему носителю будет записано около 100 МБ.</value></data>
+  <data name="Test_WillRandom" xml:space="preserve"><value>Будут перезаписаны случайные места носителя.</value></data>
+  <data name="Test_Start" xml:space="preserve"><value>Начать тест</value></data>
+  <data name="Test_ConfirmTitle" xml:space="preserve"><value>Перезаписать носитель?</value></data>
+  <data name="Test_ConfirmMessage" xml:space="preserve"><value>Носитель {0} ({1}) будет проверен тестом «{2}». Всё, что на нём есть, будет потеряно.</value></data>
+  <data name="Test_ConfirmButton" xml:space="preserve"><value>Проверить и перезаписать</value></data>
+  <data name="Test_CancelledRead" xml:space="preserve"><value>Тест остановлен; носитель не изменялся.</value></data>
+  <data name="Test_CancelledDestructive" xml:space="preserve"><value>Тест остановлен; носитель частично перезаписан и не содержит файловой системы.</value></data>
+  <data name="Test_Failed" xml:space="preserve"><value>Тест не удалось выполнить</value></data>
+  <data name="Test_Verdict_Healthy" xml:space="preserve"><value>Проблем не найдено</value></data>
+  <data name="Test_Verdict_ProbeOk" xml:space="preserve"><value>Признаков подделки нет</value></data>
+  <data name="Test_Verdict_Bad" xml:space="preserve"><value>На носителе есть сбойные участки</value></data>
+  <data name="Test_Verdict_Fake" xml:space="preserve"><value>Носитель поддельный</value></data>
+  <data name="Test_FakeWraps" xml:space="preserve"><value>Он реально хранит около {0} из заявленных {1}: данные, записанные дальше, затирают начало.</value></data>
+  <data name="Test_FakeDrops" xml:space="preserve"><value>Он реально хранит около {0} из заявленных {1}: всё, что записано дальше, теряется.</value></data>
+  <data name="Test_FakeUnknownSize" xml:space="preserve"><value>Он не сохраняет записанные данные, но определить реальный объём не удалось.</value></data>
+  <data name="Test_FakeAdvice" xml:space="preserve"><value>Не храните на нём данные: записанные на него образы будут повреждены.</value></data>
+  <data name="Test_BadSummary" xml:space="preserve"><value>Сбойных участков: {0}, всего {1}.</value></data>
+  <data name="Test_PassWrite" xml:space="preserve"><value>Запись: в среднем {0}, от {1} до {2}.</value></data>
+  <data name="Test_PassRead" xml:space="preserve"><value>Чтение: в среднем {0}, от {1} до {2}.</value></data>
+  <data name="Test_Latency" xml:space="preserve"><value>Время запроса: медиана {0} мс, максимум {1} мс.</value></data>
+  <data name="Test_SlowAreas" xml:space="preserve"><value>Медленные участки (меньше половины обычной скорости): {0}, всего {1}.</value></data>
+  <data name="Test_RandomRead" xml:space="preserve"><value>Случайное чтение 4K: {0} IOPS ({1}), в среднем {2} мс, 99% быстрее {3} мс.</value></data>
+  <data name="Test_RandomWrite" xml:space="preserve"><value>Случайная запись 4K: {0} IOPS ({1}), в среднем {2} мс, 99% быстрее {3} мс.</value></data>
+  <data name="Test_Elapsed" xml:space="preserve"><value>Заняло {0}.</value></data>
+  <data name="Test_FormatHint" xml:space="preserve"><value>Сейчас на носителе только тестовые данные; ниже можно создать на нём файловую систему.</value></data>
+  <data name="Test_PerSecond" xml:space="preserve"><value>/с</value></data>
+  <data name="Test_SpeedValue" xml:space="preserve"><value>{0} МБ/с</value></data>
+  <data name="Test_ChartTitle" xml:space="preserve"><value>Скорость по объёму носителя</value></data>
+  <data name="Test_ChartLegend" xml:space="preserve"><value>Жёлтым затенены медленные участки. Красные отметки внизу — сбойные участки. Красный фон — область за реальным объёмом поддельного носителя.</value></data>
+  <data name="Test_LegendWrite" xml:space="preserve"><value>Запись</value></data>
+  <data name="Test_LegendRead" xml:space="preserve"><value>Чтение</value></data>
+  <data name="Test_ExportCsv" xml:space="preserve"><value>Сохранить CSV</value></data>
+  <data name="Test_ExportPng" xml:space="preserve"><value>Сохранить график (PNG)</value></data>
+  <data name="Test_ExportFailed" xml:space="preserve"><value>Не удалось сохранить файл</value></data>
+  <data name="Test_BadAreasTitle" xml:space="preserve"><value>Сбойные участки</value></data>
+  <data name="Test_BadKind" xml:space="preserve"><value>Проблема</value></data>
+  <data name="Test_Bad_ReadError" xml:space="preserve"><value>Не читается</value></data>
+  <data name="Test_Bad_WriteError" xml:space="preserve"><value>Не записывается</value></data>
+  <data name="Test_Bad_WrongData" xml:space="preserve"><value>Неверные данные</value></data>
+  <data name="Test_BadAreasMore" xml:space="preserve"><value>Показаны первые {0} из {1} участков; в файле CSV перечислены все.</value></data>
+  <data name="Test_NoFormatFake" xml:space="preserve"><value>Файловая система на заявленный объём поддельного носителя будет терять данные, поэтому создать её не предлагается.</value></data>
+  <data name="Test_FormatTitle" xml:space="preserve"><value>Создать файловую систему</value></data>
+  <data name="Test_FormatDescription" xml:space="preserve"><value>Один раздел на весь носитель, как на странице «Очистка»: в автоматическом режиме FAT32 до 32 ГБ, exFAT для больших.</value></data>
+  <data name="Test_FormatButton" xml:space="preserve"><value>Создать</value></data>
+  <data name="Test_Formatted" xml:space="preserve"><value>Файловая система создана</value></data>
   <data name="Settings_Erase" xml:space="preserve"><value>Очистка носителей</value></data>
   <data name="Settings_EraseEnable" xml:space="preserve"><value>Показывать страницу «Очистка»</value></data>
   <data name="Settings_EraseDescription" xml:space="preserve"><value>Быстрая очистка, полное и разрушительное форматирование носителя. По умолчанию скрыта, чтобы носитель нельзя было стереть по ошибке.</value></data>

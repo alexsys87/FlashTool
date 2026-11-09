@@ -66,6 +66,16 @@
                         <ui:SymbolIcon Symbol="Eraser24" />
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
+                <!-- Shown only when enabled in the settings (see DeviceTestFeature). -->
+                <ui:NavigationViewItem
+                    x:Name="DeviceTestNavigationItem"
+                    Content="{loc:Tr Nav_DeviceTest}"
+                    TargetPageType="{x:Type pages:DeviceTestPage}"
+                    Visibility="Collapsed">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="TopSpeed24" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
             </ui:NavigationView.MenuItems>
             <ui:NavigationView.FooterMenuItems>
                 <ui:NavigationViewItem Content="{loc:Tr Nav_Settings}" TargetPageType="{x:Type pages:SettingsPage}">

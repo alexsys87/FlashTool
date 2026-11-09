@@ -85,6 +85,17 @@
                 <ui:ToggleSwitch Command="{Binding ToggleEraseCommand}" IsChecked="{Binding EraseEnabled, Mode=OneWay}" />
             </ui:CardControl>
 
+            <TextBlock Style="{StaticResource SectionTitle}" Text="{loc:Tr Settings_DeviceTest}" />
+            <ui:CardControl Margin="0,0,0,20" Icon="{ui:SymbolIcon TopSpeed24}">
+                <ui:CardControl.Header>
+                    <StackPanel>
+                        <TextBlock Text="{loc:Tr Settings_DeviceTestEnable}" />
+                        <TextBlock Style="{StaticResource SecondaryText}" Text="{loc:Tr Settings_DeviceTestDescription}" TextWrapping="Wrap" />
+                    </StackPanel>
+                </ui:CardControl.Header>
+                <ui:ToggleSwitch IsChecked="{Binding DeviceTestEnabled}" />
+            </ui:CardControl>
+
             <TextBlock Style="{StaticResource SectionTitle}" Text="{loc:Tr Settings_About}" />
             <ui:Card>
                 <StackPanel Orientation="Horizontal">
