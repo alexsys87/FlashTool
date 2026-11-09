@@ -254,6 +254,33 @@
   <data name="Settings_Imaging" xml:space="preserve"><value>Создание образа</value></data>
   <data name="Settings_SkipFreeBlocks" xml:space="preserve"><value>Пропускать свободное место ext2/3/4</value></data>
   <data name="Settings_SkipFreeBlocksDescription" xml:space="preserve"><value>Свободные блоки файловых систем ext2/3/4 не читаются, а записываются в образ нулями: образ создаётся быстрее, а xz, gz и zst сжимают нули почти до нуля. Такой образ уже не побайтовая копия носителя: содержимое свободного места (например, удалённые файлы) в него не попадает, и при сравнении образа с носителем там будут отличия. Другие файловые системы и всё, что вне разделов, копируются полностью, как и ext, которая не была корректно отключена.</value></data>
+  <data name="Settings_Bmap" xml:space="preserve"><value>Карты блоков (.bmap)</value></data>
+  <data name="Settings_UseBmap" xml:space="preserve"><value>Использовать .bmap при записи и проверке</value></data>
+  <data name="Settings_UseBmapDescription" xml:space="preserve"><value>Если рядом с образом лежит .bmap (его создают wic из Yocto и bmaptool), записываются и сравниваются только блоки с данными — в разы быстрее. Во время записи образ сверяется с .bmap; если они не совпадают, запись прерывается до того, как записана таблица разделов. В отличие от bmaptool, всё вне разделов, а также первый и последний мегабайт каждого раздела пишутся всегда, чтобы на носителе не осталось старое окружение загрузчика или старая файловая система в пустом разделе. На страницах видно, какой .bmap найден, и его можно отключить для конкретного образа.</value></data>
+  <data name="Settings_CreateBmap" xml:space="preserve"><value>Сохранять .bmap рядом с создаваемым образом</value></data>
+  <data name="Settings_CreateBmapDescription" xml:space="preserve"><value>Файл .bmap (формат bmaptool 2.0) содержит SHA-256 данных, поэтому распакованный образ можно потом проверить. Вместе с пропуском свободного места ext2/3/4 он также отмечает свободные блоки как дыры, и тогда FlashTool или bmaptool записывают образ в разы быстрее.</value></data>
+  <data name="Write_Bmap" xml:space="preserve"><value>Запись по .bmap</value></data>
+  <data name="Write_BmapDescription" xml:space="preserve"><value>Пишутся только блоки с данными, а также всё вне разделов и края каждого раздела.</value></data>
+  <data name="Write_BmapWritten" xml:space="preserve"><value>По .bmap на носитель записано {0} из {1}.</value></data>
+  <data name="Verify_Bmap" xml:space="preserve"><value>Сравнение по .bmap</value></data>
+  <data name="Verify_BmapDescription" xml:space="preserve"><value>Сравниваются только блоки с данными: bmaptool записывает только их.</value></data>
+  <data name="Verify_BmapUsed" xml:space="preserve"><value>Сравнивались только блоки с данными из .bmap.</value></data>
+  <data name="Bmap_Searching" xml:space="preserve"><value>Поиск .bmap рядом с образом…</value></data>
+  <data name="Bmap_NotFound" xml:space="preserve"><value>Рядом с образом нет .bmap: используется весь образ.</value></data>
+  <data name="Bmap_Unusable" xml:space="preserve"><value>Найден {0}, но его нельзя использовать: {1}. Используется весь образ.</value></data>
+  <data name="Bmap_SizeDiffers" xml:space="preserve"><value>{0} описывает образ размером {1}, а этот образ — {2}. Используется весь образ.</value></data>
+  <data name="Bmap_Found" xml:space="preserve"><value>Найден {0}: данные занимают {1} из {2}.</value></data>
+  <data name="BmapProblem_Malformed" xml:space="preserve"><value>это не корректная карта блоков</value></data>
+  <data name="BmapProblem_UnsupportedVersion" xml:space="preserve"><value>версия формата новее 2.x</value></data>
+  <data name="BmapProblem_UnsupportedChecksum" xml:space="preserve"><value>в нём контрольные суммы не SHA-1 и не SHA-256</value></data>
+  <data name="BmapProblem_FileChecksumMismatch" xml:space="preserve"><value>не совпадает его собственная контрольная сумма (файл изменён или повреждён)</value></data>
+  <data name="BmapProblem_Inconsistent" xml:space="preserve"><value>размеры и диапазоны в нём противоречат друг другу</value></data>
+  <data name="BmapProblem_TooLarge" xml:space="preserve"><value>он слишком велик для карты блоков</value></data>
+  <data name="Read_CreateBmapOn" xml:space="preserve"><value>Рядом с образом будет сохранён .bmap (включено в настройках).</value></data>
+  <data name="Read_BmapSaved" xml:space="preserve"><value>Карта блоков сохранена: {0}</value></data>
+  <data name="Read_BmapFailed" xml:space="preserve"><value>Не удалось сохранить файл .bmap: {0}</value></data>
+  <data name="Error_BmapSizeMismatch" xml:space="preserve"><value>Файл .bmap описывает образ размером {0:N0} байт, а в образе {1:N0} байт.</value></data>
+  <data name="Error_BmapDataMismatch" xml:space="preserve"><value>Образ не соответствует своему файлу .bmap (байт {0:N0}): вероятно, .bmap от другой сборки образа. Если это произошло при записи, носитель оставлен без таблицы разделов.</value></data>
   <data name="Settings_Erase" xml:space="preserve"><value>Очистка носителей</value></data>
   <data name="Settings_EraseEnable" xml:space="preserve"><value>Показывать страницу «Очистка»</value></data>
   <data name="Settings_EraseDescription" xml:space="preserve"><value>Быстрая очистка, полное и разрушительное форматирование носителя. По умолчанию скрыта, чтобы носитель нельзя было стереть по ошибке.</value></data>

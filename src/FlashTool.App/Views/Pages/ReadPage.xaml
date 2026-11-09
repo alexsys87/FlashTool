@@ -59,6 +59,11 @@
                             Text="{loc:Tr Read_SkipFreeBlocksOn}"
                             TextWrapping="Wrap"
                             Visibility="{Binding SkipFreeBlocks, Converter={StaticResource BoolToVisibility}}" />
+                        <TextBlock
+                            Style="{StaticResource SecondaryText}"
+                            Text="{loc:Tr Read_CreateBmapOn}"
+                            TextWrapping="Wrap"
+                            Visibility="{Binding CreateBmap, Converter={StaticResource BoolToVisibility}}" />
                     </StackPanel>
                 </ui:CardControl.Header>
                 <ui:ToggleSwitch IsChecked="{Binding OnlyAllocatedPartitions}" />

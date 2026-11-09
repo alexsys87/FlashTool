@@ -83,6 +83,20 @@
                     PlaceholderText="{loc:Tr Write_ChecksumPlaceholder}"
                     Text="{Binding ExpectedChecksum, UpdateSourceTrigger=PropertyChanged}" />
             </ui:CardControl>
+            <ui:CardControl Margin="0,0,0,4" Icon="{ui:SymbolIcon Map24}" Visibility="{Binding Bmap.IsAvailable, Converter={StaticResource BoolToVisibility}}">
+                <ui:CardControl.Header>
+                    <StackPanel>
+                        <TextBlock Text="{loc:Tr Write_Bmap}" />
+                        <TextBlock Style="{StaticResource SecondaryText}" Text="{loc:Tr Write_BmapDescription}" TextWrapping="Wrap" />
+                        <TextBlock
+                            Style="{StaticResource SecondaryText}"
+                            Text="{Binding Bmap.StatusText}"
+                            TextWrapping="Wrap"
+                            Visibility="{Binding Bmap.StatusText, Converter={StaticResource NullToVisibility}}" />
+                    </StackPanel>
+                </ui:CardControl.Header>
+                <ui:ToggleSwitch IsChecked="{Binding Bmap.UseFound}" IsEnabled="{Binding Bmap.CanUse}" />
+            </ui:CardControl>
             <ui:CardControl Margin="0,0,0,4" Icon="{ui:SymbolIcon Storage24}">
                 <ui:CardControl.Header>
                     <StackPanel>

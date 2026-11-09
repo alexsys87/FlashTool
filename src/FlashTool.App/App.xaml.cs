@@ -104,6 +104,7 @@ public partial class App : Application
         services.AddSingleton<IoErrorPrompt>();
         services.AddSingleton<EraseFeature>();
         services.AddSingleton<FreeBlockSkipping>();
+        services.AddSingleton<BmapFeature>();
 
         // Every page that picks an image gets its own picker state.
         services.AddTransient<ImageSourceViewModel>();

@@ -47,6 +47,12 @@ public sealed class AppSettings
     /// <summary>Store free ext2/3/4 blocks as zeros when creating an image. Off by default: the image is then not an exact copy.</summary>
     public bool SkipFreeBlocks { get; set; }
 
+    /// <summary>Write and verify by a .bmap found next to the image. Off by default.</summary>
+    public bool UseBmap { get; set; }
+
+    /// <summary>Save a .bmap next to every created image. Off by default.</summary>
+    public bool CreateBmap { get; set; }
+
     public ContainerFormat ReadFormat { get; set; } = ContainerFormat.Xz;
 
     public CompressionPreset ReadCompression { get; set; } = CompressionPreset.Normal;

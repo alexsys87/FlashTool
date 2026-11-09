@@ -59,6 +59,9 @@ internal sealed class FreeBlockMap
 
     public long FreeBytes { get; }
 
+    /// <summary>The free ranges [Start, End) in ascending order.</summary>
+    public IEnumerable<(long Start, long End)> Ranges => _starts.Zip(_ends);
+
     /// <summary>
     /// Scans every ext2/3/4 file system that lies within the first <paramref name="length"/>
     /// bytes. Everything else (other file systems, gaps between partitions, partition

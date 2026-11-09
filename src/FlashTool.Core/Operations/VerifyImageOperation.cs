@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Security.Cryptography;
+using FlashTool.Core.Bmap;
 using FlashTool.Core.Containers;
 using FlashTool.Core.Imaging;
 using FlashTool.Core.IO;
@@ -26,6 +27,12 @@ public sealed record VerifyImageOptions
     public IProgress<VerifyDifferences>? DifferencesFound { get; init; }
 
     public TimeSpan DifferenceReportInterval { get; init; } = TimeSpan.FromMilliseconds(300);
+
+    /// <summary>
+    /// Block map of the image: only its mapped ranges are compared (and hashed), as bmaptool writes only
+    /// those. The image itself is checked against the map too.
+    /// </summary>
+    public BmapFile? Bmap { get; init; }
 }
 
 /// <summary>Differences found up to <see cref="ComparedUpTo"/>; the last range may still grow.</summary>
@@ -62,6 +69,9 @@ public sealed record VerifyImageResult(
     TimeSpan Elapsed)
 {
     public bool Identical => DifferentBytes == 0;
+
+    /// <summary>Only the ranges of a .bmap were compared; the SHA-256 values cover just those.</summary>
+    public bool UsedBmap { get; init; }
 }
 
 /// <summary>
@@ -92,14 +102,26 @@ public static class VerifyImageOperation
         var image = ImageInspector.Inspect(head);
         var source = new PrefixedStream(head, reader.Data);
 
+        var bmap = options.Bmap;
+        if (bmap != null && entry.Length is { } knownLength && knownLength != bmap.ImageSize)
+        {
+            throw new FlashToolException(FlashErrorCode.BmapSizeMismatch, "The .bmap file is for an image of another size.", null, bmap.ImageSize, knownLength);
+        }
+
+        var expectedLength = entry.Length ?? bmap?.ImageSize;
         using var device = new ResilientBlockDevice(
             await Task.Run(openDevice, cancellationToken).ConfigureAwait(false),
             options.IoRetry,
             cancellationToken);
-        if (entry.Length > device.Length)
+        if (expectedLength > device.Length)
         {
-            throw new FlashToolException(FlashErrorCode.ImageTooLarge, "The image is larger than the device.", null, entry.Length, device.Length);
+            throw new FlashToolException(FlashErrorCode.ImageTooLarge, "The image is larger than the device.", null, expectedLength, device.Length);
         }
+
+        using var bmapCheck = bmap != null ? new BmapImageCheck(bmap) : null;
+        var mapped = bmap?.MappedByteRanges().ToList();
+        var mappedIndex = 0;
+        long mappedCompared = 0;
 
         var chunk = WriteImageOperation.AlignChunk(options.ChunkSize, device.SectorSize);
         var collector = new DifferenceCollector(image, options.MaxReportedRanges);
@@ -111,7 +133,7 @@ public static class VerifyImageOperation
         var reporter = new ProgressReporter(
             progress,
             OperationPhase.Verifying,
-            entry.Length,
+            expectedLength,
             reader.CompressedLength is > 0 ? () => (double)reader.CompressedPosition / reader.CompressedLength.Value : null);
 
         var compared = await TransferPipeline.RunAsync(
@@ -126,15 +148,34 @@ public static class VerifyImageOperation
                 }
 
                 var expected = buffer.Span[..count];
-                var aligned = (int)StreamExtensions.AlignUp(count, device.SectorSize);
-                device.Read(offset, deviceBuffer.Span[..aligned]);
-                var actual = deviceBuffer.Span[..count];
-
-                imageHash.AppendData(expected);
-                deviceHash.AppendData(actual);
-                if (!expected.SequenceEqual(actual))
+                if (mapped == null)
                 {
-                    collector.AddDifferences(offset, expected, actual);
+                    var aligned = (int)StreamExtensions.AlignUp(count, device.SectorSize);
+                    device.Read(offset, deviceBuffer.Span[..aligned]);
+                    Compare(offset, expected, deviceBuffer.Span[..count]);
+                }
+                else
+                {
+                    bmapCheck!.Process(expected);
+
+                    // Only the mapped parts of this chunk are read from the device.
+                    var end = offset + count;
+                    while (mappedIndex < mapped.Count && mapped[mappedIndex].End <= offset)
+                    {
+                        mappedIndex++;
+                    }
+
+                    for (var i = mappedIndex; i < mapped.Count && mapped[i].Start < end; i++)
+                    {
+                        var start = Math.Max(mapped[i].Start, offset);
+                        var stop = Math.Min(mapped[i].End, end);
+                        var readStart = StreamExtensions.AlignDown(start, device.SectorSize);
+                        var readStop = StreamExtensions.AlignUp(stop, device.SectorSize);
+                        var piece = deviceBuffer.Span[(int)(readStart - offset)..(int)(readStop - offset)];
+                        device.Read(readStart, piece);
+                        Compare(start, expected[(int)(start - offset)..(int)(stop - offset)], piece[(int)(start - readStart)..(int)(stop - readStart)]);
+                        mappedCompared += stop - start;
+                    }
                 }
 
                 // The first mismatch is reported at once, later changes are batched.
@@ -160,19 +201,37 @@ public static class VerifyImageOperation
             throw new FlashToolException(FlashErrorCode.UnexpectedEndOfImage, "The image ended before its declared size.", null, compared, entry.Length.Value);
         }
 
+        if (bmap != null && compared != bmap.ImageSize)
+        {
+            throw new FlashToolException(FlashErrorCode.BmapSizeMismatch, "The .bmap file is for an image of another size.", null, bmap.ImageSize, compared);
+        }
+
         collector.Complete();
         reporter.Report(compared, force: true);
         progress?.Report(new OperationProgress(OperationPhase.Completed, compared, compared, 1, 0, TimeSpan.Zero));
 
         return new VerifyImageResult(
-            compared,
+            bmap != null ? mappedCompared : compared,
             collector.DifferentBytes,
             collector.RangeCount,
             collector.Ranges,
             Convert.ToHexString(imageHash.GetHashAndReset()).ToLowerInvariant(),
             Convert.ToHexString(deviceHash.GetHashAndReset()).ToLowerInvariant(),
             image,
-            clock.Elapsed);
+            clock.Elapsed)
+        {
+            UsedBmap = bmap != null,
+        };
+
+        void Compare(long at, ReadOnlySpan<byte> expected, ReadOnlySpan<byte> actual)
+        {
+            imageHash.AppendData(expected);
+            deviceHash.AppendData(actual);
+            if (!expected.SequenceEqual(actual))
+            {
+                collector.AddDifferences(at, expected, actual);
+            }
+        }
     }
 
     /// <summary>

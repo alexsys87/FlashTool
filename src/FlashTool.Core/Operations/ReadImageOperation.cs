@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using FlashTool.Core.Bmap;
 using FlashTool.Core.Checksums;
 using FlashTool.Core.Containers;
 using FlashTool.Core.Imaging;
@@ -42,6 +43,14 @@ public sealed record ReadImageOptions
     /// that is being replaced.
     /// </summary>
     public bool WriteChecksumFile { get; init; }
+
+    /// <summary>
+    /// Save a block map next to the image (<c>backup.img.xz</c> gets <c>backup.img.bmap</c>), in the format of
+    /// bmaptool: SHA-256 of every mapped range, so the uncompressed data can be checked, and the ranges stored
+    /// as zeros by <see cref="SkipFreeBlocks"/> as holes that do not have to be written. Without that option
+    /// every block is mapped. A .bmap left over from an earlier image with the same name is removed first.
+    /// </summary>
+    public bool CreateBmapFile { get; init; }
 }
 
 public sealed record ReadImageResult(
@@ -64,6 +73,12 @@ public sealed record ReadImageResult(
 
     /// <summary>One entry per ext2/3/4 file system when free blocks were to be skipped; empty otherwise.</summary>
     public IReadOnlyList<PartitionFreeSpace> FreeSpace { get; init; } = [];
+
+    /// <summary>The .bmap file that was written, if any.</summary>
+    public string? BmapFilePath { get; init; }
+
+    /// <summary>Why the .bmap file could not be saved. The image itself was created all the same.</summary>
+    public string? BmapFileError { get; init; }
 
     /// <summary>Bytes stored as zeros without being read.</summary>
     public long SkippedBytes => FreeSpace.Sum(f => f.SkippedBytes);
@@ -117,6 +132,7 @@ public static class ReadImageOperation
 
         var chunk = WriteImageOperation.AlignChunk(options.ChunkSize, device.SectorSize);
         var hashes = new BlockHashList(chunk);
+        using var bmapBuilder = options.CreateBmapFile ? new BmapBuilder(length, freeBlocks?.Ranges ?? []) : null;
         var entryName = ContainerNaming.GetInnerName(destinationPath);
         var completed = false;
         byte[]? sha256 = null;
@@ -125,6 +141,7 @@ public static class ReadImageOperation
         {
             var reporter = new ProgressReporter(progress, OperationPhase.Reading, length);
             TryDelete(ChecksumFile.SidecarPath(destinationPath));
+            TryDelete(BmapDiscovery.PathFor(destinationPath));
             var output = new FileStream(destinationPath, FileMode.Create, FileAccess.ReadWrite, FileShare.None, 1024 * 1024);
             Stream sink;
             try
@@ -168,6 +185,7 @@ public static class ReadImageOperation
                     {
                         var data = buffer.Span[..count];
                         hashes.Append(data);
+                        bmapBuilder?.Append(data);
                         sink.Write(data);
                         reporter.Report(offset + count);
                     },
@@ -216,6 +234,22 @@ public static class ReadImageOperation
             }
         }
 
+        string? bmapPath = null;
+        string? bmapError = null;
+        if (bmapBuilder != null)
+        {
+            try
+            {
+                var path = BmapDiscovery.PathFor(destinationPath);
+                await File.WriteAllBytesAsync(path, bmapBuilder.ToBytes(), CancellationToken.None).ConfigureAwait(false);
+                bmapPath = path;
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                bmapError = ex.Message;
+            }
+        }
+
         var fileSize = new FileInfo(destinationPath).Length;
         progress?.Report(new OperationProgress(OperationPhase.Completed, length, length, 1, 0, TimeSpan.Zero));
         return new ReadImageResult(destinationPath, handler.Format, length, fileSize, options.Verify, image, clock.Elapsed)
@@ -224,6 +258,8 @@ public static class ReadImageOperation
             ChecksumFilePath = checksumPath,
             ChecksumFileError = checksumError,
             FreeSpace = freeSpace,
+            BmapFilePath = bmapPath,
+            BmapFileError = bmapError,
         };
     }
 

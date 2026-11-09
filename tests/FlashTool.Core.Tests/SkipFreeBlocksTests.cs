@@ -6,6 +6,7 @@ using FlashTool.Core.IO;
 using FlashTool.Core.Operations;
 using FlashTool.Core.Sources;
 using Xunit.Abstractions;
+using static FlashTool.Core.Tests.Ext4TestDisk;
 
 namespace FlashTool.Core.Tests;
 
@@ -16,12 +17,6 @@ namespace FlashTool.Core.Tests;
 /// </summary>
 public class SkipFreeBlocksTests(ITestOutputHelper output)
 {
-    private const int Sector = 512;
-    private const long PartitionOffset = 1024 * 1024;
-    private const int TailBytes = 1024 * 1024;
-
-    private static readonly string? Mke2fs = E2fsprogs.Find("mke2fs");
-
     public static TheoryData<string, string, int> Cases => new()
     {
         // name, mke2fs options, size in MiB
@@ -257,60 +252,6 @@ public class SkipFreeBlocksTests(ITestOutputHelper output)
         Assert.DoesNotContain(device.Reads, r => r.Offset < 8192 && r.Offset + r.Length > 4096);
         Assert.DoesNotContain(device.Reads, r => r.Offset < 40960 && r.Offset + r.Length > 20480);
         Assert.DoesNotContain(device.Reads, r => r.Offset + r.Length > 61440);
-    }
-
-    /// <summary>Makes fs.img on top of non-zero data, so free blocks are not zero to begin with.</summary>
-    private static Dictionary<string, byte[]> MakeFileSystem(TempDir dir, string options, int sizeMiB)
-    {
-        var content = Path.Combine(dir.Path, "content");
-        var files = new Dictionary<string, byte[]>();
-        var random = new Random(7);
-        for (var i = 0; i < 12; i++)
-        {
-            var relative = Path.Combine($"dir{i % 3}", $"file{i}.bin");
-            var data = new byte[random.Next(0, 4 * 1024 * 1024)];
-            random.NextBytes(data);
-            Directory.CreateDirectory(Path.Combine(content, $"dir{i % 3}"));
-            File.WriteAllBytes(Path.Combine(content, relative), data);
-            files[relative] = data;
-        }
-
-        var pattern = new byte[1024 * 1024];
-        random.NextBytes(pattern);
-        using (var fs = File.Create(dir.File("fs.img")))
-        {
-            for (var i = 0; i < sizeMiB; i++)
-            {
-                fs.Write(pattern);
-            }
-        }
-
-        E2fsprogs.Run(Mke2fs!, $"-q -F -E nodiscard -d \"{content}\" {options} \"{dir.File("fs.img")}\" {sizeMiB}M");
-        return files;
-    }
-
-    /// <summary>MBR disk: random "boot loader" bytes, one Linux partition at 1 MiB holding fs.img, a random tail.</summary>
-    private static string MakeDisk(TempDir dir)
-    {
-        var fsBytes = File.ReadAllBytes(dir.File("fs.img"));
-        var head = new byte[PartitionOffset];
-        new Random(11).NextBytes(head);
-        head.AsSpan(446, 64).Clear();
-        head[446 + 4] = 0x83;
-        BinaryPrimitives.WriteUInt32LittleEndian(head.AsSpan(446 + 8), (uint)(PartitionOffset / Sector));
-        BinaryPrimitives.WriteUInt32LittleEndian(head.AsSpan(446 + 12), (uint)(fsBytes.Length / Sector));
-        head[510] = 0x55;
-        head[511] = 0xAA;
-
-        var tail = new byte[TailBytes];
-        new Random(13).NextBytes(tail);
-
-        var path = dir.File("disk.bin");
-        using var disk = File.Create(path);
-        disk.Write(head);
-        disk.Write(fsBytes);
-        disk.Write(tail);
-        return path;
     }
 
     private static Task<ReadImageResult> CreateImageAsync(string disk, string destination, bool skipFreeBlocks, bool onlyAllocated = false)
