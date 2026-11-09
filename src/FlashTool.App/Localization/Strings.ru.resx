@@ -44,6 +44,15 @@
   <data name="Write_EntryLabel" xml:space="preserve"><value>Образ в архиве</value></data>
   <data name="Write_EntryChecking" xml:space="preserve"><value>проверка…</value></data>
   <data name="Write_TargetTitle" xml:space="preserve"><value>Целевой носитель</value></data>
+  <data name="Preview_Loading" xml:space="preserve"><value>Читаю, что сейчас на носителе…</value></data>
+  <data name="Preview_Partitioned" xml:space="preserve"><value>Сейчас на носителе: таблица разделов {0}, разделов: {1}</value></data>
+  <data name="Preview_Superfloppy" xml:space="preserve"><value>Сейчас на носителе: {0}, без таблицы разделов</value></data>
+  <data name="Preview_Iso" xml:space="preserve"><value>Сейчас на носителе: файловая система ISO 9660</value></data>
+  <data name="Preview_Unknown" xml:space="preserve"><value>Сейчас на носителе: таблица разделов и известные файловые системы не найдены. Носитель может быть пустым или хранить данные в неизвестном формате.</value></data>
+  <data name="Preview_Failed" xml:space="preserve"><value>Не удалось прочитать, что на носителе: {0}</value></data>
+  <data name="Preview_LabelColumn" xml:space="preserve"><value>Метка</value></data>
+  <data name="Preview_LabelFormat" xml:space="preserve"><value>«{0}»</value></data>
+  <data name="Preview_More" xml:space="preserve"><value>  … и ещё {0}</value></data>
   <data name="Write_OptionsTitle" xml:space="preserve"><value>Параметры</value></data>
   <data name="Write_Verify" xml:space="preserve"><value>Проверять после записи</value></data>
   <data name="Write_VerifyDescription" xml:space="preserve"><value>Прочитать носитель и сравнить с образом</value></data>
@@ -64,7 +73,7 @@
   <data name="Write_Ejected" xml:space="preserve"><value>Носитель извлечён, его можно отключить.</value></data>
   <data name="Write_Start" xml:space="preserve"><value>Записать</value></data>
   <data name="Write_ConfirmTitle" xml:space="preserve"><value>Стереть носитель?</value></data>
-  <data name="Write_ConfirmMessage" xml:space="preserve"><value>Все данные на «{0}» ({1}) будут уничтожены.
+  <data name="Write_ConfirmMessage" xml:space="preserve"><value>Все данные на «{0}» ({1}) будут уничтожены.{2}
 
 Продолжить?</value></data>
   <data name="Write_ConfirmButton" xml:space="preserve"><value>Стереть и записать</value></data>

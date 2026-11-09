@@ -1,4 +1,5 @@
 using System.Buffers.Binary;
+using FlashTool.Core.IO;
 using FlashTool.Core.Partitioning;
 
 namespace FlashTool.Core.Imaging;
@@ -21,7 +22,11 @@ public static class ImageInspector
     /// Optional random-access reader (byte offset, count) used for data beyond
     /// <paramref name="head"/>: logical partitions and file system probing.
     /// </param>
-    public static ImageInfo Inspect(ReadOnlySpan<byte> head, Func<long, int, byte[]?>? randomRead = null)
+    /// <param name="readLabels">
+    /// Also read the volume labels of the file systems that are found. Costs a few more small
+    /// reads for NTFS and exFAT, so it is off unless the labels are going to be shown.
+    /// </param>
+    public static ImageInfo Inspect(ReadOnlySpan<byte> head, Func<long, int, byte[]?>? randomRead = null, bool readLabels = false)
     {
         if (head.Length < 512)
         {
@@ -45,7 +50,7 @@ public static class ImageInspector
         var gpt = GptPartitionTable.TryRead(Read);
         if (gpt != null)
         {
-            var parts = ProbeFileSystems(gpt.GetPartitions(), Read);
+            var parts = ProbeFileSystems(gpt.GetPartitions(), Read, readLabels);
             var used = parts.Count > 0 ? parts.Max(p => p.End) : (long?)null;
             return new ImageInfo(
                 iso.HasValue ? ImageKind.HybridIso : ImageKind.GptDisk,
@@ -61,7 +66,8 @@ public static class ImageInspector
         {
             var parts = ProbeFileSystems(
                 mbr.GetPartitions(lba => Read(lba * MbrPartitionTable.SectorSize, MbrPartitionTable.SectorSize)),
-                Read);
+                Read,
+                readLabels);
             var used = parts.Count > 0 ? parts.Max(p => p.End) : (long?)null;
             return new ImageInfo(
                 iso.HasValue ? ImageKind.HybridIso : ImageKind.MbrDisk,
@@ -81,13 +87,27 @@ public static class ImageInspector
         var fs = FileSystemProbe.Detect(head);
         if (fs != FileSystemType.Unknown)
         {
-            return new ImageInfo(ImageKind.Superfloppy, PartitionTableType.None, 512, [], TryReadVolumeSize(head, fs), fs);
+            var label = readLabels ? VolumeLabelReader.Read(fs, head, 0, Read) : string.Empty;
+            return new ImageInfo(ImageKind.Superfloppy, PartitionTableType.None, 512, [], TryReadVolumeSize(head, fs), fs, label);
         }
 
         return ImageInfo.Unknown;
     }
 
-    private static List<PartitionInfo> ProbeFileSystems(IReadOnlyList<PartitionInfo> partitions, Func<long, int, byte[]?> read)
+    /// <summary>
+    /// Looks at what is on a device right now: partition table, file systems and their volume labels.
+    /// Reads about <see cref="HeadSize"/> bytes plus a few small ranges and writes nothing.
+    /// </summary>
+    public static ImageInfo InspectDevice(IBlockDevice device)
+    {
+        ArgumentNullException.ThrowIfNull(device);
+
+        var length = (int)Math.Min(HeadSize, StreamExtensions.AlignDown(device.Length, device.SectorSize));
+        var head = device.ReadBytes(0, length) ?? [];
+        return Inspect(head, (offset, count) => device.ReadBytes(offset, count), readLabels: true);
+    }
+
+    private static List<PartitionInfo> ProbeFileSystems(IReadOnlyList<PartitionInfo> partitions, Func<long, int, byte[]?> read, bool readLabels)
     {
         var result = new List<PartitionInfo>(partitions.Count);
         foreach (var p in partitions)
@@ -99,7 +119,15 @@ public static class ImageInspector
             }
 
             var data = read(p.Offset, (int)Math.Min(FileSystemProbe.RequiredBytes, p.Length));
-            result.Add(data == null ? p : p with { FileSystem = FileSystemProbe.Detect(data) });
+            if (data == null)
+            {
+                result.Add(p);
+                continue;
+            }
+
+            var fileSystem = FileSystemProbe.Detect(data);
+            var label = readLabels ? VolumeLabelReader.Read(fileSystem, data, p.Offset, read) : string.Empty;
+            result.Add(p with { FileSystem = fileSystem, Label = label });
         }
 
         return result;

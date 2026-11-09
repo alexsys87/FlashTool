@@ -32,7 +32,8 @@ public sealed record ImageInfo(
     int SectorSize,
     IReadOnlyList<PartitionInfo> Partitions,
     long? UsedLength,
-    FileSystemType RootFileSystem = FileSystemType.Unknown)
+    FileSystemType RootFileSystem = FileSystemType.Unknown,
+    string RootLabel = "")
 {
     public static ImageInfo Unknown { get; } = new(ImageKind.Unknown, PartitionTableType.None, 512, [], null);
 

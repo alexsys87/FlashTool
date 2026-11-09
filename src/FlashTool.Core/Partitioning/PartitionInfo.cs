@@ -51,4 +51,7 @@ public sealed record PartitionInfo(
     public Guid GptType { get; init; }
 
     public FileSystemType FileSystem { get; init; }
+
+    /// <summary>Volume label of the file system (empty when it has none or it was not read).</summary>
+    public string Label { get; init; } = string.Empty;
 }
