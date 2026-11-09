@@ -345,6 +345,12 @@ Continue?</value></data>
   <data name="Test_FormatDescription" xml:space="preserve"><value>One partition over the whole device, as on the "Erase" page: FAT32 up to 32 GB, exFAT above in automatic mode.</value></data>
   <data name="Test_FormatButton" xml:space="preserve"><value>Create</value></data>
   <data name="Test_Formatted" xml:space="preserve"><value>File system created</value></data>
+  <data name="Settings_Writing" xml:space="preserve"><value>Writing images</value></data>
+  <data name="Settings_DifferentialWrite" xml:space="preserve"><value>Write only what differs (experimental)</value></data>
+  <data name="Settings_DifferentialWriteDescription" xml:space="preserve"><value>Before writing, each part of the device is read and compared with the image in 64 KiB blocks, and only the blocks that differ are written. The result is the same device as after a full write, with less wear, and faster when little has changed, for example when the same card is reflashed with a new build. Where hardly anything matches, comparing turns itself off for a while, because then it only adds time. The first part of the device is still cleared first and written last, and verification still reads everything back. Changing one file can shift the data of a whole file system, so the gain depends on how the image is built.</value></data>
+  <data name="Write_DifferentialOn" xml:space="preserve"><value>Only the blocks that differ from what is on the device will be written (experimental, turned on in Settings). The device is read first; verification still reads everything back.</value></data>
+  <data name="Write_DifferentialWritten" xml:space="preserve"><value>Written {0} of {1}; {2} of the compared data was already on the device.</value></data>
+  <data name="Write_DifferentialStopped" xml:space="preserve"><value>Where almost nothing matched, comparing was turned off: {0} was written without comparing.</value></data>
   <data name="Settings_Erase" xml:space="preserve"><value>Erasing devices</value></data>
   <data name="Settings_EraseEnable" xml:space="preserve"><value>Show the "Erase" page</value></data>
   <data name="Settings_EraseDescription" xml:space="preserve"><value>Quick erase, full and destructive format of a device. Hidden by default so that a device is not wiped by mistake.</value></data>

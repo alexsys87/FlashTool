@@ -106,6 +106,7 @@ public partial class App : Application
         services.AddSingleton<FreeBlockSkipping>();
         services.AddSingleton<BmapFeature>();
         services.AddSingleton<DeviceTestFeature>();
+        services.AddSingleton<DifferentialWriteFeature>();
 
         // Every page that picks an image gets its own picker state.
         services.AddTransient<ImageSourceViewModel>();

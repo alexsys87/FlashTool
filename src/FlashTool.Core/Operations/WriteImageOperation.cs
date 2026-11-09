@@ -43,6 +43,17 @@ public sealed record WriteImageOptions
     /// checksum differs, or data in a hole, stops the write before the partition table is committed.
     /// </summary>
     public BmapFile? Bmap { get; init; }
+
+    /// <summary>
+    /// Experimental: read each piece of the device first and write only the 64 KiB blocks that differ
+    /// (see <see cref="DifferentialWriter"/>). The result is the same device as a full write, with less
+    /// wear and, when little has changed, in less time. The first chunk is still blanked first and
+    /// written last, and verification still reads back everything, compared or not.
+    /// </summary>
+    public bool DifferentialWrite { get; init; }
+
+    /// <summary>How much compared data decides whether comparing still pays off.</summary>
+    public long DifferentialWindowBytes { get; init; } = 128L * 1024 * 1024;
 }
 
 public sealed record WriteImageResult(
@@ -55,8 +66,11 @@ public sealed record WriteImageResult(
     /// <summary>Outcome of the check against <see cref="WriteImageOptions.ExpectedSourceSha256"/>.</summary>
     public SourceChecksumStatus SourceChecksum { get; init; }
 
-    /// <summary>With a .bmap: bytes that actually went to the device (the rest of the image are holes).</summary>
+    /// <summary>With a .bmap or differential writing: bytes that actually went to the device.</summary>
     public long? DeviceBytesWritten { get; init; }
+
+    /// <summary>What differential writing compared, skipped and wrote; null when it was off.</summary>
+    public DifferentialWriteStats? Differential { get; init; }
 }
 
 /// <summary>
@@ -105,10 +119,12 @@ public static class WriteImageOperation
         // A .bmap also tells the size of a gzip or bzip2 image, which the stream itself does not.
         var expectedLength = entry.Length ?? bmap?.ImageSize;
 
-        var device = new ResilientBlockDevice(
-            await Task.Run(openTarget, cancellationToken).ConfigureAwait(false),
-            options.IoRetry,
-            cancellationToken);
+        var raw = await Task.Run(openTarget, cancellationToken).ConfigureAwait(false);
+        var device = new ResilientBlockDevice(raw, options.IoRetry, cancellationToken);
+
+        // Compare reads that fail are not worth a question to the user: that piece is simply written.
+        var compareDevice = new ResilientBlockDevice(raw, new IoRetryPolicy { AutomaticAttempts = 2, InitialDelay = TimeSpan.FromMilliseconds(100) }, cancellationToken);
+        DifferentialWriter? differential = null;
         long written;
         long? deviceBytesWritten = null;
         PartitionFixupResult? fixups = null;
@@ -122,6 +138,7 @@ public static class WriteImageOperation
             var chunk = AlignChunk(options.ChunkSize, device.SectorSize);
             var hashes = new BlockHashList(chunk);
             var planned = bmap != null ? new PlannedWriter(BmapWritePlan.Build(bmap, image, device.SectorSize)) : null;
+            differential = options.DifferentialWrite ? new DifferentialWriter(device, compareDevice, chunk, options.DifferentialWindowBytes) : null;
             using var bmapCheck = bmap != null ? new BmapImageCheck(bmap) : null;
             var source = new PrefixedStream(head, reader.Data);
 
@@ -138,7 +155,8 @@ public static class WriteImageOperation
                     progress,
                     OperationPhase.Writing,
                     expectedLength,
-                    reader.CompressedLength is > 0 ? () => (double)reader.CompressedPosition / reader.CompressedLength.Value : null);
+                    reader.CompressedLength is > 0 ? () => (double)reader.CompressedPosition / reader.CompressedLength.Value : null,
+                    differential != null ? () => differential.DeviceBytes : null);
 
                 written = await TransferPipeline.RunAsync(
                     chunk,
@@ -167,7 +185,11 @@ public static class WriteImageOperation
                         }
                         else if (planned != null)
                         {
-                            planned.Write(device, offset, buffer.Span[..aligned], count);
+                            planned.Write(device, offset, buffer.Span[..aligned], count, differential);
+                        }
+                        else if (differential != null)
+                        {
+                            differential.Write(offset, buffer.Span[..aligned]);
                         }
                         else
                         {
@@ -215,7 +237,10 @@ public static class WriteImageOperation
                 await VerifyDeviceAsync(device, hashes, chunk, options.PipelineDepth, progress, cancellationToken).ConfigureAwait(false);
             }
 
-            deviceBytesWritten = planned?.BytesWritten;
+            // With differential writing, what really went out: the compared pieces plus the first chunk.
+            deviceBytesWritten = differential != null
+                ? differential.Stats.BytesWritten + Math.Min(chunk, StreamExtensions.AlignUp(written, device.SectorSize))
+                : planned?.BytesWritten;
 
             // Partition table changes come after verification so they don't count as mismatches.
             progress?.Report(new OperationProgress(OperationPhase.Finalizing, 0, null, 0, 0, null));
@@ -228,7 +253,10 @@ public static class WriteImageOperation
         }
         finally
         {
+            differential?.Dispose();
+
             // Releasing the device lets the OS re-read the partition table and mount the volumes.
+            // compareDevice wraps the same handle and is not disposed separately.
             device.Dispose();
         }
 
@@ -242,6 +270,7 @@ public static class WriteImageOperation
         {
             SourceChecksum = checksum?.Status ?? SourceChecksumStatus.NotChecked,
             DeviceBytesWritten = deviceBytesWritten,
+            Differential = differential?.Stats,
         };
     }
 

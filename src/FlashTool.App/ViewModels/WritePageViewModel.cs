@@ -35,6 +35,7 @@ public sealed partial class WritePageViewModel : LocalizedViewModel
     private static readonly TimeSpan PreviewWait = TimeSpan.FromSeconds(3);
 
     private readonly HttpClient _http;
+    private readonly DifferentialWriteFeature _differential;
     private CancellationTokenSource? _checksumSearch;
     private IStreamSource? _checksumSearchedFor;
     private ChecksumSearchState _checksumSearchState;
@@ -60,10 +61,13 @@ public sealed partial class WritePageViewModel : LocalizedViewModel
         OperationState operation,
         IoErrorPrompt ioErrors,
         HttpClient http,
-        BmapFeature bmap)
+        BmapFeature bmap,
+        DifferentialWriteFeature differential)
     {
         Image = image;
         Bmap = new BmapSelectionViewModel(image, bmap, http);
+        _differential = differential;
+        differential.PropertyChanged += (_, _) => OnPropertyChanged(nameof(DifferentialWrite));
         _diskManager = diskManager;
         Preview = new DevicePreviewViewModel(diskManager);
         _ioErrors = ioErrors;
@@ -114,6 +118,9 @@ public sealed partial class WritePageViewModel : LocalizedViewModel
 
     /// <summary>The .bmap found next to the image, when that is turned on in the settings.</summary>
     public BmapSelectionViewModel Bmap { get; }
+
+    /// <summary>Turned on in the settings; shown on the page.</summary>
+    public bool DifferentialWrite => _differential.IsEnabled;
 
     public DeviceListService Devices { get; }
 
@@ -209,6 +216,7 @@ public sealed partial class WritePageViewModel : LocalizedViewModel
         {
             ExpectedSourceSha256 = Sha256Hex.TryParse(ExpectedChecksum, out var expectedChecksum) ? expectedChecksum : null,
             Bmap = Bmap.Effective,
+            DifferentialWrite = DifferentialWrite,
             Verify = Verify,
             ExpandLastPartition = ExpandLastPartition,
             RequireRecognizedImage = requireImage,
@@ -285,7 +293,19 @@ public sealed partial class WritePageViewModel : LocalizedViewModel
     private static string DescribeResult(WriteImageResult result)
     {
         var lines = new List<string> { Loc.Format("Write_SuccessDetails", Formatting.Size(result.BytesWritten), Formatting.Duration(result.Elapsed)) };
-        if (result.DeviceBytesWritten is { } deviceBytes)
+        if (result.Differential is { } diff)
+        {
+            lines.Add(Loc.Format(
+                "Write_DifferentialWritten",
+                Formatting.Size(result.DeviceBytesWritten),
+                Formatting.Size(result.BytesWritten),
+                diff.MatchedFraction.ToString("P0", Loc.Instance.Culture)));
+            if (diff.TimesComparingStopped > 0)
+            {
+                lines.Add(Loc.Format("Write_DifferentialStopped", Formatting.Size(diff.BytesWrittenWithoutCompare)));
+            }
+        }
+        else if (result.DeviceBytesWritten is { } deviceBytes)
         {
             lines.Add(Loc.Format("Write_BmapWritten", Formatting.Size(deviceBytes), Formatting.Size(result.BytesWritten)));
         }

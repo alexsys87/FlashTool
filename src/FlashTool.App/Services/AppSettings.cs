@@ -35,6 +35,9 @@ public sealed class AppSettings
 
     public bool ExpandLastPartition { get; set; }
 
+    /// <summary>Experimental: write only the blocks that differ from what the device holds. Off by default.</summary>
+    public bool DifferentialWrite { get; set; }
+
     public bool EjectAfterWrite { get; set; }
 
     public bool VerifyAfterRead { get; set; } = true;

@@ -52,6 +52,13 @@
 
             <!-- Options -->
             <TextBlock Margin="0,12,0,8" Style="{StaticResource SectionTitle}" Text="{loc:Tr Write_OptionsTitle}" />
+            <ui:InfoBar
+                Margin="0,0,0,8"
+                IsClosable="False"
+                IsOpen="True"
+                Message="{loc:Tr Write_DifferentialOn}"
+                Severity="Informational"
+                Visibility="{Binding DifferentialWrite, Converter={StaticResource BoolToVisibility}}" />
             <ui:CardControl Margin="0,0,0,4" Icon="{ui:SymbolIcon ShieldCheckmark24}">
                 <ui:CardControl.Header>
                     <StackPanel>

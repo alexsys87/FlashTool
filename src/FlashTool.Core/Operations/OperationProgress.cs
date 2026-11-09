@@ -54,16 +54,22 @@ internal sealed class ProgressReporter
     private readonly OperationPhase _phase;
     private readonly long? _total;
     private readonly Func<double>? _fallbackFraction;
+    private readonly Func<long>? _speedBytes;
     private readonly Stopwatch _clock = Stopwatch.StartNew();
-    private readonly Queue<(TimeSpan Time, long Bytes)> _samples = new();
+    private readonly Queue<(TimeSpan Time, long Bytes, long SpeedBytes)> _samples = new();
     private TimeSpan _lastReport = TimeSpan.FromDays(-1);
 
-    public ProgressReporter(IProgress<OperationProgress>? progress, OperationPhase phase, long? total, Func<double>? fallbackFraction = null)
+    /// <param name="speedBytes">
+    /// What the speed shown is measured from, when that is not the progress itself: with differential
+    /// writing, data that already matched moves the progress on but costs the device only a read.
+    /// </param>
+    public ProgressReporter(IProgress<OperationProgress>? progress, OperationPhase phase, long? total, Func<double>? fallbackFraction = null, Func<long>? speedBytes = null)
     {
         _progress = progress;
         _phase = phase;
         _total = total;
         _fallbackFraction = fallbackFraction;
+        _speedBytes = speedBytes;
         progress?.Report(new OperationProgress(phase, 0, total, 0, 0, null));
     }
 
@@ -81,7 +87,8 @@ internal sealed class ProgressReporter
         }
 
         _lastReport = now;
-        _samples.Enqueue((now, processed));
+        var speedBytes = _speedBytes?.Invoke() ?? processed;
+        _samples.Enqueue((now, processed, speedBytes));
         while (_samples.Count > 2 && now - _samples.Peek().Time > SpeedWindow)
         {
             _samples.Dequeue();
@@ -89,7 +96,8 @@ internal sealed class ProgressReporter
 
         var first = _samples.Peek();
         var seconds = (now - first.Time).TotalSeconds;
-        var speed = seconds > 0.2 ? (processed - first.Bytes) / seconds : 0;
+        var progressRate = seconds > 0.2 ? (processed - first.Bytes) / seconds : 0;
+        var speed = seconds > 0.2 ? (speedBytes - first.SpeedBytes) / seconds : 0;
 
         double fraction;
         if (_total is > 0)
@@ -102,11 +110,11 @@ internal sealed class ProgressReporter
         }
 
         TimeSpan? remaining = null;
-        if (speed > 0 && _total is > 0)
+        if (progressRate > 0 && _total is > 0)
         {
-            remaining = TimeSpan.FromSeconds((_total.Value - processed) / speed);
+            remaining = TimeSpan.FromSeconds((_total.Value - processed) / progressRate);
         }
-        else if (speed > 0 && fraction > 0.01)
+        else if (progressRate > 0 && fraction > 0.01)
         {
             remaining = TimeSpan.FromSeconds(_clock.Elapsed.TotalSeconds * (1 - fraction) / fraction);
         }

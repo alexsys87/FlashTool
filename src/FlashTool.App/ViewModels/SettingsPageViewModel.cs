@@ -19,6 +19,7 @@ public sealed partial class SettingsPageViewModel : LocalizedViewModel
     private readonly FreeBlockSkipping _freeBlocks;
     private readonly BmapFeature _bmap;
     private readonly DeviceTestFeature _deviceTest;
+    private readonly DifferentialWriteFeature _differential;
     private readonly DialogService _dialogs;
     private readonly OperationState _operation;
 
@@ -37,6 +38,7 @@ public sealed partial class SettingsPageViewModel : LocalizedViewModel
         FreeBlockSkipping freeBlocks,
         BmapFeature bmap,
         DeviceTestFeature deviceTest,
+        DifferentialWriteFeature differential,
         DialogService dialogs,
         OperationState operation)
     {
@@ -47,6 +49,7 @@ public sealed partial class SettingsPageViewModel : LocalizedViewModel
         _freeBlocks = freeBlocks;
         _bmap = bmap;
         _deviceTest = deviceTest;
+        _differential = differential;
         _dialogs = dialogs;
         _operation = operation;
         Devices = devices;
@@ -76,6 +79,16 @@ public sealed partial class SettingsPageViewModel : LocalizedViewModel
         set
         {
             _freeBlocks.IsEnabled = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public bool DifferentialWrite
+    {
+        get => _differential.IsEnabled;
+        set
+        {
+            _differential.IsEnabled = value;
             OnPropertyChanged();
         }
     }

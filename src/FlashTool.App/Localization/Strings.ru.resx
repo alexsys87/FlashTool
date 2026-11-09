@@ -345,6 +345,12 @@
   <data name="Test_FormatDescription" xml:space="preserve"><value>Один раздел на весь носитель, как на странице «Очистка»: в автоматическом режиме FAT32 до 32 ГБ, exFAT для больших.</value></data>
   <data name="Test_FormatButton" xml:space="preserve"><value>Создать</value></data>
   <data name="Test_Formatted" xml:space="preserve"><value>Файловая система создана</value></data>
+  <data name="Settings_Writing" xml:space="preserve"><value>Запись образа</value></data>
+  <data name="Settings_DifferentialWrite" xml:space="preserve"><value>Записывать только отличия (экспериментально)</value></data>
+  <data name="Settings_DifferentialWriteDescription" xml:space="preserve"><value>Перед записью каждая часть носителя читается и сравнивается с образом блоками по 64 КиБ, а записываются только отличающиеся блоки. Результат — тот же носитель, что и после полной записи, но с меньшим износом и быстрее, если изменилось немного: например, при перепрошивке той же карты новой сборкой. Там, где почти ничего не совпадает, сравнение на время отключается само: тогда оно только добавляет время. Начало носителя по-прежнему сначала обнуляется и записывается последним, а проверка по-прежнему читает всё. Изменение одного файла может сдвинуть данные всей файловой системы, поэтому выигрыш зависит от того, как собран образ.</value></data>
+  <data name="Write_DifferentialOn" xml:space="preserve"><value>Будут записаны только блоки, отличающиеся от того, что уже на носителе (экспериментально, включено в настройках). Носитель сначала читается; проверка по-прежнему читает всё.</value></data>
+  <data name="Write_DifferentialWritten" xml:space="preserve"><value>Записано {0} из {1}; совпало {2} сравнённых данных.</value></data>
+  <data name="Write_DifferentialStopped" xml:space="preserve"><value>Там, где почти ничего не совпадало, сравнение отключалось: {0} записано без сравнения.</value></data>
   <data name="Settings_Erase" xml:space="preserve"><value>Очистка носителей</value></data>
   <data name="Settings_EraseEnable" xml:space="preserve"><value>Показывать страницу «Очистка»</value></data>
   <data name="Settings_EraseDescription" xml:space="preserve"><value>Быстрая очистка, полное и разрушительное форматирование носителя. По умолчанию скрыта, чтобы носитель нельзя было стереть по ошибке.</value></data>
