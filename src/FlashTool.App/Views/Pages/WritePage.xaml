@@ -26,6 +26,30 @@
                 Severity="Error"
                 Visibility="{Binding SizeWarning, Converter={StaticResource NullToVisibility}}" />
 
+            <!-- What is on the selected device now -->
+            <StackPanel Margin="0,0,0,12" Visibility="{Binding Preview.IsVisible, Converter={StaticResource BoolToVisibility}}">
+                <TextBlock
+                    Style="{StaticResource SecondaryText}"
+                    Text="{Binding Preview.Summary}"
+                    TextWrapping="Wrap" />
+                <DataGrid
+                    Margin="0,8,0,0"
+                    AutoGenerateColumns="False"
+                    CanUserAddRows="False"
+                    HeadersVisibility="Column"
+                    IsReadOnly="True"
+                    ItemsSource="{Binding Preview.Partitions}"
+                    Visibility="{Binding Preview.HasPartitions, Converter={StaticResource BoolToVisibility}}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Binding="{Binding Number}" Header="#" />
+                        <DataGridTextColumn Width="*" Binding="{Binding Type}" Header="{loc:Tr Image_Type}" />
+                        <DataGridTextColumn Binding="{Binding FileSystem}" Header="FS" />
+                        <DataGridTextColumn Binding="{Binding Name}" Header="{loc:Tr Preview_LabelColumn}" />
+                        <DataGridTextColumn Binding="{Binding Size}" Header="{loc:Tr Image_Size}" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </StackPanel>
+
             <!-- Options -->
             <TextBlock Margin="0,12,0,8" Style="{StaticResource SectionTitle}" Text="{loc:Tr Write_OptionsTitle}" />
             <ui:CardControl Margin="0,0,0,4" Icon="{ui:SymbolIcon ShieldCheckmark24}">

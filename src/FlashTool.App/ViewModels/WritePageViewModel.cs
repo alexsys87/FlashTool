@@ -32,6 +32,8 @@ public sealed partial class WritePageViewModel : LocalizedViewModel
     private readonly RememberedDevice? _rememberedDevice;
     private readonly SettingsService _settings;
     private readonly DialogService _dialogs;
+    private static readonly TimeSpan PreviewWait = TimeSpan.FromSeconds(3);
+
     private readonly HttpClient _http;
     private CancellationTokenSource? _checksumSearch;
     private IStreamSource? _checksumSearchedFor;
@@ -61,6 +63,7 @@ public sealed partial class WritePageViewModel : LocalizedViewModel
     {
         Image = image;
         _diskManager = diskManager;
+        Preview = new DevicePreviewViewModel(diskManager);
         _ioErrors = ioErrors;
         _settings = settings;
         _dialogs = dialogs;
@@ -98,12 +101,19 @@ public sealed partial class WritePageViewModel : LocalizedViewModel
     /// <summary>Reopens the image used last time.</summary>
     public Task RestoreAsync() => Image.RestoreAsync(_settings.Settings.WriteSelection.Source, _settings.Settings.WriteSelection.Entry);
 
-    partial void OnSelectedDeviceChanged(DeviceItemViewModel? value) => _rememberedDevice?.OnSelectionChanged(value);
+    partial void OnSelectedDeviceChanged(DeviceItemViewModel? value)
+    {
+        _rememberedDevice?.OnSelectionChanged(value);
+        _ = Preview.LoadAsync(value);
+    }
 
     /// <summary>The image to write.</summary>
     public ImageSourceViewModel Image { get; }
 
     public DeviceListService Devices { get; }
+
+    /// <summary>What is on the selected device now.</summary>
+    public DevicePreviewViewModel Preview { get; }
 
     public OperationState Operation { get; }
 
@@ -176,7 +186,15 @@ public sealed partial class WritePageViewModel : LocalizedViewModel
             requireImage = false;
         }
 
-        var message = Loc.Format("Write_ConfirmMessage", device.Name, Formatting.Size(device.Info.Size));
+        // Read afresh: this dialog is the last chance to notice that it is the wrong disk. If the device is slow to
+        // answer, the dialog goes without rather than waiting.
+        await Task.WhenAny(Preview.LoadAsync(device), Task.Delay(PreviewWait));
+        var contents = Preview.DialogText;
+        var message = Loc.Format(
+            "Write_ConfirmMessage",
+            device.Name,
+            Formatting.Size(device.Info.Size),
+            contents.Length > 0 ? Environment.NewLine + Environment.NewLine + contents : string.Empty);
         if (!await _dialogs.ConfirmAsync(Loc.Get("Write_ConfirmTitle"), message, Loc.Get("Write_ConfirmButton")))
         {
             return;
@@ -194,6 +212,7 @@ public sealed partial class WritePageViewModel : LocalizedViewModel
 
         var token = Operation.Begin();
         var failed = false;
+        var ejected = false;
         Result.Hide();
         Progress.Start();
         try
@@ -221,6 +240,7 @@ public sealed partial class WritePageViewModel : LocalizedViewModel
                 try
                 {
                     await Task.Run(() => _diskManager.Eject(device.Info), CancellationToken.None);
+                    ejected = true;
                     details += Environment.NewLine + Loc.Get("Write_Ejected");
                 }
                 catch (Exception ex) when (ex is not OutOfMemoryException)
@@ -246,6 +266,10 @@ public sealed partial class WritePageViewModel : LocalizedViewModel
             Progress.Stop();
             Operation.End(failed);
             _ = Devices.RefreshAsync();
+
+            // Show what is on the device now (a failed or cancelled write may have left it blank or half done); an
+            // ejected one has nothing left to show.
+            _ = Preview.LoadAsync(ejected ? null : device);
         }
     }
 

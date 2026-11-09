@@ -44,6 +44,15 @@
   <data name="Write_EntryLabel" xml:space="preserve"><value>Image in the archive</value></data>
   <data name="Write_EntryChecking" xml:space="preserve"><value>checking…</value></data>
   <data name="Write_TargetTitle" xml:space="preserve"><value>Target device</value></data>
+  <data name="Preview_Loading" xml:space="preserve"><value>Reading what is on the device…</value></data>
+  <data name="Preview_Partitioned" xml:space="preserve"><value>Now on the device: {0} partition table, partitions: {1}</value></data>
+  <data name="Preview_Superfloppy" xml:space="preserve"><value>Now on the device: {0}, no partition table</value></data>
+  <data name="Preview_Iso" xml:space="preserve"><value>Now on the device: an ISO 9660 file system</value></data>
+  <data name="Preview_Unknown" xml:space="preserve"><value>Now on the device: no partition table or known file system found. It may be blank or hold data in an unknown format.</value></data>
+  <data name="Preview_Failed" xml:space="preserve"><value>What is on the device could not be read: {0}</value></data>
+  <data name="Preview_LabelColumn" xml:space="preserve"><value>Label</value></data>
+  <data name="Preview_LabelFormat" xml:space="preserve"><value>“{0}”</value></data>
+  <data name="Preview_More" xml:space="preserve"><value>  … and {0} more</value></data>
   <data name="Write_OptionsTitle" xml:space="preserve"><value>Options</value></data>
   <data name="Write_Verify" xml:space="preserve"><value>Verify after writing</value></data>
   <data name="Write_VerifyDescription" xml:space="preserve"><value>Read the device back and compare it with the image</value></data>
@@ -64,7 +73,7 @@
   <data name="Write_Ejected" xml:space="preserve"><value>The device was ejected and can be unplugged.</value></data>
   <data name="Write_Start" xml:space="preserve"><value>Write</value></data>
   <data name="Write_ConfirmTitle" xml:space="preserve"><value>Erase the device?</value></data>
-  <data name="Write_ConfirmMessage" xml:space="preserve"><value>All data on "{0}" ({1}) will be destroyed.
+  <data name="Write_ConfirmMessage" xml:space="preserve"><value>All data on "{0}" ({1}) will be destroyed.{2}
 
 Continue?</value></data>
   <data name="Write_ConfirmButton" xml:space="preserve"><value>Erase and write</value></data>
