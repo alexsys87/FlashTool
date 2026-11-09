@@ -125,11 +125,11 @@ public class DeviceTestTests(ITestOutputHelper output)
     [Fact]
     public async Task Slow_area_is_found()
     {
+        // Measured on the device's own simulated time: 1000 MB/s, but 100 MB/s from 32 to 48 MiB.
         var device = new MemoryDevice(64 * MiB) { Slow = (32 * MiB, 48 * MiB) };
-        var result = await RunAsync(device, DeviceTestMode.Read);
+        var result = await RunAsync(device, DeviceTestMode.Read, o => o with { Clock = () => device.Ticks, ClockFrequency = MemoryDevice.TicksPerSecond });
 
-        // Memory is fast enough that a pause of the test host elsewhere can show up too; the real one must be exact.
-        var slow = Assert.Single(result.SlowAreas, a => a.Offset < 48 * MiB && 32 * MiB < a.Offset + a.Length);
+        var slow = Assert.Single(result.SlowAreas);
         Assert.Equal(DeviceTestPhase.Read, slow.Phase);
         Assert.Equal(32 * MiB, slow.Offset);
         Assert.Equal(16 * MiB, slow.Length);
@@ -218,7 +218,12 @@ public class DeviceTestTests(ITestOutputHelper output)
 
         public List<(long Start, long End)> Unreadable { get; init; } = [];
 
+        public const long TicksPerSecond = 1_000_000_000;
+
         public (long Start, long End)? Slow { get; init; }
+
+        /// <summary>Simulated device time: how long the requests so far would have taken.</summary>
+        public long Ticks { get; private set; }
 
         public bool ReadOnly { get; init; }
 
@@ -298,11 +303,8 @@ public class DeviceTestTests(ITestOutputHelper output)
 
         private void Delay(long offset, int count)
         {
-            if (Slow is { } slow && slow.Start < offset + count && offset < slow.End)
-            {
-                // About 100 MB/s there, against memory speed everywhere else.
-                Thread.Sleep(Math.Max(1, count / (100 * 1024 * 1024 / 1000)));
-            }
+            var slow = Slow is { } s && s.Start < offset + count && offset < s.End;
+            Ticks += count * TicksPerSecond / ((slow ? 100L : 1000L) * 1024 * 1024);
         }
     }
 

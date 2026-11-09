@@ -13,11 +13,20 @@ public enum Ext4GrowSkipReason
     UnsupportedFeature,
     NoRoomForDescriptors,
     InconsistentMetadata,
+
+    /// <summary>The file system recorded errors: it needs e2fsck first.</summary>
+    HasErrors,
+
+    /// <summary>Deletions of open files are still pending in the orphan file.</summary>
+    OrphansPending,
 }
 
 public sealed record Ext4GrowResult(ulong OldBlocks, ulong NewBlocks, int BlockSize, Ext4GrowSkipReason SkipReason)
 {
     public bool Grown => NewBlocks > OldBlocks && SkipReason == Ext4GrowSkipReason.None;
+
+    /// <summary>The journal was replayed before growing (see <see cref="Ext4Journal"/>).</summary>
+    public bool JournalReplayed { get; init; }
 }
 
 /// <summary>
@@ -68,7 +77,27 @@ internal sealed class Ext4Grow
             return new Ext4GrowResult(0, 0, 0, Ext4GrowSkipReason.NotExtFileSystem);
         }
 
-        return new Ext4Grow(volume, sb).Run(cancellationToken);
+        // Everything that cannot be fixed here is refused before anything is written, the journal included.
+        var refusal = new Ext4Grow(volume, sb).CheckSupported(allowRecovery: true);
+        if (refusal != Ext4GrowSkipReason.None)
+        {
+            return new Ext4GrowResult(sb.BlocksCount, sb.BlocksCount, sb.BlockSize, refusal);
+        }
+
+        // A file system taken from a running system: replay its journal, as mounting would.
+        var replayed = false;
+        if ((sb.FeatureIncompat & Ext4Superblock.IncompatRecover) != 0)
+        {
+            if (Ext4Journal.Recover(volume, cancellationToken) != JournalRecovery.Replayed)
+            {
+                return new Ext4GrowResult(sb.BlocksCount, sb.BlocksCount, sb.BlockSize, Ext4GrowSkipReason.JournalNeedsRecovery);
+            }
+
+            replayed = true;
+            sb = new Ext4Superblock(volume.Read(SuperblockOffset, Ext4Superblock.Size));
+        }
+
+        return new Ext4Grow(volume, sb).Run(cancellationToken) with { JournalReplayed = replayed };
     }
 
     private Ext4GrowResult Run(CancellationToken ct)
@@ -242,19 +271,29 @@ internal sealed class Ext4Grow
         return new Ext4GrowResult(oldBlocks, newBlocks, _bs, Ext4GrowSkipReason.None);
     }
 
-    private Ext4GrowSkipReason CheckSupported()
+    /// <param name="allowRecovery">A journal that needs recovery is not a refusal (it is replayed next).</param>
+    private Ext4GrowSkipReason CheckSupported(bool allowRecovery = false)
     {
         const ushort validFs = 0x1;
         const ushort errorFs = 0x2;
-        if ((_sb.State & validFs) == 0 || (_sb.State & errorFs) != 0)
+        if ((_sb.State & errorFs) != 0)
+        {
+            return Ext4GrowSkipReason.HasErrors;
+        }
+
+        if ((_sb.State & validFs) == 0)
         {
             return Ext4GrowSkipReason.NotCleanlyUnmounted;
         }
 
-        if ((_sb.FeatureIncompat & Ext4Superblock.IncompatRecover) != 0
-            || (_sb.FeatureRoCompat & Ext4Superblock.RoCompatOrphanPresent) != 0)
+        if (!allowRecovery && (_sb.FeatureIncompat & Ext4Superblock.IncompatRecover) != 0)
         {
             return Ext4GrowSkipReason.JournalNeedsRecovery;
+        }
+
+        if ((_sb.FeatureRoCompat & Ext4Superblock.RoCompatOrphanPresent) != 0)
+        {
+            return Ext4GrowSkipReason.OrphansPending;
         }
 
         var unsupported =

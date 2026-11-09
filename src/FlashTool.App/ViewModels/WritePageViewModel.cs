@@ -245,7 +245,7 @@ public sealed partial class WritePageViewModel : LocalizedViewModel
                 progress,
                 token);
 
-            var details = DescribeResult(result);
+            var details = DescribeResult(result, options.ExpandLastPartition);
             var severity = InfoBarSeverity.Success;
             if (EjectAfterWrite)
             {
@@ -290,7 +290,7 @@ public sealed partial class WritePageViewModel : LocalizedViewModel
     [RelayCommand]
     private void Cancel() => Operation.Cancel();
 
-    private static string DescribeResult(WriteImageResult result)
+    private static string DescribeResult(WriteImageResult result, bool expandRequested)
     {
         var lines = new List<string> { Loc.Format("Write_SuccessDetails", Formatting.Size(result.BytesWritten), Formatting.Duration(result.Elapsed)) };
         if (result.Differential is { } diff)
@@ -335,6 +335,11 @@ public sealed partial class WritePageViewModel : LocalizedViewModel
             if (f.PartitionExtended && f.Partition is { } p)
             {
                 lines.Add(Loc.Format("Write_PartitionExtended", p.Number, p.TypeDescription, Formatting.Size(f.OldLength), Formatting.Size(f.NewLength)));
+                if (f.JournalReplayed)
+                {
+                    lines.Add(Loc.Format("Write_JournalReplayed", p.FileSystem));
+                }
+
                 if (f.FileSystemResizeError != null)
                 {
                     lines.Add(Loc.Format("Write_FsResizeFailed", p.FileSystem, f.FileSystemResizeError));
@@ -343,10 +348,18 @@ public sealed partial class WritePageViewModel : LocalizedViewModel
                 {
                     lines.Add(Loc.Format("Write_FsResized", p.FileSystem));
                 }
+                else if (f.FileSystemSkipReason is not (FileSystemResizeSkipReason.None or FileSystemResizeSkipReason.Unknown))
+                {
+                    lines.Add(Loc.Format("Write_FsNotResizedBecause", p.FileSystem, Loc.Get($"FsSkip_{f.FileSystemSkipReason}")));
+                }
                 else if (p.FileSystem != FileSystemType.Unknown)
                 {
                     lines.Add(Loc.Format("Write_FsNotResized", p.FileSystem));
                 }
+            }
+            else if (expandRequested && f.SkipReason != PartitionFixupSkipReason.None)
+            {
+                lines.Add(Loc.Format("Write_PartitionNotExtended", Loc.Get($"PartSkip_{f.SkipReason}")));
             }
         }
 

@@ -69,7 +69,6 @@ public static class DeviceTestOperation
         return run.Result(clock.Elapsed);
     }
 
-    private static double Seconds(long startTimestamp) => Stopwatch.GetElapsedTime(startTimestamp).TotalSeconds;
 
     private sealed class TestRun
     {
@@ -101,6 +100,8 @@ public static class DeviceTestOperation
             _bad = new BadAreaList(options.MaxReportedAreas);
         }
 
+        private double Seconds(long start) => (_options.Clock() - start) / _options.ClockFrequency;
+
         private long SampleBucket => Math.Max(_chunk, StreamExtensions.AlignUp(_length / Math.Max(1, _options.SampleCount), _chunk));
 
         // ---- Sequential passes ----
@@ -129,7 +130,7 @@ public static class DeviceTestOperation
                 },
                 (buffer, count, offset) =>
                 {
-                    var start = Stopwatch.GetTimestamp();
+                    var start = _options.Clock();
                     previousFailed = WriteChunk(offset, buffer.Span[..count], previousFailed);
                     sampler.Add(offset, count, Seconds(start));
                     reporter.Report(offset + count);
@@ -162,7 +163,7 @@ public static class DeviceTestOperation
                         return 0;
                     }
 
-                    var start = Stopwatch.GetTimestamp();
+                    var start = _options.Clock();
                     previousFailed = ReadChunk(position, buffer.Span[..count], previousFailed, unreadable);
                     sampler.Add(position, count, Seconds(start));
                     position += count;
@@ -486,7 +487,7 @@ public static class DeviceTestOperation
                 {
                     _ct.ThrowIfCancellationRequested();
                     var offset = random.NextInt64(blocks) * block;
-                    var start = Stopwatch.GetTimestamp();
+                    var start = _options.Clock();
                     var ok = phase == DeviceTestPhase.Read ? TryRead(offset, buffer.Span) : TryWrite(offset, buffer.Span);
                     latencies.Add(Seconds(start) * 1000);
                     if (!ok)

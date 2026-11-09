@@ -91,6 +91,23 @@
   <data name="Write_FsNotResized" xml:space="preserve"><value>Файловая система {0} внутри раздела не изменялась.</value></data>
   <data name="Write_FsResized" xml:space="preserve"><value>Файловая система {0} расширена на весь раздел.</value></data>
   <data name="Write_FsResizeFailed" xml:space="preserve"><value>Не удалось расширить файловую систему {0}: {1}</value></data>
+  <data name="Write_JournalReplayed" xml:space="preserve"><value>Сначала воспроизведён журнал {0}: образ снят с работающей системы (или с системы, выключенной некорректно).</value></data>
+  <data name="Write_FsNotResizedBecause" xml:space="preserve"><value>Файловая система {0} внутри раздела не расширена: {1}.</value></data>
+  <data name="Write_PartitionNotExtended" xml:space="preserve"><value>Последний раздел не расширен: {0}.</value></data>
+  <data name="FsSkip_AlreadyFillsPartition" xml:space="preserve"><value>она уже занимает весь раздел</value></data>
+  <data name="FsSkip_NotCleanlyUnmounted" xml:space="preserve"><value>она не была корректно отключена, а журнала для воспроизведения нет; проверьте её e2fsck, затем выполните resize2fs на устройстве</value></data>
+  <data name="FsSkip_HasErrors" xml:space="preserve"><value>в ней записаны ошибки; проверьте её e2fsck, затем выполните resize2fs на устройстве</value></data>
+  <data name="FsSkip_JournalNotReplayed" xml:space="preserve"><value>её журнал требует восстановления, а воспроизвести его здесь не удалось; смонтируйте её один раз (или выполните e2fsck), затем resize2fs на устройстве</value></data>
+  <data name="FsSkip_OrphansPending" xml:space="preserve"><value>в ней не завершено удаление открытых файлов; смонтируйте её один раз, затем выполните resize2fs на устройстве</value></data>
+  <data name="FsSkip_UnsupportedFeature" xml:space="preserve"><value>её раскладку (meta_bg, bigalloc и подобные) нельзя расширить офлайн; выполните resize2fs на устройстве</value></data>
+  <data name="FsSkip_NoRoomForDescriptors" xml:space="preserve"><value>в ней нет места для новых групп блоков (нет резерва дескрипторов); выполните resize2fs на устройстве</value></data>
+  <data name="FsSkip_InconsistentMetadata" xml:space="preserve"><value>её метаданные не согласованы; проверьте её e2fsck</value></data>
+  <data name="PartSkip_NoPartitionTable" xml:space="preserve"><value>в образе нет таблицы разделов</value></data>
+  <data name="PartSkip_IsoImage" xml:space="preserve"><value>ISO-образы не изменяются</value></data>
+  <data name="PartSkip_LastPartitionIsLogical" xml:space="preserve"><value>последний раздел логический (внутри расширенного), это пока не поддерживается</value></data>
+  <data name="PartSkip_AlreadyFillsDisk" xml:space="preserve"><value>он уже доходит до конца носителя</value></data>
+  <data name="PartSkip_UnsupportedSectorSize" xml:space="preserve"><value>размер сектора носителя для этого не поддерживается</value></data>
+  <data name="PartSkip_NoFreeSpace" xml:space="preserve"><value>после него нет свободного места</value></data>
   <data name="Write_GptRelocated" xml:space="preserve"><value>Резервная GPT перенесена в конец носителя.</value></data>
   <data name="Write_Failed" xml:space="preserve"><value>Ошибка записи</value></data>
   <data name="Erase_Header" xml:space="preserve"><value>Очистка носителя</value></data>

@@ -33,6 +33,12 @@ public sealed record PartitionFixupResult
     /// <summary>Set when growing the file system failed (the partition itself was extended).</summary>
     public string? FileSystemResizeError { get; init; }
 
+    /// <summary>Why the file system was not grown, when it was not.</summary>
+    public FileSystemResizeSkipReason FileSystemSkipReason { get; init; }
+
+    /// <summary>The file system's journal was replayed before growing it.</summary>
+    public bool JournalReplayed { get; init; }
+
     public PartitionFixupSkipReason SkipReason { get; init; }
 }
 
@@ -253,7 +259,13 @@ public static class PartitionTableEditor
         {
             try
             {
-                result = result with { FileSystemResized = resizer.Resize(device, grown, ct) };
+                var outcome = resizer.ResizeWithOutcome(device, grown, ct);
+                result = result with
+                {
+                    FileSystemResized = outcome.Resized,
+                    FileSystemSkipReason = outcome.Resized ? FileSystemResizeSkipReason.None : outcome.SkipReason,
+                    JournalReplayed = outcome.JournalReplayed,
+                };
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {

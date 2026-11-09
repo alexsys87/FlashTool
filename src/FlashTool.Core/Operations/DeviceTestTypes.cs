@@ -107,6 +107,14 @@ public sealed record DeviceTestOptions
     public int MaxReportedAreas { get; init; } = 1000;
 
     public bool IsDestructive => Mode != DeviceTestMode.Read;
+
+    /// <summary>
+    /// Time source of the per-request measurements, in ticks of <see cref="ClockFrequency"/>. Tests replace it
+    /// with simulated device time, so busy test machines cannot turn fast stretches slow.
+    /// </summary>
+    internal Func<long> Clock { get; init; } = System.Diagnostics.Stopwatch.GetTimestamp;
+
+    internal double ClockFrequency { get; init; } = System.Diagnostics.Stopwatch.Frequency;
 }
 
 public sealed record DeviceTestResult(DeviceTestMode Mode, long DeviceLength, DeviceTestVerdict Verdict, TimeSpan Elapsed)
