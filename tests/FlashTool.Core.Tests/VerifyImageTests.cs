@@ -9,7 +9,7 @@ namespace FlashTool.Core.Tests;
 
 public class VerifyImageTests
 {
-    public static TheoryData<string> Formats => new() { "image.img", "image.img.xz", "image.img.zip", "image.img.gz" };
+    public static TheoryData<string> Formats => new() { "image.img", "image.img.xz", "image.img.zip", "image.img.gz", "image.img.zst", "image.img.bz2" };
 
     [Theory]
     [MemberData(nameof(Formats))]

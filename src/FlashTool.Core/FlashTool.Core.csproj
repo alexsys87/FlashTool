@@ -9,6 +9,8 @@
   <ItemGroup>
     <PackageReference Include="Joveler.Compression.XZ" />
     <PackageReference Include="Squid-Box.SevenZipSharp" />
+    <PackageReference Include="ZstdSharp.Port" />
+    <PackageReference Include="SharpZipLib" />
     <PackageReference Include="System.IO.Hashing" />
     <PackageReference Include="System.IO.Pipelines" />
   </ItemGroup>

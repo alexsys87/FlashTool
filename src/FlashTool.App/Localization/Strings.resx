@@ -37,7 +37,7 @@
   <data name="Area_Unpartitioned" xml:space="preserve"><value>Outside partitions</value></data>
   <data name="Write_Header" xml:space="preserve"><value>Write an image to a device</value></data>
   <data name="Write_SourceTitle" xml:space="preserve"><value>Image</value></data>
-  <data name="Write_SourceHint" xml:space="preserve"><value>Image file or URL (img, iso, zip, xz, 7z, gz)</value></data>
+  <data name="Write_SourceHint" xml:space="preserve"><value>Image file or URL (img, iso, zip, xz, 7z, gz, zst, bz2)</value></data>
   <data name="Write_Browse" xml:space="preserve"><value>Browse…</value></data>
   <data name="Write_Load" xml:space="preserve"><value>Open</value></data>
   <data name="Write_Loading" xml:space="preserve"><value>Opening the image…</value></data>
@@ -185,6 +185,8 @@ Continue?</value></data>
   <data name="Format_Xz" xml:space="preserve"><value>XZ (.xz) — standard for Linux images</value></data>
   <data name="Format_SevenZip" xml:space="preserve"><value>7-Zip (.7z) — best ratio</value></data>
   <data name="Format_Gzip" xml:space="preserve"><value>GZip (.gz)</value></data>
+  <data name="Format_Zstd" xml:space="preserve"><value>Zstandard (.zst) — fast</value></data>
+  <data name="Format_Bzip2" xml:space="preserve"><value>bzip2 (.bz2)</value></data>
   <data name="Compression_Fastest" xml:space="preserve"><value>Fastest</value></data>
   <data name="Compression_Fast" xml:space="preserve"><value>Fast</value></data>
   <data name="Compression_Normal" xml:space="preserve"><value>Normal</value></data>
@@ -263,7 +265,7 @@ Show the page?</value></data>
   <data name="Error_UnsupportedCompressionMethod" xml:space="preserve"><value>The archive uses an unsupported compression method.</value></data>
   <data name="Error_ArchiveHasNoImages" xml:space="preserve"><value>The archive contains no files.</value></data>
   <data name="Error_ContainerBackendUnavailable" xml:space="preserve"><value>Support for {0} is not available (the native library is missing).</value></data>
-  <data name="Error_SourceNotSeekable" xml:space="preserve"><value>The server does not support partial downloads, which {0} archives require. Download the file first or use an .xz/.gz image.</value></data>
+  <data name="Error_SourceNotSeekable" xml:space="preserve"><value>The server does not support partial downloads, which {0} archives require. Download the file first or use an .xz/.gz/.zst/.bz2 image.</value></data>
   <data name="Error_HttpError" xml:space="preserve"><value>Download failed: HTTP {0} {1}</value></data>
   <data name="Error_DeviceNotFound" xml:space="preserve"><value>The device was disconnected.</value></data>
   <data name="Error_DeviceAccessDenied" xml:space="preserve"><value>Access to the device was denied. Run the program as administrator.</value></data>

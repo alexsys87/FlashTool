@@ -35,7 +35,7 @@ public sealed class DialogService
         var dialog = new OpenFileDialog
         {
             Title = Loc.Get("Dialog_SelectImage"),
-            Filter = $"{Loc.Get("Dialog_ImageFilter")}|*.img;*.iso;*.bin;*.raw;*.dd;*.zip;*.xz;*.7z;*.gz|{Loc.Get("Dialog_AllFiles")}|*.*",
+            Filter = $"{Loc.Get("Dialog_ImageFilter")}|*.img;*.iso;*.bin;*.raw;*.dd;*.zip;*.xz;*.7z;*.gz;*.zst;*.bz2|{Loc.Get("Dialog_AllFiles")}|*.*",
             CheckFileExists = true,
         };
         if (!string.IsNullOrEmpty(initialFolder) && Directory.Exists(initialFolder))
