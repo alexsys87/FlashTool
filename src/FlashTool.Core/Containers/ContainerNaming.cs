@@ -2,7 +2,7 @@ namespace FlashTool.Core.Containers;
 
 public static class ContainerNaming
 {
-    private static readonly string[] CompressionExtensions = [".xz", ".gz", ".zip", ".7z"];
+    private static readonly string[] CompressionExtensions = [".xz", ".gz", ".zst", ".bz2", ".zip", ".7z"];
 
     /// <summary>Image file extensions recognized as likely disk images inside archives.</summary>
     public static readonly IReadOnlySet<string> ImageExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)

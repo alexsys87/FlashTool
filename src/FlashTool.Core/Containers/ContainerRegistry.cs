@@ -26,6 +26,8 @@ public sealed class ContainerRegistry
         new ZipContainerHandler(),
         new SevenZipContainerHandler(),
         new GzipContainerHandler(),
+        new ZstdContainerHandler(),
+        new Bzip2ContainerHandler(),
         new RawContainerHandler(),
     ]);
 

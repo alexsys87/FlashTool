@@ -11,6 +11,8 @@ public enum ContainerFormat
     Xz,
     Gzip,
     SevenZip,
+    Zstd,
+    Bzip2,
 }
 
 public enum CompressionPreset

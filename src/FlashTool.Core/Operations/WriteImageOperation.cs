@@ -28,7 +28,7 @@ public sealed record WriteImageOptions
     public IReadOnlyList<IFileSystemResizer> FileSystemResizers { get; init; } = [];
 
     /// <summary>
-    /// SHA-256 of the source file itself, as published: the .xz/.gz/.zip/.7z archive, or the plain image.
+    /// SHA-256 of the source file itself, as published: the .xz/.gz/.zst/.bz2/.zip/.7z archive, or the plain image.
     /// A local file is checked before the device is opened. A download is hashed while it streams (the source
     /// must be a <see cref="HashingStreamSource"/>) and judged before the first chunk, which holds the partition
     /// table, is committed. Null skips the check.

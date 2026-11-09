@@ -37,7 +37,7 @@
   <data name="Area_Unpartitioned" xml:space="preserve"><value>Вне разделов</value></data>
   <data name="Write_Header" xml:space="preserve"><value>Запись образа на носитель</value></data>
   <data name="Write_SourceTitle" xml:space="preserve"><value>Образ</value></data>
-  <data name="Write_SourceHint" xml:space="preserve"><value>Файл образа или ссылка (img, iso, zip, xz, 7z, gz)</value></data>
+  <data name="Write_SourceHint" xml:space="preserve"><value>Файл образа или ссылка (img, iso, zip, xz, 7z, gz, zst, bz2)</value></data>
   <data name="Write_Browse" xml:space="preserve"><value>Обзор…</value></data>
   <data name="Write_Load" xml:space="preserve"><value>Открыть</value></data>
   <data name="Write_Loading" xml:space="preserve"><value>Открытие образа…</value></data>
@@ -185,6 +185,8 @@
   <data name="Format_Xz" xml:space="preserve"><value>XZ (.xz) — стандарт для образов Linux</value></data>
   <data name="Format_SevenZip" xml:space="preserve"><value>7-Zip (.7z) — лучшее сжатие</value></data>
   <data name="Format_Gzip" xml:space="preserve"><value>GZip (.gz)</value></data>
+  <data name="Format_Zstd" xml:space="preserve"><value>Zstandard (.zst) — быстрое сжатие</value></data>
+  <data name="Format_Bzip2" xml:space="preserve"><value>bzip2 (.bz2)</value></data>
   <data name="Compression_Fastest" xml:space="preserve"><value>Самое быстрое</value></data>
   <data name="Compression_Fast" xml:space="preserve"><value>Быстрое</value></data>
   <data name="Compression_Normal" xml:space="preserve"><value>Обычное</value></data>
@@ -263,7 +265,7 @@
   <data name="Error_UnsupportedCompressionMethod" xml:space="preserve"><value>В архиве используется неподдерживаемый метод сжатия.</value></data>
   <data name="Error_ArchiveHasNoImages" xml:space="preserve"><value>В архиве нет файлов.</value></data>
   <data name="Error_ContainerBackendUnavailable" xml:space="preserve"><value>Поддержка {0} недоступна (нет нативной библиотеки).</value></data>
-  <data name="Error_SourceNotSeekable" xml:space="preserve"><value>Сервер не поддерживает частичную загрузку, которая нужна для архивов {0}. Скачайте файл заранее или используйте образ .xz/.gz.</value></data>
+  <data name="Error_SourceNotSeekable" xml:space="preserve"><value>Сервер не поддерживает частичную загрузку, которая нужна для архивов {0}. Скачайте файл заранее или используйте образ .xz/.gz/.zst/.bz2.</value></data>
   <data name="Error_HttpError" xml:space="preserve"><value>Ошибка загрузки: HTTP {0} {1}</value></data>
   <data name="Error_DeviceNotFound" xml:space="preserve"><value>Устройство отключено.</value></data>
   <data name="Error_DeviceAccessDenied" xml:space="preserve"><value>Нет доступа к устройству. Запустите программу от имени администратора.</value></data>

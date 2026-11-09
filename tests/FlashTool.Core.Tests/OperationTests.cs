@@ -9,7 +9,7 @@ namespace FlashTool.Core.Tests;
 
 public class OperationTests
 {
-    public static TheoryData<string> Formats => new() { "backup.img", "backup.img.zip", "backup.img.gz", "backup.img.xz" };
+    public static TheoryData<string> Formats => new() { "backup.img", "backup.img.zip", "backup.img.gz", "backup.img.xz", "backup.img.zst", "backup.img.bz2" };
 
     [Theory]
     [MemberData(nameof(Formats))]

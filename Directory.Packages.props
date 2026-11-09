@@ -11,6 +11,8 @@
     <PackageVersion Include="Joveler.Compression.XZ" Version="5.0.2" />
     <PackageVersion Include="Squid-Box.SevenZipSharp" Version="1.6.2.24" />
     <PackageVersion Include="7z.Libs" Version="26.4.0" />
+    <PackageVersion Include="ZstdSharp.Port" Version="0.8.8" />
+    <PackageVersion Include="SharpZipLib" Version="1.4.2" />
     <!-- Infrastructure -->
     <PackageVersion Include="System.IO.Hashing" Version="10.0.13" />
     <PackageVersion Include="System.IO.Pipelines" Version="10.0.13" />
