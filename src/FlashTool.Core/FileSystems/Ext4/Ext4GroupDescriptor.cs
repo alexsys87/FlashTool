@@ -66,6 +66,11 @@ internal readonly ref struct Ext4GroupDescriptor
         set => Set16(0x1C, 0x32, value);
     }
 
+    /// <summary>Stored block bitmap checksum: the low 16 bits, plus the high 16 in descriptors that have them.</summary>
+    public uint RawBlockBitmapChecksum
+        => BinaryPrimitives.ReadUInt16LittleEndian(_d[0x18..])
+           | (_d.Length >= 0x3A ? (uint)BinaryPrimitives.ReadUInt16LittleEndian(_d[0x38..]) << 16 : 0);
+
     public void SetBlockBitmapChecksum(uint csum)
     {
         BinaryPrimitives.WriteUInt16LittleEndian(_d[0x18..], (ushort)csum);

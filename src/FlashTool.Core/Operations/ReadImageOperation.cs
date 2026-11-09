@@ -15,6 +15,14 @@ public sealed record ReadImageOptions
     /// <summary>Stop at the end of the last partition instead of copying the whole device.</summary>
     public bool OnlyAllocatedPartitions { get; init; }
 
+    /// <summary>
+    /// Store the free blocks of ext2/3/4 file systems as zeros without reading them. Faster, and the
+    /// zeros compress to almost nothing, but the image is no longer a byte-for-byte copy of the device:
+    /// whatever lay in the free space (deleted files and the like) is not kept. File systems that are
+    /// not cleanly unmounted, or whose metadata does not check out, are copied in full anyway.
+    /// </summary>
+    public bool SkipFreeBlocks { get; init; }
+
     /// <summary>Container format; null picks it from the destination file extension.</summary>
     public ContainerFormat? Format { get; init; }
 
@@ -53,6 +61,12 @@ public sealed record ReadImageResult(
 
     /// <summary>Why the checksum file could not be saved. The image itself was created all the same.</summary>
     public string? ChecksumFileError { get; init; }
+
+    /// <summary>One entry per ext2/3/4 file system when free blocks were to be skipped; empty otherwise.</summary>
+    public IReadOnlyList<PartitionFreeSpace> FreeSpace { get; init; } = [];
+
+    /// <summary>Bytes stored as zeros without being read.</summary>
+    public long SkippedBytes => FreeSpace.Sum(f => f.SkippedBytes);
 }
 
 /// <summary>
@@ -94,6 +108,13 @@ public static class ReadImageOperation
             length = Math.Min(device.Length, StreamExtensions.AlignUp(used, device.SectorSize));
         }
 
+        FreeBlockMap? freeBlocks = null;
+        IReadOnlyList<PartitionFreeSpace> freeSpace = [];
+        if (options.SkipFreeBlocks)
+        {
+            (freeBlocks, freeSpace) = await Task.Run(() => FreeBlockMap.Build(device, image, length, cancellationToken), cancellationToken).ConfigureAwait(false);
+        }
+
         var chunk = WriteImageOperation.AlignChunk(options.ChunkSize, device.SectorSize);
         var hashes = new BlockHashList(chunk);
         var entryName = ContainerNaming.GetInnerName(destinationPath);
@@ -131,7 +152,15 @@ public static class ReadImageOperation
                             return 0;
                         }
 
-                        device.Read(readPosition, buffer.Span[..count]);
+                        if (freeBlocks != null)
+                        {
+                            freeBlocks.Read(device, readPosition, buffer.Span[..count]);
+                        }
+                        else
+                        {
+                            device.Read(readPosition, buffer.Span[..count]);
+                        }
+
                         readPosition += count;
                         return count;
                     },
@@ -194,6 +223,7 @@ public static class ReadImageOperation
             Sha256 = sha256,
             ChecksumFilePath = checksumPath,
             ChecksumFileError = checksumError,
+            FreeSpace = freeSpace,
         };
     }
 

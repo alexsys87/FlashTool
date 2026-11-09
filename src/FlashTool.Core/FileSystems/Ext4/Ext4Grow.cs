@@ -443,16 +443,7 @@ internal sealed class Ext4Grow
 
     private long GdtBlocks(long groups) => (groups + _descPerBlock - 1) / _descPerBlock;
 
-    /// <summary>Groups carrying superblock/descriptor backups (sparse_super: 0, 1 and powers of 3, 5, 7).</summary>
-    private bool HasBackup(long group)
-    {
-        if (group <= 1 || !_sb.HasSparseSuper)
-        {
-            return true;
-        }
-
-        return IsPowerOf(group, 3) || IsPowerOf(group, 5) || IsPowerOf(group, 7);
-    }
+    private bool HasBackup(long group) => _sb.HasBackupInGroup(group);
 
     /// <summary>Backup groups (excluding group 0) below <paramref name="groups"/>, ascending.</summary>
     private List<long> BackupGroups(long groups)
@@ -467,16 +458,6 @@ internal sealed class Ext4Grow
         }
 
         return list;
-    }
-
-    private static bool IsPowerOf(long value, long b)
-    {
-        while (value % b == 0)
-        {
-            value /= b;
-        }
-
-        return value == 1;
     }
 
     private static void SetBits(byte[] bitmap, long from, long to)

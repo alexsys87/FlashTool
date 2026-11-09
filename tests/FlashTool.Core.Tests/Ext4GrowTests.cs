@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using FlashTool.Core.FileSystems;
 using FlashTool.Core.FileSystems.Ext4;
 using FlashTool.Core.IO;
@@ -12,7 +11,6 @@ namespace FlashTool.Core.Tests;
 /// </summary>
 public class Ext4GrowTests(ITestOutputHelper output)
 {
-    private static readonly string[] ToolFolders = ["/usr/sbin", "/sbin", "/usr/bin", "/bin"];
     private static readonly string? Mke2fs = FindTool("mke2fs");
 
     public static TheoryData<string, string, int, int> Cases => new()
@@ -204,35 +202,8 @@ public class Ext4GrowTests(ITestOutputHelper output)
         return ulong.Parse(line["Block count:".Length..].Trim());
     }
 
-    private static string? FindTool(string name)
-    {
-        if (OperatingSystem.IsWindows())
-        {
-            return null;
-        }
-
-        return ToolFolders
-            .Select(d => Path.Combine(d, name))
-            .FirstOrDefault(File.Exists);
-    }
+    private static string? FindTool(string name) => E2fsprogs.Find(name);
 
     private static (int ExitCode, string Output) Run(string tool, string arguments, bool allowFailure = false)
-    {
-        var psi = new ProcessStartInfo(tool, arguments)
-        {
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-        };
-        using var process = Process.Start(psi)!;
-        var stdout = process.StandardOutput.ReadToEndAsync();
-        var stderr = process.StandardError.ReadToEnd();
-        process.WaitForExit();
-        var text = stdout.Result + stderr;
-        if (!allowFailure && process.ExitCode != 0)
-        {
-            throw new InvalidOperationException($"{tool} {arguments} failed ({process.ExitCode}):\n{text}");
-        }
-
-        return (process.ExitCode, text);
-    }
+        => E2fsprogs.Run(tool, arguments, allowFailure);
 }
