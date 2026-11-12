@@ -282,12 +282,15 @@ public class FatGrowTests(ITestOutputHelper output)
             ExFatFormatter.Format(device, 0, ExFatFormatter.TryPlan(32 * MiB, 512, (int)MiB)!, string.Empty, 1);
         }
 
-        long rootPosition;
+        long rootOffsetInHeap;
         using (var volume = new ExFatTestVolume(image))
         {
             FillExFat(volume);
-            rootPosition = (BinaryPrimitives.ReadUInt32LittleEndian(File.ReadAllBytes(image).AsSpan(88)) * 512L) + ((volume.RootCluster - 2) * (long)volume.ClusterSize);
+            rootOffsetInHeap = (volume.RootCluster - 2) * (long)volume.ClusterSize;
         }
+
+        // Read only once the volume is closed: Windows does not share the open file.
+        var rootPosition = (BinaryPrimitives.ReadUInt32LittleEndian(File.ReadAllBytes(image).AsSpan(88)) * 512L) + rootOffsetInHeap;
 
         // Entries 0 and 1 are the bitmap and the up-case table; the first file set follows.
         using (var stream = File.OpenWrite(image))
@@ -525,7 +528,7 @@ public class FatGrowTests(ITestOutputHelper output)
         return Convert.ToHexString(SHA256.HashData(stream));
     }
 
-    private static PartitionInfo Partition(IBlockDevice device, FileSystemType fileSystem)
+    private static PartitionInfo Partition(HandleBlockDevice device, FileSystemType fileSystem)
         => new(1, 0, device.Length, "test") { FileSystem = fileSystem };
 
     /// <summary>An MBR disk image whose only partition starts at 1 MiB and holds the volume.</summary>
