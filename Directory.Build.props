@@ -10,7 +10,7 @@
     <Company>FlashTool</Company>
     <Product>FlashTool</Product>
     <Copyright>Copyright © FlashTool contributors</Copyright>
-    <Version>0.1.1</Version>
+    <Version>0.1.2</Version>
     <NeutralLanguage>en</NeutralLanguage>
   </PropertyGroup>
 </Project>
