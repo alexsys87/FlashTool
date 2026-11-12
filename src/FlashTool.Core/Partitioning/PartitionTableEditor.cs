@@ -36,6 +36,12 @@ public sealed record PartitionFixupResult
     /// <summary>Why the file system was not grown, when it was not.</summary>
     public FileSystemResizeSkipReason FileSystemSkipReason { get; init; }
 
+    /// <summary>The file system grew only as far as its cluster size allows, to <see cref="FileSystemSize"/> bytes.</summary>
+    public bool FileSystemGrowthLimited { get; init; }
+
+    /// <summary>Size of the grown file system, when known.</summary>
+    public long? FileSystemSize { get; init; }
+
     /// <summary>The file system's journal was replayed before growing it.</summary>
     public bool JournalReplayed { get; init; }
 
@@ -265,6 +271,8 @@ public static class PartitionTableEditor
                     FileSystemResized = outcome.Resized,
                     FileSystemSkipReason = outcome.Resized ? FileSystemResizeSkipReason.None : outcome.SkipReason,
                     JournalReplayed = outcome.JournalReplayed,
+                    FileSystemGrowthLimited = outcome.Resized && outcome.Limited,
+                    FileSystemSize = outcome.Resized ? outcome.NewSize : null,
                 };
             }
             catch (Exception ex) when (ex is not OperationCanceledException)

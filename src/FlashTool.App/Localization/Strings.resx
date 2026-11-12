@@ -67,7 +67,8 @@
   <data name="Write_ChecksumNotFound" xml:space="preserve"><value>No checksum file found next to the image.</value></data>
   <data name="Write_ChecksumUnverifiableFormat" xml:space="preserve"><value>A zip or 7z read by URL is accessed at random, so its checksum cannot be checked. Download the file and open the local copy.</value></data>
   <data name="Write_Expand" xml:space="preserve"><value>Expand the last partition to the whole device</value></data>
-  <data name="Write_ExpandDescription" xml:space="preserve"><value>When the image is smaller than the device; ext2/3/4 and NTFS file systems are expanded too</value></data>
+  <data name="Write_ExpandDescription" xml:space="preserve"><value>When the image is smaller than the device; ext2/3/4, NTFS, FAT32 and exFAT file systems are expanded too. Expanding FAT32/exFAT moves data: do not unplug the device until it is done</value></data>
+  <data name="Write_FatGrowWarning" xml:space="preserve"><value>Warning: the last partition of the image is {0}, and it will be expanded together with its file system. For that, part of its data is moved and its allocation tables are rewritten in place. If the device is unplugged, power is lost or a write error happens at that moment, the data on this partition can be lost and the image will have to be written again. To avoid the risk, turn off "Expand the last partition to the whole device".</value></data>
   <data name="Write_Eject" xml:space="preserve"><value>Eject the device after writing</value></data>
   <data name="Write_EjectDescription" xml:space="preserve"><value>Safely remove the device when writing succeeds, so it can be unplugged right away</value></data>
   <data name="Write_Ejected" xml:space="preserve"><value>The device was ejected and can be unplugged.</value></data>
@@ -94,6 +95,13 @@ Write anyway?</value></data>
   <data name="Write_JournalReplayed" xml:space="preserve"><value>The {0} journal was replayed first: the image was taken from a running system (or one not shut down properly).</value></data>
   <data name="Write_FsNotResizedBecause" xml:space="preserve"><value>The {0} file system inside the partition was not grown: {1}.</value></data>
   <data name="Write_PartitionNotExtended" xml:space="preserve"><value>The last partition was not extended: {0}.</value></data>
+  <data name="Write_FsResizedLimited" xml:space="preserve"><value>The {0} file system was expanded to {1}: its cluster size does not allow more, so the rest of the partition stays unused.</value></data>
+  <data name="FsSkip_Fat12Or16" xml:space="preserve"><value>FAT12 and FAT16 are not grown (that would mean converting to FAT32)</value></data>
+  <data name="FsSkip_FatVolumeDirty" xml:space="preserve"><value>it is marked as not safely removed or as having errors; check it (chkdsk /f in Windows, fsck in Linux)</value></data>
+  <data name="FsSkip_FatUnsupportedLayout" xml:space="preserve"><value>its layout is not supported for growing (a single active FAT copy, TexFAT or vendor-specific entries)</value></data>
+  <data name="FsSkip_FatInconsistent" xml:space="preserve"><value>its structures do not check out, so nothing was changed; check it (chkdsk /f in Windows, fsck in Linux)</value></data>
+  <data name="FsSkip_FatNoFreeSpace" xml:space="preserve"><value>it has no free space to move the data that is in the way of the larger allocation table</value></data>
+  <data name="FsSkip_FatClusterLimit" xml:space="preserve"><value>it already has as many clusters as its cluster size allows</value></data>
   <data name="FsSkip_AlreadyFillsPartition" xml:space="preserve"><value>it already fills the partition</value></data>
   <data name="FsSkip_NotCleanlyUnmounted" xml:space="preserve"><value>it was not cleanly unmounted and has no journal to replay; check it with e2fsck, then run resize2fs on the device</value></data>
   <data name="FsSkip_HasErrors" xml:space="preserve"><value>it has recorded errors; check it with e2fsck, then run resize2fs on the device</value></data>

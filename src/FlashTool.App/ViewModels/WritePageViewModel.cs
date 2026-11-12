@@ -8,6 +8,7 @@ using FlashTool.Core.Checksums;
 using FlashTool.Core.Containers;
 using FlashTool.Core.Devices;
 using FlashTool.Core.FileSystems.Ext4;
+using FlashTool.Core.FileSystems.Fat;
 using FlashTool.Core.Operations;
 using FlashTool.Core.Partitioning;
 using FlashTool.Core.Sources;
@@ -202,6 +203,13 @@ public sealed partial class WritePageViewModel : LocalizedViewModel
         // answer, the dialog goes without rather than waiting.
         await Task.WhenAny(Preview.LoadAsync(device), Task.Delay(PreviewWait));
         var contents = Preview.DialogText;
+
+        // Growing FAT32/exFAT moves data and rewrites its tables in place; say so before it is too late to decline.
+        if (ExpandLastPartition && entry.Info?.LastPartition is { } last && FatResizer.IsRisky(last.FileSystem))
+        {
+            var warning = Loc.Format("Write_FatGrowWarning", Formatting.FileSystem(last.FileSystem));
+            contents = contents.Length > 0 ? contents + Environment.NewLine + Environment.NewLine + warning : warning;
+        }
         var message = Loc.Format(
             "Write_ConfirmMessage",
             device.Name,
@@ -220,7 +228,7 @@ public sealed partial class WritePageViewModel : LocalizedViewModel
             Verify = Verify,
             ExpandLastPartition = ExpandLastPartition,
             RequireRecognizedImage = requireImage,
-            FileSystemResizers = [new Ext4Resizer(), new NtfsVolumeExtender(device.Info.Number)],
+            FileSystemResizers = [new Ext4Resizer(), new FatResizer(), new NtfsVolumeExtender(device.Info.Number)],
             IoRetry = _ioErrors.Policy,
         };
 
@@ -343,6 +351,10 @@ public sealed partial class WritePageViewModel : LocalizedViewModel
                 if (f.FileSystemResizeError != null)
                 {
                     lines.Add(Loc.Format("Write_FsResizeFailed", p.FileSystem, f.FileSystemResizeError));
+                }
+                else if (f.FileSystemResized && f.FileSystemGrowthLimited)
+                {
+                    lines.Add(Loc.Format("Write_FsResizedLimited", p.FileSystem, Formatting.Size(f.FileSystemSize ?? 0)));
                 }
                 else if (f.FileSystemResized)
                 {

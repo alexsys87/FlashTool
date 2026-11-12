@@ -53,7 +53,32 @@ public enum FileSystemResizeSkipReason
     NoRoomForDescriptors,
 
     InconsistentMetadata,
+
+    /// <summary>FAT12/FAT16: growing would mean converting to FAT32.</summary>
+    Fat12Or16,
+
+    /// <summary>FAT32/exFAT marked as not cleanly removed or with errors: needs chkdsk.</summary>
+    FatVolumeDirty,
+
+    /// <summary>A FAT32/exFAT layout that is not rearranged here (inactive FAT mirror, TexFAT, vendor entries).</summary>
+    FatUnsupportedLayout,
+
+    /// <summary>FAT32/exFAT structures that do not check out: needs chkdsk.</summary>
+    FatInconsistent,
+
+    /// <summary>No free clusters to move the data that is in the way of the larger FAT.</summary>
+    FatNoFreeSpace,
+
+    /// <summary>The volume already has as many clusters as its cluster size allows.</summary>
+    FatClusterLimit,
 }
 
 /// <param name="JournalReplayed">The journal had to be replayed first (a file system taken from a running system).</param>
-public sealed record FileSystemResizeOutcome(bool Resized, FileSystemResizeSkipReason SkipReason = FileSystemResizeSkipReason.None, bool JournalReplayed = false);
+public sealed record FileSystemResizeOutcome(bool Resized, FileSystemResizeSkipReason SkipReason = FileSystemResizeSkipReason.None, bool JournalReplayed = false)
+{
+    /// <summary>The file system grew, but its cluster size did not allow filling the whole partition.</summary>
+    public bool Limited { get; init; }
+
+    /// <summary>Size of the file system after growing, when the resizer knows it.</summary>
+    public long? NewSize { get; init; }
+}
