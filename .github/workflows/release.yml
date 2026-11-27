@@ -1,0 +1,112 @@
+name: release
+
+# A tag "v1.2.3" (or "v1.2.3-beta.1" for a pre-release) publishes a GitHub release with the files the
+# program updates itself from (Settings → Updates):
+#   FlashTool-netN-win-x64.msi              installer of the single exe (Program Files\FlashTool-netN)
+#   FlashTool-netN-win-x64-standalone.zip   the single exe
+#   FlashTool-netN-win-x64.zip              the framework-dependent folder
+#   SHA256SUMS.txt                          checksums the updater verifies downloads against
+# The version of the program is the number of the tag, so a copy built from it is not offered itself.
+#
+# The MSI version is <major>.<minor>.<1000 + patch>: releases up to 0.1.2 were built with the CI run
+# number as the MSI build (0.1.56 for 0.1.2), and Windows Installer refuses to "upgrade" to a lower
+# version. A pre-release and its final release get the same MSI version; Build-Msi.ps1 allows such
+# same-version upgrades, so one replaces the other instead of being installed next to it.
+
+on:
+  push:
+    tags: [ 'v*' ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Release .NET ${{ matrix.dotnet }} / Windows x64
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        dotnet: ['8', '10']
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v5
+
+      # global.json selects SDK 10; SDK 8 also supplies the runtime for net8 tests.
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+
+      - name: Version from the tag
+        run: |
+          $tag = '${{ github.ref_name }}'
+          if ($tag -notmatch '^v(\d+)\.(\d+)\.(\d+)(-[0-9A-Za-z.-]+)?$') { throw "The tag '$tag' is not v<major>.<minor>.<patch>[-suffix]." }
+          $major = [int]$Matches[1]; $minor = [int]$Matches[2]; $patch = [int]$Matches[3]
+          if ($major -gt 255 -or $minor -gt 255 -or $patch -gt 64535) { throw "The tag '$tag' does not fit the MSI version limits." }
+          "VERSION=$major.$minor.$patch" >> $env:GITHUB_ENV
+          "MSI_VERSION=$major.$minor.$(1000 + $patch)" >> $env:GITHUB_ENV
+
+      - name: Test core
+        run: dotnet test tests/FlashTool.Core.Tests -c Release -f net${{ matrix.dotnet }}.0 -p:Version=$env:VERSION
+
+      - name: Publish framework-dependent and standalone
+        run: |
+          $n = '${{ matrix.dotnet }}'
+          dotnet publish src/FlashTool.App -c Release -f "net$n.0-windows" -r win-x64 --self-contained false -p:Version=$env:VERSION -o publish/framework-dependent
+          dotnet publish src/FlashTool.App -f "net$n.0-windows" -p:PublishProfile=win-x64-standalone -p:Version=$env:VERSION -o publish/standalone
+          New-Item -ItemType Directory -Force -Path release | Out-Null
+          Compress-Archive -Path publish/framework-dependent/* -DestinationPath "release/FlashTool-net$n-win-x64.zip"
+          Compress-Archive -Path publish/standalone/FlashTool.exe -DestinationPath "release/FlashTool-net$n-win-x64-standalone.zip"
+
+      - name: Install WiX and standard installer UI
+        run: |
+          dotnet tool install --global wix --version 5.0.2
+          wix extension add --global WixToolset.UI.wixext/5.0.2
+
+      - name: Build and test the MSI
+        run: |
+          $n = '${{ matrix.dotnet }}'
+          ./installer/Build-Msi.ps1 -PublishDirectory publish/standalone -DotNetMajor $n -ProductVersion $env:MSI_VERSION -WixPath wix -OutputPath "release/FlashTool-net$n-win-x64.msi"
+          ./installer/Test-Msi.ps1 -MsiPath "release/FlashTool-net$n-win-x64.msi" -PublishDirectory publish/standalone -InstallDirectory "$env:RUNNER_TEMP/FlashTool-MSI-net$n" -LogDirectory artifacts/msi-logs
+
+      - name: Upload MSI logs
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: release-net${{ matrix.dotnet }}-msi-logs
+          path: artifacts/msi-logs
+          if-no-files-found: ignore
+
+      - uses: actions/upload-artifact@v6
+        with:
+          name: release-net${{ matrix.dotnet }}
+          path: release/FlashTool-*
+          if-no-files-found: error
+
+  publish:
+    name: GitHub release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v7
+        with:
+          pattern: release-net*
+          path: release
+          merge-multiple: true
+
+      - name: Checksums and release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          cd release
+          sha256sum FlashTool-* > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+          prerelease=""
+          case "$TAG" in *-*) prerelease="--prerelease" ;; esac
+          gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --title "FlashTool ${TAG#v}" --generate-notes $prerelease FlashTool-* SHA256SUMS.txt

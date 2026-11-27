@@ -5,6 +5,7 @@ from xml.sax.saxutils import escape
 
 S = [
 ("App_Title", "FlashTool", "FlashTool"),
+
 ("Nav_Write", "Write image", "Запись образа"),
 ("Nav_Read", "Create image", "Создание образа"),
 ("Nav_Settings", "Settings", "Настройки"),
@@ -33,6 +34,7 @@ S = [
 ("Verify_Length", "Length", "Длина"),
 ("Verify_Area", "Location", "Расположение"),
 ("Verify_MoreRanges", "Only the first {0} of {1} areas are listed.", "Показаны первые {0} из {1} участков."),
+
 ("Area_PartitionTable", "Partition table", "Таблица разделов"),
 ("Area_Partition", "Partition {0}", "Раздел {0}"),
 ("Area_Unpartitioned", "Outside partitions", "Вне разделов"),
@@ -46,9 +48,30 @@ S = [
 ("Write_EntryLabel", "Image in the archive", "Образ в архиве"),
 ("Write_EntryChecking", "checking…", "проверка…"),
 ("Write_TargetTitle", "Target device", "Целевой носитель"),
+
+("Preview_Loading", "Reading what is on the device…", "Читаю, что сейчас на носителе…"),
+("Preview_Partitioned", "Now on the device: {0} partition table, partitions: {1}", "Сейчас на носителе: таблица разделов {0}, разделов: {1}"),
+("Preview_Superfloppy", "Now on the device: {0}, no partition table", "Сейчас на носителе: {0}, без таблицы разделов"),
+("Preview_Iso", "Now on the device: an ISO 9660 file system", "Сейчас на носителе: файловая система ISO 9660"),
+("Preview_Unknown", "Now on the device: no partition table or known file system found. It may be blank or hold data in an unknown format.", "Сейчас на носителе: таблица разделов и известные файловые системы не найдены. Носитель может быть пустым или хранить данные в неизвестном формате."),
+("Preview_Failed", "What is on the device could not be read: {0}", "Не удалось прочитать, что на носителе: {0}"),
+("Preview_LabelColumn", "Label", "Метка"),
+("Preview_LabelFormat", "“{0}”", "«{0}»"),
+("Preview_More", "  … and {0} more", "  … и ещё {0}"),
+
 ("Write_OptionsTitle", "Options", "Параметры"),
 ("Write_Verify", "Verify after writing", "Проверять после записи"),
 ("Write_VerifyDescription", "Read the device back and compare it with the image", "Прочитать носитель и сравнить с образом"),
+("Write_Checksum", "Checksum (SHA-256)", "Контрольная сумма (SHA-256)"),
+("Write_ChecksumDescription", "Optional. SHA-256 of the image file itself, as published (.img.xz, .zip, …). A damaged file is caught.", "Необязательно. SHA-256 самого файла образа в том виде, как его публикуют (.img.xz, .zip и т. д.). Повреждённый файл будет обнаружен."),
+("Write_ChecksumPlaceholder", "SHA-256: 64 hex digits", "SHA-256: 64 шестнадцатеричных символа"),
+("Write_ChecksumInvalid", "That is not a SHA-256: expected 64 hexadecimal characters.", "Это не SHA-256: нужно 64 шестнадцатеричных символа."),
+("Write_ChecksumBeforeWriting", "The file is checked before writing starts.", "Файл будет проверен до начала записи."),
+("Write_ChecksumWhileDownloading", "Checked while the file downloads; the partition table is written only if it matches.", "Проверка идёт во время загрузки; таблица разделов записывается, только если сумма совпала."),
+("Write_ChecksumFound", "Found in {0}. {1}", "Найдена: {0}. {1}"),
+("Write_ChecksumSearching", "Searching for a checksum file next to the image…", "Ищу файл контрольной суммы рядом с образом…"),
+("Write_ChecksumNotFound", "No checksum file found next to the image.", "Рядом с образом файл контрольной суммы не найден."),
+("Write_ChecksumUnverifiableFormat", "A zip or 7z read by URL is accessed at random, so its checksum cannot be checked. Download the file and open the local copy.", "Архив zip или 7z по ссылке читается выборочно, поэтому его сумму проверить нельзя. Скачайте файл и откройте локальную копию."),
 ("Write_Expand", "Expand the last partition to the whole device", "Расширить последний раздел на весь носитель"),
 ("Write_ExpandDescription", "When the image is smaller than the device; ext2/3/4, NTFS, FAT32 and exFAT file systems are expanded too. Expanding FAT32/exFAT moves data: do not unplug the device until it is done", "Если образ меньше носителя; файловые системы ext2/3/4, NTFS, FAT32 и exFAT тоже расширяются. Расширение FAT32/exFAT переносит данные: не отключайте носитель до завершения"),
 ("Write_FatGrowWarning", "Warning: the last partition of the image is {0}, and it will be expanded together with its file system. For that, part of its data is moved and its allocation tables are rewritten in place. If the device is unplugged, power is lost or a write error happens at that moment, the data on this partition can be lost and the image will have to be written again. To avoid the risk, turn off \"Expand the last partition to the whole device\".", "Внимание: последний раздел образа — {0}, он будет расширен вместе с файловой системой. Для этого часть данных переносится, а таблицы размещения файлов перезаписываются на месте. Если в этот момент отключить носитель, пропадёт питание или произойдёт ошибка записи, данные этого раздела могут быть потеряны и образ придётся записать заново. Чтобы исключить риск, выключите параметр «Расширить последний раздел на весь носитель»."),
@@ -57,7 +80,7 @@ S = [
 ("Write_Ejected", "The device was ejected and can be unplugged.", "Носитель извлечён, его можно отключить."),
 ("Write_Start", "Write", "Записать"),
 ("Write_ConfirmTitle", "Erase the device?", "Стереть носитель?"),
-("Write_ConfirmMessage", "All data on \"{0}\" ({1}) will be destroyed.\n\nContinue?", "Все данные на «{0}» ({1}) будут уничтожены.\n\nПродолжить?"),
+("Write_ConfirmMessage", "All data on \"{0}\" ({1}) will be destroyed.{2}\n\nContinue?", "Все данные на «{0}» ({1}) будут уничтожены.{2}\n\nПродолжить?"),
 ("Write_ConfirmButton", "Erase and write", "Стереть и записать"),
 ("Write_NotImageTitle", "Not a disk image", "Это не образ диска"),
 ("Write_NotImageMessage", "\"{0}\" has no partition table or known file system. Writing it will most likely make the device unusable.\n\nWrite anyway?", "В «{0}» нет таблицы разделов или известной файловой системы. После записи носитель, скорее всего, будет непригоден.\n\nВсё равно записать?"),
@@ -65,6 +88,8 @@ S = [
 ("Write_Success", "The image was written successfully", "Образ успешно записан"),
 ("Write_SuccessDetails", "{0} written in {1}.", "Записано {0} за {1}."),
 ("Write_Verified", "Verification passed.", "Проверка пройдена."),
+("Write_ChecksumVerified", "The file's checksum matched.", "Контрольная сумма файла совпала."),
+("Write_ChecksumNotVerified", "The file's checksum was not checked: the source could not be read through in one go.", "Контрольная сумма файла не проверена: источник не удалось прочитать целиком подряд."),
 ("Write_PartitionExtended", "Partition {0} ({1}) was extended from {2} to {3}.", "Раздел {0} ({1}) расширен с {2} до {3}."),
 ("Write_FsNotResized", "The {0} file system inside it was not resized.", "Файловая система {0} внутри раздела не изменялась."),
 ("Write_FsResized", "The {0} file system was expanded to the whole partition.", "Файловая система {0} расширена на весь раздел."),
@@ -73,6 +98,7 @@ S = [
 ("Write_FsNotResizedBecause", "The {0} file system inside the partition was not grown: {1}.", "Файловая система {0} внутри раздела не расширена: {1}."),
 ("Write_PartitionNotExtended", "The last partition was not extended: {0}.", "Последний раздел не расширен: {0}."),
 ("Write_FsResizedLimited", "The {0} file system was expanded to {1}: its cluster size does not allow more, so the rest of the partition stays unused.", "Файловая система {0} расширена до {1}: больше не позволяет её размер кластера, остаток раздела не используется."),
+
 ("FsSkip_Fat12Or16", "FAT12 and FAT16 are not grown (that would mean converting to FAT32)", "FAT12 и FAT16 не расширяются (для этого их пришлось бы преобразовать в FAT32)"),
 ("FsSkip_FatVolumeDirty", "it is marked as not safely removed or as having errors; check it (chkdsk /f in Windows, fsck in Linux)", "она помечена как некорректно извлечённая или содержащая ошибки; проверьте её (chkdsk /f в Windows, fsck в Linux)"),
 ("FsSkip_FatUnsupportedLayout", "its layout is not supported for growing (a single active FAT copy, TexFAT or vendor-specific entries)", "её раскладка не поддерживается при расширении (одна активная копия FAT, TexFAT или записи производителя)"),
@@ -87,12 +113,14 @@ S = [
 ("FsSkip_UnsupportedFeature", "its layout (meta_bg, bigalloc or similar) cannot be grown offline; run resize2fs on the device", "её раскладку (meta_bg, bigalloc и подобные) нельзя расширить офлайн; выполните resize2fs на устройстве"),
 ("FsSkip_NoRoomForDescriptors", "it has no room left for more block groups (no reserved descriptor blocks); run resize2fs on the device", "в ней нет места для новых групп блоков (нет резерва дескрипторов); выполните resize2fs на устройстве"),
 ("FsSkip_InconsistentMetadata", "its metadata does not check out; check it with e2fsck", "её метаданные не согласованы; проверьте её e2fsck"),
+
 ("PartSkip_NoPartitionTable", "the image has no partition table", "в образе нет таблицы разделов"),
 ("PartSkip_IsoImage", "ISO images are never changed", "ISO-образы не изменяются"),
 ("PartSkip_LastPartitionIsLogical", "the last partition is a logical one inside an extended partition, which is not supported yet", "последний раздел логический (внутри расширенного), это пока не поддерживается"),
 ("PartSkip_AlreadyFillsDisk", "it already reaches the end of the device", "он уже доходит до конца носителя"),
 ("PartSkip_UnsupportedSectorSize", "the device's sector size is not supported for this", "размер сектора носителя для этого не поддерживается"),
 ("PartSkip_NoFreeSpace", "there is no free space after it", "после него нет свободного места"),
+
 ("Write_GptRelocated", "The backup GPT was moved to the end of the device.", "Резервная GPT перенесена в конец носителя."),
 ("Write_Failed", "Writing failed", "Ошибка записи"),
 
@@ -108,9 +136,11 @@ S = [
 ("Erase_SecureDescription", "Overwrites every sector with a pattern and then reads the whole device back. Destroys the data and tests the media at the same time: finds bad sectors and counterfeit cards with fake capacity. The device is written and read in full, so this takes the longest.", "Перезаписывает каждый сектор шаблоном, затем читает весь носитель обратно. Уничтожает данные и одновременно проверяет носитель: находит сбойные сектора и поддельные карты с завышенной ёмкостью. Носитель целиком записывается и читается, поэтому это самый долгий способ."),
 ("Erase_Pattern", "Pattern", "Шаблон"),
 ("Erase_PatternDescription", "Random data differs in every sector, so the check proves that each sector really keeps its own data. Zeros cannot reveal a card that wraps addresses around.", "Случайные данные различны в каждом секторе, поэтому проверка доказывает, что каждый сектор хранит именно свои данные. Нули не выявят карту, которая «заворачивает» адреса."),
+
 ("Pattern_Random", "Random data (recommended)", "Случайные данные (рекомендуется)"),
 ("Pattern_Zeros", "Zeros (0x00)", "Нули (0x00)"),
 ("Pattern_Ones", "Ones (0xFF)", "Единицы (0xFF)"),
+
 ("Erase_Verify", "Read back and verify", "Проверить чтением"),
 ("Erase_VerifyDescription", "Read the whole device after writing and compare it with the pattern", "После записи прочитать весь носитель и сравнить с шаблоном"),
 ("Erase_FormatTitle", "New file system", "Новая файловая система"),
@@ -119,12 +149,15 @@ S = [
 ("Erase_Label", "Volume label", "Метка тома"),
 ("Erase_LabelHint", "Up to 11 characters", "До 11 символов"),
 ("Erase_LabelAs", "Will be saved as \"{0}\" (FAT32 labels allow only upper-case Latin letters, digits and a few symbols)", "Будет записана как «{0}» (в метке FAT32 допустимы только заглавные латинские буквы, цифры и некоторые символы)"),
+
 ("FileSystem_Auto", "Automatic (FAT32 up to 32 GB, exFAT above)", "Автоматически (FAT32 до 32 ГБ, exFAT больше)"),
 ("FileSystem_Fat32", "FAT32", "FAT32"),
 ("FileSystem_ExFat", "exFAT", "exFAT"),
 ("FileSystem_None", "None (leave the device empty)", "Нет (оставить носитель пустым)"),
+
 ("Scheme_Mbr", "MBR (best compatibility)", "MBR (максимальная совместимость)"),
 ("Scheme_Gpt", "GPT", "GPT"),
+
 ("Erase_Plan", "A {0} partition of {1} will be created ({2}, cluster {3}).", "Будет создан раздел {0} размером {1} ({2}, кластер {3})."),
 ("Erase_PlanEmpty", "The device will be left without partitions; Windows will offer to initialize it.", "Носитель останется без разделов; Windows предложит его инициализировать."),
 ("Erase_WillWrite", "Will be written: {0}.", "Будет записано: {0}."),
@@ -168,6 +201,22 @@ S = [
 ("Read_OnlyAllocatedDescription", "Stop at the end of the last partition to save space", "Читать до конца последнего раздела, чтобы сэкономить место"),
 ("Read_Verify", "Verify the image after creation", "Проверять образ после создания"),
 ("Read_VerifyDescription", "Unpack the created file and compare it with the device data", "Распаковать созданный файл и сравнить с данными носителя"),
+("Read_ChecksumFile", "Save a checksum file", "Сохранить файл контрольной суммы"),
+("Read_ChecksumFileDescription", "Writes a .sha256 file next to the image (SHA-256, sha256sum format). Writing the image back picks it up automatically.", "Рядом с образом создаётся файл .sha256 (SHA-256, формат sha256sum). При записи образа обратно он подхватывается автоматически."),
+("Read_ChecksumFileSaved", "Checksum saved: {0}", "Контрольная сумма сохранена: {0}"),
+("Read_ChecksumFileFailed", "The checksum file could not be saved: {0}", "Не удалось сохранить файл контрольной суммы: {0}"),
+("Read_SkipFreeBlocksOn", "Free ext2/3/4 blocks will be stored as zeros without being read (turned on in Settings).", "Свободные блоки ext2/3/4 будут записаны нулями без чтения (включено в настройках)."),
+("Read_FreeBlocksSkipped", "Free ext2/3/4 blocks stored as zeros without reading: {0}", "Свободные блоки ext2/3/4 записаны нулями без чтения: {0}"),
+("Read_FreeBlocksNotSkipped", "{0}: free blocks were copied in full because {1}.", "{0}: свободные блоки скопированы полностью, потому что {1}."),
+("Read_FreeBlocksPartition", "Partition {0}", "Раздел {0}"),
+("Read_FreeBlocksWholeDevice", "File system", "Файловая система"),
+
+("FreeSpace_NotCleanlyUnmounted", "the file system was not cleanly unmounted or has errors", "файловая система не была корректно отключена или содержит ошибки"),
+("FreeSpace_JournalNeedsRecovery", "its journal has not been replayed yet", "её журнал ещё не воспроизведён"),
+("FreeSpace_UnsupportedFeature", "it uses features this mode does not handle", "в ней используются возможности, которые этот режим не поддерживает"),
+("FreeSpace_InconsistentMetadata", "its metadata checksums do not match", "контрольные суммы её метаданных не совпадают"),
+("FreeSpace_OverlapsOtherPartition", "the partition overlaps another one", "раздел перекрывается с другим"),
+
 ("Read_Start", "Create image", "Создать образ"),
 ("Read_OverwriteTitle", "Replace the file?", "Заменить файл?"),
 ("Read_OverwriteMessage", "\"{0}\" already exists. Replace it?", "Файл «{0}» уже существует. Заменить его?"),
@@ -186,6 +235,7 @@ S = [
 ("Format_Gzip", "GZip (.gz)", "GZip (.gz)"),
 ("Format_Zstd", "Zstandard (.zst) — fast", "Zstandard (.zst) — быстрое сжатие"),
 ("Format_Bzip2", "bzip2 (.bz2)", "bzip2 (.bz2)"),
+
 ("Compression_Fastest", "Fastest", "Самое быстрое"),
 ("Compression_Fast", "Fast", "Быстрое"),
 ("Compression_Normal", "Normal", "Обычное"),
@@ -193,8 +243,10 @@ S = [
 
 ("Devices_Refresh", "Refresh", "Обновить"),
 ("Devices_Eject", "Safely remove", "Безопасно извлечь"),
+
 ("Eject_Done", "\"{0}\" was ejected and can be unplugged", "«{0}» извлечён, его можно отключить"),
 ("Eject_FailedTitle", "The device was not ejected", "Носитель не извлечён"),
+
 ("Devices_ShowAll", "Show non-removable disks", "Показывать несъёмные диски"),
 ("Devices_None", "No devices found. Insert a USB flash drive or an SD card.", "Устройства не найдены. Вставьте USB-флешку или SD-карту."),
 ("Devices_Kind_UsbFlash", "USB flash drive", "USB-флешка"),
@@ -207,19 +259,26 @@ S = [
 ("Devices_DiskNumber", "Disk {0}", "Диск {0}"),
 
 ("Phase_Preparing", "Preparing…", "Подготовка…"),
+("Phase_CheckingSource", "Checking the file's checksum", "Проверка контрольной суммы файла"),
 ("Phase_Writing", "Writing", "Запись"),
 ("Phase_Reading", "Reading", "Чтение"),
 ("Phase_Verifying", "Verifying", "Проверка"),
+("Phase_Hashing", "Calculating the checksum", "Расчёт контрольной суммы"),
 ("Phase_Finalizing", "Finishing…", "Завершение…"),
 ("Phase_Ejecting", "Ejecting the device…", "Извлечение носителя…"),
 ("Phase_Erasing", "Erasing", "Стирание"),
 ("Phase_Formatting", "Creating the file system…", "Создание файловой системы…"),
 ("Phase_Completed", "Done", "Готово"),
+
 ("Progress_Details", "{0} of {1} · {2}/s · {3} left", "{0} из {1} · {2}/с · осталось {3}"),
 ("Progress_DetailsNoTotal", "{0} · {1}/s", "{0} · {1}/с"),
+
 ("Cancelled", "The operation was cancelled", "Операция отменена"),
+
 ("Cancel", "Cancel", "Отмена"),
+
 ("Close", "Close", "Закрыть"),
+
 ("Replace", "Replace", "Заменить"),
 
 ("Unit_B", "B", "Б"),
@@ -232,26 +291,20 @@ S = [
 ("Settings_Appearance", "Appearance", "Оформление"),
 ("Settings_Theme", "Theme", "Тема"),
 ("Settings_ThemeDescription", "\"System\" follows the Windows setting", "«Системная» следует настройке Windows"),
+
 ("Theme_System", "System", "Системная"),
 ("Theme_Light", "Light", "Светлая"),
 ("Theme_Dark", "Dark", "Тёмная"),
+
 ("Settings_Language", "Language", "Язык"),
 ("Settings_LanguageDescription", "\"System\" uses the Windows display language", "«Системный» использует язык интерфейса Windows"),
+
 ("Language_System", "System", "Системный"),
 ("Language_English", "English", "English"),
 ("Language_Russian", "Русский", "Русский"),
+
 ("Settings_Devices", "Devices", "Устройства"),
 ("Settings_ShowAllDescription", "Internal HDD/SSD are hidden to protect them from accidental erasing. The system disk can never be written.", "Внутренние HDD/SSD скрыты, чтобы их нельзя было стереть по ошибке. Запись на системный диск запрещена всегда."),
-("Read_SkipFreeBlocksOn", "Free ext2/3/4 blocks will be stored as zeros without being read (turned on in Settings).", "Свободные блоки ext2/3/4 будут записаны нулями без чтения (включено в настройках)."),
-("Read_FreeBlocksSkipped", "Free ext2/3/4 blocks stored as zeros without reading: {0}", "Свободные блоки ext2/3/4 записаны нулями без чтения: {0}"),
-("Read_FreeBlocksNotSkipped", "{0}: free blocks were copied in full because {1}.", "{0}: свободные блоки скопированы полностью, потому что {1}."),
-("Read_FreeBlocksPartition", "Partition {0}", "Раздел {0}"),
-("Read_FreeBlocksWholeDevice", "File system", "Файловая система"),
-("FreeSpace_NotCleanlyUnmounted", "the file system was not cleanly unmounted or has errors", "файловая система не была корректно отключена или содержит ошибки"),
-("FreeSpace_JournalNeedsRecovery", "its journal has not been replayed yet", "её журнал ещё не воспроизведён"),
-("FreeSpace_UnsupportedFeature", "it uses features this mode does not handle", "в ней используются возможности, которые этот режим не поддерживает"),
-("FreeSpace_InconsistentMetadata", "its metadata checksums do not match", "контрольные суммы её метаданных не совпадают"),
-("FreeSpace_OverlapsOtherPartition", "the partition overlaps another one", "раздел перекрывается с другим"),
 ("Settings_Imaging", "Creating images", "Создание образа"),
 ("Settings_SkipFreeBlocks", "Skip free space in ext2/3/4", "Пропускать свободное место ext2/3/4"),
 ("Settings_SkipFreeBlocksDescription", "Free blocks of ext2/3/4 file systems are not read but stored as zeros: the image is created faster, and xz, gz and zst compress the zeros to almost nothing. The image is then not a byte-for-byte copy of the device: whatever lay in free space (deleted files, for example) is not kept, and comparing the image with the device shows differences there. Other file systems and everything outside partitions are copied in full, and so is an ext file system that was not cleanly unmounted.", "Свободные блоки файловых систем ext2/3/4 не читаются, а записываются в образ нулями: образ создаётся быстрее, а xz, gz и zst сжимают нули почти до нуля. Такой образ уже не побайтовая копия носителя: содержимое свободного места (например, удалённые файлы) в него не попадает, и при сравнении образа с носителем там будут отличия. Другие файловые системы и всё, что вне разделов, копируются полностью, как и ext, которая не была корректно отключена."),
@@ -260,32 +313,41 @@ S = [
 ("Settings_UseBmapDescription", "When an image has a .bmap next to it (Yocto's wic and bmaptool make one), only the blocks that hold data are written and compared, which is several times faster. The image is checked against the .bmap while it is written; if they do not match, writing stops before the partition table is written. Unlike bmaptool, everything outside partitions and the first and last mebibyte of each partition are always written, so an old boot loader environment or an old file system in an empty partition does not survive. The pages show which .bmap was found and let you turn it off for one image.", "Если рядом с образом лежит .bmap (его создают wic из Yocto и bmaptool), записываются и сравниваются только блоки с данными — в разы быстрее. Во время записи образ сверяется с .bmap; если они не совпадают, запись прерывается до того, как записана таблица разделов. В отличие от bmaptool, всё вне разделов, а также первый и последний мегабайт каждого раздела пишутся всегда, чтобы на носителе не осталось старое окружение загрузчика или старая файловая система в пустом разделе. На страницах видно, какой .bmap найден, и его можно отключить для конкретного образа."),
 ("Settings_CreateBmap", "Save a .bmap next to created images", "Сохранять .bmap рядом с создаваемым образом"),
 ("Settings_CreateBmapDescription", "The .bmap (bmaptool format 2.0) holds the SHA-256 of the data, so the uncompressed image can be checked later. Together with skipping free ext2/3/4 space it also marks the free blocks as holes, and FlashTool or bmaptool then write the image many times faster.", "Файл .bmap (формат bmaptool 2.0) содержит SHA-256 данных, поэтому распакованный образ можно потом проверить. Вместе с пропуском свободного места ext2/3/4 он также отмечает свободные блоки как дыры, и тогда FlashTool или bmaptool записывают образ в разы быстрее."),
+
 ("Write_Bmap", "Write by .bmap", "Запись по .bmap"),
 ("Write_BmapDescription", "Only blocks with data are written, plus everything outside partitions and the edges of each partition.", "Пишутся только блоки с данными, а также всё вне разделов и края каждого раздела."),
 ("Write_BmapWritten", "By the .bmap, {0} of {1} went to the device.", "По .bmap на носитель записано {0} из {1}."),
+
 ("Verify_Bmap", "Compare by .bmap", "Сравнение по .bmap"),
 ("Verify_BmapDescription", "Only blocks with data are compared, as bmaptool writes only those.", "Сравниваются только блоки с данными: bmaptool записывает только их."),
 ("Verify_BmapUsed", "Only the data blocks listed in the .bmap were compared.", "Сравнивались только блоки с данными из .bmap."),
+
 ("Bmap_Searching", "Looking for a .bmap next to the image…", "Поиск .bmap рядом с образом…"),
 ("Bmap_NotFound", "No .bmap next to the image: the whole image is used.", "Рядом с образом нет .bmap: используется весь образ."),
 ("Bmap_Unusable", "Found {0}, but it cannot be used: {1}. The whole image is used.", "Найден {0}, но его нельзя использовать: {1}. Используется весь образ."),
 ("Bmap_SizeDiffers", "{0} is for an image of {1}, but this image is {2}. The whole image is used.", "{0} описывает образ размером {1}, а этот образ — {2}. Используется весь образ."),
 ("Bmap_Found", "Found {0}: data takes {1} of {2}.", "Найден {0}: данные занимают {1} из {2}."),
+
 ("BmapProblem_Malformed", "it is not a valid block map", "это не корректная карта блоков"),
 ("BmapProblem_UnsupportedVersion", "its format version is newer than 2.x", "версия формата новее 2.x"),
 ("BmapProblem_UnsupportedChecksum", "it uses a checksum other than SHA-1 or SHA-256", "в нём контрольные суммы не SHA-1 и не SHA-256"),
 ("BmapProblem_FileChecksumMismatch", "its own checksum does not match (the file was edited or damaged)", "не совпадает его собственная контрольная сумма (файл изменён или повреждён)"),
 ("BmapProblem_Inconsistent", "its sizes and ranges contradict each other", "размеры и диапазоны в нём противоречат друг другу"),
 ("BmapProblem_TooLarge", "it is too large for a block map", "он слишком велик для карты блоков"),
+
 ("Read_CreateBmapOn", "A .bmap will be saved next to the image (turned on in Settings).", "Рядом с образом будет сохранён .bmap (включено в настройках)."),
 ("Read_BmapSaved", "Block map saved: {0}", "Карта блоков сохранена: {0}"),
 ("Read_BmapFailed", "The .bmap file could not be saved: {0}", "Не удалось сохранить файл .bmap: {0}"),
+
 ("Error_BmapSizeMismatch", "The .bmap file is for an image of {0:N0} bytes, but the image has {1:N0} bytes.", "Файл .bmap описывает образ размером {0:N0} байт, а в образе {1:N0} байт."),
 ("Error_BmapDataMismatch", "The image does not match its .bmap file (at byte {0:N0}): the .bmap is probably from another build of the image. If this happened while writing, the device was left without a partition table.", "Образ не соответствует своему файлу .bmap (байт {0:N0}): вероятно, .bmap от другой сборки образа. Если это произошло при записи, носитель оставлен без таблицы разделов."),
+
 ("Nav_DeviceTest", "Device test", "Тест носителя"),
+
 ("Settings_DeviceTest", "Testing devices", "Тест носителей"),
 ("Settings_DeviceTestEnable", "Show the \"Device test\" page", "Показывать страницу «Тест носителя»"),
 ("Settings_DeviceTestDescription", "Measures speed and finds unreadable areas and counterfeit capacity. Every test except reading destroys all data on the device, so the page is hidden unless turned on here.", "Измеряет скорость и находит нечитаемые участки и поддельный объём. Все тесты, кроме чтения, уничтожают данные на носителе, поэтому страница скрыта, пока не включена здесь."),
+
 ("Test_Header", "Test a device", "Тест носителя"),
 ("Test_Warning", "The chosen test overwrites the device: everything on it will be lost.", "Выбранный тест перезаписывает носитель: всё, что на нём есть, будет потеряно."),
 ("Test_DeviceTitle", "Device to test", "Проверяемый носитель"),
@@ -346,12 +408,15 @@ S = [
 ("Test_FormatDescription", "One partition over the whole device, as on the \"Erase\" page: FAT32 up to 32 GB, exFAT above in automatic mode.", "Один раздел на весь носитель, как на странице «Очистка»: в автоматическом режиме FAT32 до 32 ГБ, exFAT для больших."),
 ("Test_FormatButton", "Create", "Создать"),
 ("Test_Formatted", "File system created", "Файловая система создана"),
+
 ("Settings_Writing", "Writing images", "Запись образа"),
 ("Settings_DifferentialWrite", "Write only what differs (experimental)", "Записывать только отличия (экспериментально)"),
 ("Settings_DifferentialWriteDescription", "Before writing, each part of the device is read and compared with the image in 64 KiB blocks, and only the blocks that differ are written. The result is the same device as after a full write, with less wear, and faster when little has changed, for example when the same card is reflashed with a new build. Where hardly anything matches, comparing turns itself off for a while, because then it only adds time. The first part of the device is still cleared first and written last, and verification still reads everything back. Changing one file can shift the data of a whole file system, so the gain depends on how the image is built.", "Перед записью каждая часть носителя читается и сравнивается с образом блоками по 64 КиБ, а записываются только отличающиеся блоки. Результат — тот же носитель, что и после полной записи, но с меньшим износом и быстрее, если изменилось немного: например, при перепрошивке той же карты новой сборкой. Там, где почти ничего не совпадает, сравнение на время отключается само: тогда оно только добавляет время. Начало носителя по-прежнему сначала обнуляется и записывается последним, а проверка по-прежнему читает всё. Изменение одного файла может сдвинуть данные всей файловой системы, поэтому выигрыш зависит от того, как собран образ."),
+
 ("Write_DifferentialOn", "Only the blocks that differ from what is on the device will be written (experimental, turned on in Settings). The device is read first; verification still reads everything back.", "Будут записаны только блоки, отличающиеся от того, что уже на носителе (экспериментально, включено в настройках). Носитель сначала читается; проверка по-прежнему читает всё."),
 ("Write_DifferentialWritten", "Written {0} of {1}; {2} of the compared data was already on the device.", "Записано {0} из {1}; совпало {2} сравнённых данных."),
 ("Write_DifferentialStopped", "Where almost nothing matched, comparing was turned off: {0} was written without comparing.", "Там, где почти ничего не совпадало, сравнение отключалось: {0} записано без сравнения."),
+
 ("Settings_Erase", "Erasing devices", "Очистка носителей"),
 ("Settings_EraseEnable", "Show the \"Erase\" page", "Показывать страницу «Очистка»"),
 ("Settings_EraseDescription", "Quick erase, full and destructive format of a device. Hidden by default so that a device is not wiped by mistake.", "Быстрая очистка, полное и разрушительное форматирование носителя. По умолчанию скрыта, чтобы носитель нельзя было стереть по ошибке."),
@@ -384,10 +449,14 @@ S = [
 ("Error_DeviceIoError", "Device I/O error: {0}", "Ошибка ввода-вывода: {0}"),
 ("Error_TargetIsSystemDisk", "Writing to the system disk is not allowed.", "Запись на системный диск запрещена."),
 ("Error_VerificationFailed", "Verification failed: data differs at offset {0}. The device may be faulty or counterfeit.", "Проверка не пройдена: данные отличаются по смещению {0}. Носитель может быть неисправен или поддельным."),
+("Error_SourceChecksumMismatch", "The file's checksum does not match: expected {0}, got {1}. Nothing was written. The file is damaged or is a different file; if the checksum was found automatically and is out of date, clear the Checksum field.", "Контрольная сумма файла не совпала: ожидалась {0}, получена {1}. Запись не начата. Файл повреждён или это другой файл; если сумма найдена автоматически и устарела, очистите поле «Контрольная сумма»."),
+("Error_SourceChecksumMismatchAfterWrite", "The checksum of the downloaded file does not match: expected {0}, got {1}. The data was written but the partition table was not, so the medium will not boot or mount. Download the file again and repeat; if the checksum was found automatically and is out of date, clear the Checksum field.", "Контрольная сумма скачанного файла не совпала: ожидалась {0}, получена {1}. Данные записаны, а таблица разделов нет, поэтому носитель не загрузится и не смонтируется. Скачайте файл заново и повторите запись; если сумма найдена автоматически и устарела, очистите поле «Контрольная сумма»."),
 ("Error_DeviceEjectFailed", "The device could not be ejected: {0}. Remove it with \"Safely Remove Hardware\" in the taskbar.", "Не удалось извлечь носитель: {0}. Извлеките его через «Безопасное извлечение устройств» на панели задач."),
+
 ("Eject_InUse", "it is used by another program ({0})", "он используется другой программой ({0})"),
 ("Eject_NotSupported", "the device does not support ejecting ({0})", "носитель не поддерживает извлечение ({0})"),
 ("Eject_Refused", "Windows refused ({0})", "Windows отказала ({0})"),
+
 ("Error_FileSystemResizeFailed", "The file system could not be expanded.", "Не удалось расширить файловую систему."),
 ("Error_PartitionTableUpdateFailed", "The image was written, but the partition table could not be adjusted.", "Образ записан, но изменить таблицу разделов не удалось."),
 ("Error_DeviceTooLargeForMbr", "The device ({0}) is larger than 2 TB, which an MBR cannot describe. Choose GPT.", "Носитель ({0}) больше 2 ТБ, MBR такой размер не поддерживает. Выберите GPT."),
