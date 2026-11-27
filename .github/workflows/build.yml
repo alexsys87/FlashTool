@@ -67,9 +67,14 @@ jobs:
           dotnet tool install --global wix --version 5.0.2
           wix extension add --global WixToolset.UI.wixext/5.0.2
 
+      # Same MSI version scheme as release.yml: <major>.<minor>.<1000 + patch> of the version in
+      # Directory.Build.props. A CI build therefore never ranks above the next release's installer.
       - name: Build MSI from standalone application
         run: |
-          ./installer/Build-Msi.ps1 -PublishDirectory publish/standalone -DotNetMajor ${{ matrix.dotnet }} -ProductVersion "0.1.${{ github.run_number }}" -WixPath wix -OutputPath "artifacts/FlashTool-net${{ matrix.dotnet }}-win-x64.msi"
+          $version = [version]([xml](Get-Content -Raw Directory.Build.props)).Project.PropertyGroup.Version
+          $msiVersion = "$($version.Major).$($version.Minor).$(1000 + $version.Build)"
+          "MSI version: $msiVersion"
+          ./installer/Build-Msi.ps1 -PublishDirectory publish/standalone -DotNetMajor ${{ matrix.dotnet }} -ProductVersion $msiVersion -WixPath wix -OutputPath "artifacts/FlashTool-net${{ matrix.dotnet }}-win-x64.msi"
 
       - name: Test MSI installation and removal
         run: |
