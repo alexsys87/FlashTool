@@ -22,6 +22,7 @@ public sealed partial class SettingsPageViewModel : LocalizedViewModel
     private readonly DifferentialWriteFeature _differential;
     private readonly DialogService _dialogs;
     private readonly OperationState _operation;
+    private readonly UpdateService _updates;
 
     [ObservableProperty]
     private LocalizedOption<ThemeMode> _selectedTheme;
@@ -40,7 +41,8 @@ public sealed partial class SettingsPageViewModel : LocalizedViewModel
         DeviceTestFeature deviceTest,
         DifferentialWriteFeature differential,
         DialogService dialogs,
-        OperationState operation)
+        OperationState operation,
+        UpdateService updates)
     {
         _settings = settings;
         _appearance = appearance;
@@ -52,8 +54,11 @@ public sealed partial class SettingsPageViewModel : LocalizedViewModel
         _differential = differential;
         _dialogs = dialogs;
         _operation = operation;
+        _updates = updates;
+        Updates = updates;
         Devices = devices;
         operation.PropertyChanged += OnOperationChanged;
+        updates.PropertyChanged += OnUpdatesChanged;
 
         Themes = Enum.GetValues<ThemeMode>().Select(t => new LocalizedOption<ThemeMode>(t, $"Theme_{t}")).ToList();
         Languages =
@@ -68,6 +73,8 @@ public sealed partial class SettingsPageViewModel : LocalizedViewModel
     }
 
     public DeviceListService Devices { get; }
+
+    public UpdateService Updates { get; }
 
     public IReadOnlyList<LocalizedOption<ThemeMode>> Themes { get; }
 
@@ -148,6 +155,48 @@ public sealed partial class SettingsPageViewModel : LocalizedViewModel
 
     private bool CanToggleErase() => !_operation.IsBusy;
 
+    private bool CanCheckForUpdates() => !_updates.IsBusy;
+
+    private bool CanDownloadUpdate() => _updates.CanDownload;
+
+    private bool CanInstallUpdate() => _updates.HasDownload && !_operation.IsBusy;
+
+    [RelayCommand(CanExecute = nameof(CanCheckForUpdates))]
+    private Task CheckForUpdatesAsync() => _updates.CheckAsync();
+
+    [RelayCommand(CanExecute = nameof(CanDownloadUpdate))]
+    private Task DownloadUpdateAsync() => _updates.DownloadAsync();
+
+    [RelayCommand]
+    private void CancelUpdate() => _updates.Cancel();
+
+    [RelayCommand]
+    private void OpenReleasePage() => _updates.OpenReleasePage();
+
+    [RelayCommand]
+    private void ShowUpdateInFolder() => _updates.ShowDownloadInFolder();
+
+    /// <summary>Runs the downloaded MSI and closes FlashTool so the installer can replace it.</summary>
+    [RelayCommand(CanExecute = nameof(CanInstallUpdate))]
+    private async Task InstallUpdateAsync()
+    {
+        if (await _dialogs.ConfirmAsync(Loc.Get("Update_InstallConfirmTitle"), Loc.Get("Update_InstallConfirmMessage"), Loc.Get("Update_Install"), destructive: false)
+            && _updates.StartInstaller())
+        {
+            System.Windows.Application.Current.Shutdown();
+        }
+    }
+
+    private void OnUpdatesChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName is nameof(UpdateService.State) or nameof(UpdateService.LastCheck) or nameof(UpdateService.Download))
+        {
+            CheckForUpdatesCommand.NotifyCanExecuteChanged();
+            DownloadUpdateCommand.NotifyCanExecuteChanged();
+            InstallUpdateCommand.NotifyCanExecuteChanged();
+        }
+    }
+
     /// <summary>Turning the "Erase" page on needs a confirmation; turning it off does not.</summary>
     [RelayCommand(CanExecute = nameof(CanToggleErase))]
     private async Task ToggleEraseAsync()
@@ -164,6 +213,7 @@ public sealed partial class SettingsPageViewModel : LocalizedViewModel
         if (e.PropertyName == nameof(OperationState.IsBusy))
         {
             ToggleEraseCommand.NotifyCanExecuteChanged();
+            InstallUpdateCommand.NotifyCanExecuteChanged();
         }
     }
 

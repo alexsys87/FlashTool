@@ -437,6 +437,32 @@
 Проверьте, что носитель подключён, и нажмите «Повторить», чтобы продолжить с того же места.</value></data>
   <data name="IoError_Retry" xml:space="preserve"><value>Повторить</value></data>
   <data name="IoError_Abort" xml:space="preserve"><value>Отменить операцию</value></data>
+  <data name="Update_Section" xml:space="preserve"><value>Обновления</value></data>
+  <data name="Update_Title" xml:space="preserve"><value>Обновления FlashTool</value></data>
+  <data name="Update_Check" xml:space="preserve"><value>Проверить обновления</value></data>
+  <data name="Update_Checking" xml:space="preserve"><value>Поиск новой версии на GitHub…</value></data>
+  <data name="Update_UpToDate" xml:space="preserve"><value>Установлена последняя версия ({0}).</value></data>
+  <data name="Update_Available" xml:space="preserve"><value>Доступна версия {0} ({1}).</value></data>
+  <data name="Update_AvailableNoAsset" xml:space="preserve"><value>Доступна версия {0}, но в ней нет файла «{1}» для этой сборки. Откройте страницу релиза, чтобы выбрать файл.</value></data>
+  <data name="Update_Prerelease" xml:space="preserve"><value>предварительная</value></data>
+  <data name="Update_CheckFailed" xml:space="preserve"><value>Не удалось проверить обновления: {0}</value></data>
+  <data name="Update_Download" xml:space="preserve"><value>Скачать</value></data>
+  <data name="Update_Downloading" xml:space="preserve"><value>Загрузка {0}…</value></data>
+  <data name="Update_DownloadingProgress" xml:space="preserve"><value>Загрузка {0}: {1} из {2}</value></data>
+  <data name="Update_DownloadFailed" xml:space="preserve"><value>Не удалось скачать обновление: {0}</value></data>
+  <data name="Update_Cancelled" xml:space="preserve"><value>Отменено.</value></data>
+  <data name="Update_DownloadedInstaller" xml:space="preserve"><value>Установщик скачан, SHA-256 проверена: {0}</value></data>
+  <data name="Update_DownloadedArchive" xml:space="preserve"><value>Архив скачан, SHA-256 проверена: {0}
+Закройте FlashTool и распакуйте архив поверх текущей копии.</value></data>
+  <data name="Update_Install" xml:space="preserve"><value>Установить</value></data>
+  <data name="Update_InstallConfirmTitle" xml:space="preserve"><value>Установить обновление?</value></data>
+  <data name="Update_InstallConfirmMessage" xml:space="preserve"><value>FlashTool закроется, и запустится установщик новой версии.</value></data>
+  <data name="Update_ShowInFolder" xml:space="preserve"><value>Показать в папке</value></data>
+  <data name="Update_ReleaseNotes" xml:space="preserve"><value>Что нового</value></data>
+  <data name="Update_CheckAutomatically" xml:space="preserve"><value>Проверять обновления при запуске</value></data>
+  <data name="Update_CheckAutomaticallyDescription" xml:space="preserve"><value>Не чаще раза в сутки FlashTool спрашивает у GitHub, вышел ли новый релиз. Без вашего согласия ничего не скачивается.</value></data>
+  <data name="Update_IncludePrereleases" xml:space="preserve"><value>Предлагать предварительные версии</value></data>
+  <data name="Update_IncludePrereleasesDescription" xml:space="preserve"><value>Предлагать и релизы, отмеченные на GitHub как предварительные. Они могут быть менее стабильны.</value></data>
   <data name="Exit_BusyTitle" xml:space="preserve"><value>Идёт операция</value></data>
   <data name="Exit_BusyMessage" xml:space="preserve"><value>Отменить текущую операцию и выйти? Носитель с прерванной записью будет непригоден, пока его не записать заново.</value></data>
   <data name="Exit_Confirm" xml:space="preserve"><value>Отменить и выйти</value></data>

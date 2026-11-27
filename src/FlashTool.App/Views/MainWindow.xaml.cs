@@ -32,7 +32,8 @@ public partial class MainWindow : FluentWindow
         DialogService dialogs,
         SettingsService settings,
         EraseFeature erase,
-        DeviceTestFeature deviceTest)
+        DeviceTestFeature deviceTest,
+        UpdateService updates)
     {
         _services = services;
         _operation = operation;
@@ -46,6 +47,13 @@ public partial class MainWindow : FluentWindow
         UpdateEraseNavigation();
         erase.PropertyChanged += (_, _) => UpdateEraseNavigation();
         deviceTest.PropertyChanged += (_, _) => UpdateEraseNavigation();
+        updates.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(UpdateService.HasRelease))
+            {
+                UpdateBadge.Visibility = updates.HasRelease ? Visibility.Visible : Visibility.Collapsed;
+            }
+        };
 
         contentDialogs.SetDialogHost(RootContentDialogHost);
         RootNavigation.SetServiceProvider(services);

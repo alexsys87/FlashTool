@@ -104,6 +104,15 @@ public sealed class AppSettings
     public EraseFileSystem DeviceTestFileSystem { get; set; } = EraseFileSystem.Auto;
 
     public string? DeviceTestDeviceKey { get; set; }
+
+    /// <summary>Look for a new release on GitHub at startup (at most about once a day).</summary>
+    public bool CheckForUpdates { get; set; } = true;
+
+    /// <summary>Also offer releases marked as pre-release. Off by default.</summary>
+    public bool IncludePrereleaseUpdates { get; set; }
+
+    /// <summary>When the last successful update check happened.</summary>
+    public DateTimeOffset? LastUpdateCheck { get; set; }
 }
 
 /// <summary>Main window bounds (in the "normal" state) and whether it was maximized.</summary>
