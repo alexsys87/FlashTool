@@ -82,6 +82,14 @@
                     <ui:NavigationViewItem.Icon>
                         <ui:SymbolIcon Symbol="Settings24" />
                     </ui:NavigationViewItem.Icon>
+                    <!-- Shown while a newer release is available (see UpdateService). -->
+                    <ui:NavigationViewItem.InfoBadge>
+                        <ui:InfoBadge
+                            x:Name="UpdateBadge"
+                            Severity="Attention"
+                            Style="{DynamicResource DotInfoBadgeStyle}"
+                            Visibility="Collapsed" />
+                    </ui:NavigationViewItem.InfoBadge>
                 </ui:NavigationViewItem>
             </ui:NavigationView.FooterMenuItems>
         </ui:NavigationView>

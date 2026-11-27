@@ -107,6 +107,102 @@
                 <ui:ToggleSwitch IsChecked="{Binding DeviceTestEnabled}" />
             </ui:CardControl>
 
+            <TextBlock Style="{StaticResource SectionTitle}" Text="{loc:Tr Update_Section}" />
+            <ui:Card Margin="0,0,0,4">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <ui:SymbolIcon Grid.Column="0" Margin="0,2,16,0" VerticalAlignment="Top" FontSize="24" Symbol="ArrowSyncCircle24" />
+                    <StackPanel Grid.Column="1">
+                        <TextBlock Text="{loc:Tr Update_Title}" />
+                        <TextBlock
+                            Style="{StaticResource SecondaryText}"
+                            Text="{Binding Updates.StatusText}"
+                            TextWrapping="Wrap"
+                            Visibility="{Binding Updates.StatusText, Converter={StaticResource NullToVisibility}}" />
+                        <ProgressBar
+                            Margin="0,8,0,0"
+                            IsIndeterminate="{Binding Updates.IsProgressIndeterminate}"
+                            Maximum="100"
+                            Visibility="{Binding Updates.IsBusy, Converter={StaticResource BoolToVisibility}}"
+                            Value="{Binding Updates.Progress}" />
+                        <WrapPanel Margin="0,8,0,0">
+                            <ui:Button
+                                Margin="0,0,8,0"
+                                Appearance="Primary"
+                                Command="{Binding DownloadUpdateCommand}"
+                                Content="{loc:Tr Update_Download}"
+                                Icon="{ui:SymbolIcon ArrowDownload24}"
+                                Visibility="{Binding Updates.CanDownload, Converter={StaticResource BoolToVisibility}}" />
+                            <ui:Button
+                                Margin="0,0,8,0"
+                                Appearance="Primary"
+                                Command="{Binding InstallUpdateCommand}"
+                                Content="{loc:Tr Update_Install}"
+                                Icon="{ui:SymbolIcon Box24}">
+                                <ui:Button.Style>
+                                    <Style BasedOn="{StaticResource {x:Type ui:Button}}" TargetType="ui:Button">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding Updates.HasDownload}" Value="True" />
+                                                    <Condition Binding="{Binding Updates.IsInstaller}" Value="True" />
+                                                </MultiDataTrigger.Conditions>
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </MultiDataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </ui:Button.Style>
+                            </ui:Button>
+                            <ui:Button
+                                Margin="0,0,8,0"
+                                Command="{Binding ShowUpdateInFolderCommand}"
+                                Content="{loc:Tr Update_ShowInFolder}"
+                                Icon="{ui:SymbolIcon FolderOpen24}"
+                                Visibility="{Binding Updates.HasDownload, Converter={StaticResource BoolToVisibility}}" />
+                            <ui:Button
+                                Margin="0,0,8,0"
+                                Command="{Binding OpenReleasePageCommand}"
+                                Content="{loc:Tr Update_ReleaseNotes}"
+                                Icon="{ui:SymbolIcon Open24}"
+                                Visibility="{Binding Updates.HasRelease, Converter={StaticResource BoolToVisibility}}" />
+                            <ui:Button
+                                Margin="0,0,8,0"
+                                Command="{Binding CancelUpdateCommand}"
+                                Content="{loc:Tr Cancel}"
+                                Visibility="{Binding Updates.IsBusy, Converter={StaticResource BoolToVisibility}}" />
+                        </WrapPanel>
+                    </StackPanel>
+                    <ui:Button
+                        Grid.Column="2"
+                        VerticalAlignment="Top"
+                        Command="{Binding CheckForUpdatesCommand}"
+                        Content="{loc:Tr Update_Check}" />
+                </Grid>
+            </ui:Card>
+            <ui:CardControl Margin="0,0,0,4" Icon="{ui:SymbolIcon CalendarSync24}">
+                <ui:CardControl.Header>
+                    <StackPanel>
+                        <TextBlock Text="{loc:Tr Update_CheckAutomatically}" />
+                        <TextBlock Style="{StaticResource SecondaryText}" Text="{loc:Tr Update_CheckAutomaticallyDescription}" TextWrapping="Wrap" />
+                    </StackPanel>
+                </ui:CardControl.Header>
+                <ui:ToggleSwitch IsChecked="{Binding Updates.CheckAutomatically}" />
+            </ui:CardControl>
+            <ui:CardControl Margin="0,0,0,20" Icon="{ui:SymbolIcon Beaker24}">
+                <ui:CardControl.Header>
+                    <StackPanel>
+                        <TextBlock Text="{loc:Tr Update_IncludePrereleases}" />
+                        <TextBlock Style="{StaticResource SecondaryText}" Text="{loc:Tr Update_IncludePrereleasesDescription}" TextWrapping="Wrap" />
+                    </StackPanel>
+                </ui:CardControl.Header>
+                <ui:ToggleSwitch IsChecked="{Binding Updates.IncludePrereleases}" />
+            </ui:CardControl>
+
             <TextBlock Style="{StaticResource SectionTitle}" Text="{loc:Tr Settings_About}" />
             <ui:Card>
                 <StackPanel Orientation="Horizontal">

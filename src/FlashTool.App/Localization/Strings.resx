@@ -437,6 +437,32 @@ Show the page?</value></data>
 Check that the device is connected, then press "Retry" to continue from the same place.</value></data>
   <data name="IoError_Retry" xml:space="preserve"><value>Retry</value></data>
   <data name="IoError_Abort" xml:space="preserve"><value>Cancel operation</value></data>
+  <data name="Update_Section" xml:space="preserve"><value>Updates</value></data>
+  <data name="Update_Title" xml:space="preserve"><value>FlashTool updates</value></data>
+  <data name="Update_Check" xml:space="preserve"><value>Check for updates</value></data>
+  <data name="Update_Checking" xml:space="preserve"><value>Checking GitHub for a new version…</value></data>
+  <data name="Update_UpToDate" xml:space="preserve"><value>You have the latest version ({0}).</value></data>
+  <data name="Update_Available" xml:space="preserve"><value>Version {0} is available ({1}).</value></data>
+  <data name="Update_AvailableNoAsset" xml:space="preserve"><value>Version {0} is available, but it has no "{1}" file for this build. Open the release page to choose a file.</value></data>
+  <data name="Update_Prerelease" xml:space="preserve"><value>pre-release</value></data>
+  <data name="Update_CheckFailed" xml:space="preserve"><value>Could not check for updates: {0}</value></data>
+  <data name="Update_Download" xml:space="preserve"><value>Download</value></data>
+  <data name="Update_Downloading" xml:space="preserve"><value>Downloading {0}…</value></data>
+  <data name="Update_DownloadingProgress" xml:space="preserve"><value>Downloading {0}: {1} of {2}</value></data>
+  <data name="Update_DownloadFailed" xml:space="preserve"><value>Could not download the update: {0}</value></data>
+  <data name="Update_Cancelled" xml:space="preserve"><value>Cancelled.</value></data>
+  <data name="Update_DownloadedInstaller" xml:space="preserve"><value>The installer is downloaded and its SHA-256 checked: {0}</value></data>
+  <data name="Update_DownloadedArchive" xml:space="preserve"><value>The archive is downloaded and its SHA-256 checked: {0}
+Close FlashTool and unpack the archive over the current copy.</value></data>
+  <data name="Update_Install" xml:space="preserve"><value>Install</value></data>
+  <data name="Update_InstallConfirmTitle" xml:space="preserve"><value>Install the update?</value></data>
+  <data name="Update_InstallConfirmMessage" xml:space="preserve"><value>FlashTool will close and the installer of the new version will start.</value></data>
+  <data name="Update_ShowInFolder" xml:space="preserve"><value>Show in folder</value></data>
+  <data name="Update_ReleaseNotes" xml:space="preserve"><value>What's new</value></data>
+  <data name="Update_CheckAutomatically" xml:space="preserve"><value>Check for updates at startup</value></data>
+  <data name="Update_CheckAutomaticallyDescription" xml:space="preserve"><value>At most once a day FlashTool asks GitHub whether a new release is out. Nothing is downloaded without your consent.</value></data>
+  <data name="Update_IncludePrereleases" xml:space="preserve"><value>Offer pre-release versions</value></data>
+  <data name="Update_IncludePrereleasesDescription" xml:space="preserve"><value>Also offer releases marked on GitHub as pre-release. They may be less stable.</value></data>
   <data name="Exit_BusyTitle" xml:space="preserve"><value>An operation is running</value></data>
   <data name="Exit_BusyMessage" xml:space="preserve"><value>Cancel the current operation and exit? A device whose writing was interrupted stays unusable until it is written again.</value></data>
   <data name="Exit_Confirm" xml:space="preserve"><value>Cancel and exit</value></data>

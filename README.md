@@ -355,6 +355,7 @@ src/
     FileSystems/               расширение ext2/3/4, FAT32 и exFAT, свободное место ext2/3/4, создание FAT32 и exFAT
     Operations/                запись, создание образа, очистка, конвейер, верификация, прогресс
     Devices/                   модель устройства, классификация (флешка / SD / диск)
+    Updates/                   GitHubUpdater: поиск и загрузка новых релизов с GitHub (переносимый, один файл)
   FlashTool.Platform.Windows/  \\.\PhysicalDriveN, IOCTL, блокировка и размонтирование томов
   FlashTool.App/               WPF-приложение (MVVM, CommunityToolkit.Mvvm, DI)
 tests/
@@ -545,6 +546,57 @@ Workflow [`.github/workflows/build.yml`](.github/workflows/build.yml) запус
 Сравниваются количество и SHA-256 всех установленных файлов с публикацией, проверяются
 цель ярлыка, его рабочий каталог и наличие настоящего встроенного значка. Затем приложение
 удаляется, проверяется удаление каталога и ярлыка. Графические диалоги в CI не открываются. Интерфейс приложения не запускается, физические диски не затрагиваются.
+
+## Обновления
+
+В **«Настройки» → «Обновления»** кнопка **«Проверить обновления»** запрашивает список релизов
+`alexsys87/FlashTool` через GitHub API. Если вышла версия новее установленной, её можно скачать
+и открыть страницу «Что нового». Файл выбирается по сборке, из которой запущена программа:
+
+| Запущено | Скачивается |
+|---|---|
+| MSI (`Program Files\FlashTool-netN`) | `FlashTool-netN-win-x64.msi`; кнопка **«Установить»** запускает установщик и закрывает программу |
+| автономный `FlashTool.exe` | `FlashTool-netN-win-x64-standalone.zip` |
+| обычная сборка | `FlashTool-netN-win-x64.zip` |
+
+Файл сохраняется в папку «Загрузки» и появляется там под своим именем только после проверки SHA-256:
+сумма берётся из поля `digest`, которое GitHub сообщает для каждого файла релиза, или из `SHA256SUMS.txt`
+того же релиза. Без известной суммы загрузка не начинается, при несовпадении файл удаляется.
+
+Проверка при запуске включена по умолчанию, выполняется не чаще раза в сутки, ничего не скачивает
+и молча пропускается при ошибке сети; о новой версии сообщает точка у пункта «Настройки».
+Её можно выключить там же. Предварительные релизы (pre-release) предлагаются только с отдельным переключателем.
+
+### GitHubUpdater в другом проекте
+
+`src/FlashTool.Core/Updates/GitHubUpdater.cs` зависит только от базовой библиотеки .NET (8+): скопируйте
+файл и поменяйте пространство имён.
+
+```csharp
+var updater = new GitHubUpdater(httpClient, new GitHubUpdaterOptions
+{
+    Owner = "owner",
+    Repository = "repo",
+    CurrentVersion = Assembly.GetExecutingAssembly().GetName().Version!,
+    IncludePrereleases = false,   // по умолчанию
+    RequireChecksum = true,       // по умолчанию: без SHA-256 не скачивать
+    // AccessToken = "...",       // для приватного репозитория или большего лимита API
+});
+
+var check = await updater.CheckForUpdateAsync(a => a.Name.EndsWith("-win-x64.zip"), ct);
+if (check.IsUpdateAvailable)
+{
+    var file = await updater.DownloadAsync(check.Latest!, check.Asset!, downloadFolder, progress, ct);
+    // file.FilePath, file.Sha256, file.Verified
+}
+```
+
+* Версия берётся из тега (`v1.2.3`, `release-1.2`, `1.3.0-beta.1`); недостающие части считаются нулями (`1.2` = `1.2.0.0`).
+  Черновики и теги без номера версии пропускаются.
+* `IsNewerVersionAvailable` — вышла версия новее; `IsUpdateAvailable` — вдобавок в ней есть подходящий файл.
+* Поддерживаемые файлы сумм: `SHA256SUMS`, `SHA256SUMS.txt`, `checksums.txt`, `<файл>.sha256` в форматах GNU
+  (`hash  name`) и BSD (`SHA256 (name) = hash`).
+* Ошибки сети, ответа API, исчерпанного лимита запросов и несовпадения суммы — `GitHubUpdateException`.
 
 ## Настройки и диагностика
 
