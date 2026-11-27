@@ -45,7 +45,10 @@ $package = Add-Element $doc.DocumentElement 'Package' @{
     Name = "FlashTool (.NET $DotNetMajor)"; Manufacturer = 'FlashTool'; Version = $ProductVersion
     UpgradeCode = $upgradeCodes[$DotNetMajor]; Scope = 'perMachine'; Language = '1033'
 }
-[void](Add-Element $package 'MajorUpgrade' @{ DowngradeErrorMessage = 'A newer version of this FlashTool variant is already installed.' })
+# A pre-release and its final release share the MSI version (see release.yml): let one replace the other.
+[void](Add-Element $package 'MajorUpgrade' @{
+    DowngradeErrorMessage = 'A newer version of this FlashTool variant is already installed.'; AllowSameVersionUpgrades = 'yes'
+})
 [void](Add-Element $package 'MediaTemplate' @{ EmbedCab = 'yes' })
 [void](Add-Element $package 'Icon' @{ Id = 'FlashTool.exe'; SourceFile = (Join-Path $PSScriptRoot '../src/FlashTool.App/Assets/app.ico') })
 [void](Add-Element $package 'Property' @{ Id = 'ARPPRODUCTICON'; Value = 'FlashTool.exe' })
